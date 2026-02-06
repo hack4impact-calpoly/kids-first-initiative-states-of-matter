@@ -1,22 +1,25 @@
 using UnityEngine;
 
-/*
-    This script provides jumping and movement in Unity 2D - Gatsby
-*/
+
+    //This script provides jumping and movement in Unity 2D 
+
 
 public class Player : MonoBehaviour
 {
     // Left/Right Movement
     private Rigidbody2D _rigidbody;
     private float moveX;
+    //up down movement
     private float moveY;
     private Vector2 movement;
     public float MoveSpeed = 5f;
 
     // Jumping
     public float JumpForce = 10f;
+    //adding a ground
     public LayerMask GroundLayer;
     public BoxCollider2D GroundCollider;
+    //checks if character is on the ground
     public bool OnGround;
 
     void Start()
@@ -31,7 +34,7 @@ public class Player : MonoBehaviour
         moveY = Input.GetAxisRaw("Vertical");   
         if(Input.GetKeyDown(KeyCode.Space) && OnGround)
         {
-            // Make our player jump
+            // Make player jump
             _rigidbody.linearVelocity = new Vector2(_rigidbody.linearVelocity.x, JumpForce);
             OnGround = false;
         }
