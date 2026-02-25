@@ -1,11 +1,11 @@
 using UnityEngine;
-using TMPro;
 
 public class KitchenGameManager : MonoBehaviour
 {
-    [Header("Configuration")]
-    [SerializeField] private KitchenLevelStatsSO stats; // STANDARD #3: No hardcoded constants
-    [SerializeField] private IngredientSO targetIngredient; // For this level: Chocolate
+    public enum GameState { Playing, Won, Failed }
+
+    [Header("Config")]
+    [SerializeField] private KitchenLevelConfigSO levelConfig;
 
     [Header("Scene References")]
     [SerializeField] private HeatController heatSource;
@@ -13,41 +13,84 @@ public class KitchenGameManager : MonoBehaviour
     [SerializeField] private GameObject winText;
     [SerializeField] private GameObject failText;
 
-    private float currentMeltPercent = 0f;
-    private bool hasWon = false;
+    public GameState State { get; private set; } = GameState.Playing;
 
-    private void Update()
+    private bool ingredientAdded;
+    private bool maxHeatReached;
+
+    private void Awake()
     {
-        if (hasWon || stats == null) return;
+        SetWin(false);
+        SetFail(false);
+        State = GameState.Playing;
 
-        // Is the correct ingredient in the pot?
-        if (pot.ContainsIngredient(targetIngredient))
-        {
-            float heatFactor = heatSource.CurrentHeat / 100f;
-
-            if (heatFactor > 0)
-            {
-                // Physics: Progress = Speed (from SO) * Heat * Time
-                currentMeltPercent += stats.meltSpeed * heatFactor * Time.deltaTime;
-                currentMeltPercent = Mathf.Clamp(currentMeltPercent, 0f, stats.winThreshold);
-            }
-        }
-        // FAIL CONDITION: Heat is high but chocolate is missing
-        else if (heatSource.CurrentHeat > 10)
-        {
-            failText.SetActive(true);
-        }
-
-        CheckWin();
+        ingredientAdded = false;
+        maxHeatReached = false;
     }
 
-    private void CheckWin()
+    private void OnEnable()
     {
-        if (currentMeltPercent >= stats.winThreshold)
+        if (pot != null) pot.IngredientAdded += OnIngredientAdded;
+        if (heatSource != null) heatSource.HeatChanged += OnHeatChanged;
+    }
+
+    private void OnDisable()
+    {
+        if (pot != null) pot.IngredientAdded -= OnIngredientAdded;
+        if (heatSource != null) heatSource.HeatChanged -= OnHeatChanged;
+    }
+
+    private void OnIngredientAdded(IngredientSO ing)
+    {
+        if (State != GameState.Playing || levelConfig == null) return;
+
+        // Only care about the required ingredient for this level
+        if (ing != null && ing == levelConfig.requiredIngredient)
+            ingredientAdded = true;
+
+        Evaluate();
+    }
+
+    private void OnHeatChanged(float _)
+    {
+        if (State != GameState.Playing || levelConfig == null) return;
+
+        if (heatSource != null && heatSource.IsMaxHeat)
+            maxHeatReached = true;
+
+        Evaluate();
+    }
+
+    private void Evaluate()
+    {
+        // Fail if they hit max heat before adding the required ingredient
+        if (levelConfig.failIfMaxHeatBeforeIngredient && maxHeatReached && !ingredientAdded)
         {
-            hasWon = true;
-            winText.SetActive(true);
-            failText.SetActive(false);
+            Fail();
+            return;
+        }
+
+        // Win if required ingredient is added and max heat is reached
+        if (ingredientAdded && (!levelConfig.requireMaxHeat || maxHeatReached))
+        {
+            Win();
         }
     }
+
+    private void Win()
+    {
+        State = GameState.Won;
+        SetWin(true);
+        SetFail(false);
+    }
+
+    private void Fail()
+    {
+        State = GameState.Failed;
+        SetFail(true);
+        SetWin(false);
+    }
+
+    private void SetWin(bool on) { if (winText != null) winText.SetActive(on); }
+    private void SetFail(bool on) { if (failText != null) failText.SetActive(on); }
 }

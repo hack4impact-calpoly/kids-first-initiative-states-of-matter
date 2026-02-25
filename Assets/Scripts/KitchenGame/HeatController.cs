@@ -1,25 +1,41 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-// Automatically adds a Slider component if one isn't there
 [RequireComponent(typeof(Slider))]
 public class HeatController : MonoBehaviour
 {
     [SerializeField] private Slider heatSlider;
-    
-    // Public property so we can read the heat level
     public float CurrentHeat { get; private set; }
+    public bool IsMaxHeat => heatSlider != null && heatSlider.value >= heatSlider.maxValue - 0.001f;
+    public event Action<float> HeatChanged;
 
     private void OnValidate()
     {
-        // Auto-assign the reference in the Editor
-        if (heatSlider == null) 
+        if (heatSlider == null)
             heatSlider = GetComponent<Slider>();
     }
 
-    // This will be linked to the Slider's "On Value Changed" event in Unity
+    private void Start()
+    {
+        if (heatSlider != null)
+            SyncFromSlider(heatSlider.value);
+    }
+
     public void OnHeatChanged()
     {
-        CurrentHeat = heatSlider.value;
+        if (heatSlider != null)
+            SyncFromSlider(heatSlider.value);
+    }
+
+    public void OnHeatChanged(float value)
+    {
+        SyncFromSlider(value);
+    }
+
+    private void SyncFromSlider(float value)
+    {
+        CurrentHeat = value;
+        HeatChanged?.Invoke(value);
     }
 }
