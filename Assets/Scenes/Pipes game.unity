@@ -134,7 +134,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1263144933494895446, guid: fd4d7619ce49848feb9fb8f9f34a9644, type: 3}
       propertyPath: m_Name
-      value: PipeCorner (1)
+      value: corner (8, 1)
       objectReference: {fileID: 0}
     - target: {fileID: 3145570393506319165, guid: fd4d7619ce49848feb9fb8f9f34a9644, type: 3}
       propertyPath: m_LocalPosition.x
@@ -251,7 +251,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3962268631886972794, guid: 7f56dd6cc8de44110a69613b68cbf42b, type: 3}
       propertyPath: m_Name
-      value: PipeStraight
+      value: straight (2, 4)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6420403529448369720, guid: 7f56dd6cc8de44110a69613b68cbf42b, type: 3}
+      propertyPath: xPos
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6420403529448369720, guid: 7f56dd6cc8de44110a69613b68cbf42b, type: 3}
+      propertyPath: yPos
+      value: 4
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -268,7 +276,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1263144933494895446, guid: fd4d7619ce49848feb9fb8f9f34a9644, type: 3}
       propertyPath: m_Name
-      value: PipeCorner (3)
+      value: corner (6, 3)
       objectReference: {fileID: 0}
     - target: {fileID: 3145570393506319165, guid: fd4d7619ce49848feb9fb8f9f34a9644, type: 3}
       propertyPath: m_LocalPosition.x
@@ -325,7 +333,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1495233574563102905, guid: 85a65bb3b8e0f4f4e96ebfb3b57693c0, type: 3}
       propertyPath: m_Name
-      value: Pipe4Way (1)
+      value: 4way (5, 2)
       objectReference: {fileID: 0}
     - target: {fileID: 3377975728282826962, guid: 85a65bb3b8e0f4f4e96ebfb3b57693c0, type: 3}
       propertyPath: m_LocalPosition.x
@@ -456,7 +464,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: 5413373158108147601, guid: 6c9c626e5f2aa4b27ae8761112a5ef29, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -481,9 +489,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1334183846}
     m_Modifications:
+    - target: {fileID: 4408939343277948727, guid: 31c8566ffd4ac44e9b0d2d68475d22ab, type: 3}
+      propertyPath: xPos
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4408939343277948727, guid: 31c8566ffd4ac44e9b0d2d68475d22ab, type: 3}
+      propertyPath: yPos
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 5965763538318759541, guid: 31c8566ffd4ac44e9b0d2d68475d22ab, type: 3}
       propertyPath: m_Name
-      value: PipeTJunc
+      value: tjunc (3, 4)
       objectReference: {fileID: 0}
     - target: {fileID: 7559993806680337950, guid: 31c8566ffd4ac44e9b0d2d68475d22ab, type: 3}
       propertyPath: m_LocalPosition.x
@@ -540,7 +556,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1495233574563102905, guid: 85a65bb3b8e0f4f4e96ebfb3b57693c0, type: 3}
       propertyPath: m_Name
-      value: Pipe4Way
+      value: 4way (3, 3)
       objectReference: {fileID: 0}
     - target: {fileID: 3377975728282826962, guid: 85a65bb3b8e0f4f4e96ebfb3b57693c0, type: 3}
       propertyPath: m_LocalPosition.x
@@ -582,6 +598,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8873559862193596923, guid: 85a65bb3b8e0f4f4e96ebfb3b57693c0, type: 3}
+      propertyPath: xPos
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8873559862193596923, guid: 85a65bb3b8e0f4f4e96ebfb3b57693c0, type: 3}
+      propertyPath: yPos
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -612,7 +636,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5965763538318759541, guid: 31c8566ffd4ac44e9b0d2d68475d22ab, type: 3}
       propertyPath: m_Name
-      value: PipeTJunc (2)
+      value: tjunc (7, 2)
       objectReference: {fileID: 0}
     - target: {fileID: 7559993806680337950, guid: 31c8566ffd4ac44e9b0d2d68475d22ab, type: 3}
       propertyPath: m_LocalPosition.x
@@ -669,7 +693,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5965763538318759541, guid: 31c8566ffd4ac44e9b0d2d68475d22ab, type: 3}
       propertyPath: m_Name
-      value: PipeTJunc (3)
+      value: tjunc (6, 2)
       objectReference: {fileID: 0}
     - target: {fileID: 7559993806680337950, guid: 31c8566ffd4ac44e9b0d2d68475d22ab, type: 3}
       propertyPath: m_LocalPosition.x
@@ -730,6 +754,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1334183846}
+  - component: {fileID: 1334183847}
   m_Layer: 0
   m_Name: Default Map
   m_TagString: Untagged
@@ -767,6 +792,19 @@ Transform:
   - {fileID: 1118076288}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!210 &1334183847
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1334183845}
+  m_Enabled: 1
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 2
+  m_SortAtRoot: 0
+  m_Sort3DAs2D: 0
 --- !u!4 &1482620786 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3145570393506319165, guid: fd4d7619ce49848feb9fb8f9f34a9644, type: 3}
@@ -822,7 +860,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3962268631886972794, guid: 7f56dd6cc8de44110a69613b68cbf42b, type: 3}
       propertyPath: m_Name
-      value: PipeStraight (1)
+      value: straight (4, 2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6420403529448369720, guid: 7f56dd6cc8de44110a69613b68cbf42b, type: 3}
+      propertyPath: xPos
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6420403529448369720, guid: 7f56dd6cc8de44110a69613b68cbf42b, type: 3}
+      propertyPath: yPos
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1068,7 +1114,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1263144933494895446, guid: fd4d7619ce49848feb9fb8f9f34a9644, type: 3}
       propertyPath: m_Name
-      value: PipeCorner (2)
+      value: corner (7, 1)
       objectReference: {fileID: 0}
     - target: {fileID: 3145570393506319165, guid: fd4d7619ce49848feb9fb8f9f34a9644, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1130,7 +1176,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1263144933494895446, guid: fd4d7619ce49848feb9fb8f9f34a9644, type: 3}
       propertyPath: m_Name
-      value: PipeCorner (4)
+      value: corner (8, 3)
       objectReference: {fileID: 0}
     - target: {fileID: 3145570393506319165, guid: fd4d7619ce49848feb9fb8f9f34a9644, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1227,7 +1273,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3962268631886972794, guid: 7f56dd6cc8de44110a69613b68cbf42b, type: 3}
       propertyPath: m_Name
-      value: PipeStraight (2)
+      value: straight (7, 3)
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1252,9 +1298,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1334183846}
     m_Modifications:
+    - target: {fileID: 4408939343277948727, guid: 31c8566ffd4ac44e9b0d2d68475d22ab, type: 3}
+      propertyPath: xPos
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4408939343277948727, guid: 31c8566ffd4ac44e9b0d2d68475d22ab, type: 3}
+      propertyPath: yPos
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 5965763538318759541, guid: 31c8566ffd4ac44e9b0d2d68475d22ab, type: 3}
       propertyPath: m_Name
-      value: PipeTJunc (1)
+      value: tjunc (3, 2)
       objectReference: {fileID: 0}
     - target: {fileID: 7559993806680337950, guid: 31c8566ffd4ac44e9b0d2d68475d22ab, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1311,7 +1365,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1263144933494895446, guid: fd4d7619ce49848feb9fb8f9f34a9644, type: 3}
       propertyPath: m_Name
-      value: PipeCorner
+      value: corner (1,4)
       objectReference: {fileID: 0}
     - target: {fileID: 3145570393506319165, guid: fd4d7619ce49848feb9fb8f9f34a9644, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1353,6 +1407,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 180
       objectReference: {fileID: 0}
+    - target: {fileID: 9106985648474610196, guid: fd4d7619ce49848feb9fb8f9f34a9644, type: 3}
+      propertyPath: xPos
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9106985648474610196, guid: fd4d7619ce49848feb9fb8f9f34a9644, type: 3}
+      propertyPath: yPos
+      value: 4
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1368,7 +1430,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1263144933494895446, guid: fd4d7619ce49848feb9fb8f9f34a9644, type: 3}
       propertyPath: m_Name
-      value: PipeCorner (5)
+      value: corner (8, 2)
       objectReference: {fileID: 0}
     - target: {fileID: 3145570393506319165, guid: fd4d7619ce49848feb9fb8f9f34a9644, type: 3}
       propertyPath: m_LocalPosition.x
