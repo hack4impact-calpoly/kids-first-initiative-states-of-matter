@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 65200595233635474}
   - component: {fileID: 4833124303655022323}
-  - component: {fileID: 296477441570202216}
   - component: {fileID: -6910507602280166905}
+  - component: {fileID: 6134587901512363451}
   m_Layer: 0
   m_Name: PipeBase
   m_TagString: Untagged
@@ -93,19 +93,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
---- !u!114 &296477441570202216
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4235489884680832249}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e5b1ae617eab94d0c9bbead909778c1c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Rotate
-  degrees: 90
 --- !u!65 &-6910507602280166905
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -127,3 +114,22 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6134587901512363451
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4235489884680832249}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44de057e7b9ba41abbb4aeef3cf99b49, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PipePosition
+  xPos: 0
+  yPos: 0
+  northConnection: 0
+  southConnection: 0
+  eastConnection: 0
+  westConnection: 0
+  water: 0

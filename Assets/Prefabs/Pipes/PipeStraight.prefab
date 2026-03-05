@@ -68,8 +68,40 @@ PrefabInstance:
       propertyPath: m_WasSpriteAssigned
       value: 1
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 6134587901512363451, guid: 599f99aea54ba449ab2b645da958273c, type: 3}
+    - {fileID: 296477441570202216, guid: 599f99aea54ba449ab2b645da958273c, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4235489884680832249, guid: 599f99aea54ba449ab2b645da958273c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -4861433619266709908}
   m_SourcePrefab: {fileID: 100100000, guid: 599f99aea54ba449ab2b645da958273c, type: 3}
+--- !u!1 &3962268631886972794 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4235489884680832249, guid: 599f99aea54ba449ab2b645da958273c, type: 3}
+  m_PrefabInstance: {fileID: 881498056743355267}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &-4861433619266709908
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3962268631886972794}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f2357ed0d61645ae9dbd7bbfbae569a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StraightConnection
+  xPos: 0
+  yPos: 0
+  northConnection: 0
+  southConnection: 0
+  eastConnection: 0
+  westConnection: 0
+  water: 0
+  isSource: 0
+  drySprite: {fileID: 2210269594789329456, guid: 67d72c99cd108494a837fd196eee2dfb, type: 3}
+  waterSprite: {fileID: -8086764562119334706, guid: 671d2e5fb92ca44728a671c82f8ef5c1, type: 3}
