@@ -13,8 +13,10 @@ public class Wire : MonoBehaviour
         startPoint = transform.parent.position;
     }
 
-    private void OnMouseDrag() 
+    private void OnMouseDrag()
     {
+        if (Main.Instance.isLocked) return;
+
         // mouse position to world point
         Vector3 newPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         newPosition.z = 0; 

@@ -1,0 +1,254 @@
+Wires Scene - Effects Implementation Spec
+==========================================
+Date: March 2026
+Scene: Assets/Scenes/Wires.unity
+
+Three features added on top of the existing wire puzzle + device snap system.
+See Wire_Implementation_Spec.txt for the base system.
+
+
+========================================
+1. FEATURE: WASD DEBUG CAMERA
+========================================
+
+File: Assets/Scripts/DebugCameraController.cs (NEW, 24 lines)
+
+What it does:
+  - WASD moves the Main Camera at a configurable speed
+  - Purely for testing; no other scripts depend on it
+
+How it works:
+  - Update() reads Input.GetKey for W/A/S/D
+  - Builds a direction vector, multiplies by moveSpeed * Time.deltaTime
+  - Adds to transform.position
+
+How to remove:
+  1. Remove the component from Main Camera in Inspector
+  2. Delete DebugCameraController.cs and its .meta file
+  No other code references this script.
+
+
+========================================
+2. FEATURE: DEVICE EFFECT SYSTEM
+========================================
+
+The core change that enables ALL device effects (plasma, candle, ice).
+
+File: Assets/Scripts/DeviceEffect.cs (NEW, 8 lines)
+  - Abstract base class with one method: Activate()
+  - All effect scripts inherit from this
+
+File: Assets/Scripts/Main.cs (MODIFIED)
+  Changes:
+  - Added: [HideInInspector] public DraggableDevice connectedDevice
+  - DeviceConnected() now takes a DraggableDevice parameter
+    → Stores the reference so we know WHICH device is connected
+  - DeviceDisconnected() clears connectedDevice
+  - LightOn() win state now calls:
+      connectedDevice.GetComponentsInChildren<DeviceEffect>()
+      → Activates ALL DeviceEffect components on the device and its children
+    This is how effects know to fire.
+
+File: Assets/Scripts/SnapZone.cs (MODIFIED)
+  Change:
+  - Snap() now passes the device to Main.Instance.DeviceConnected(device)
+    instead of calling DeviceConnected() with no args
+
+Data flow (win state):
+  Main.LightOn() → count == wiresCount
+    → connectedDevice.GetComponentsInChildren<DeviceEffect>()
+    → foreach effect → effect.Activate()
+
+Why GetComponentsInChildren:
+  - PlasmaEffect sits directly on PlasmaTube → found as a direct component
+  - CandleMeltEffect / IceMeltEffect sit on flask children of HotPlate
+    → found by searching children
+  - One call handles both cases
+  - Adding new effects later = just add another DeviceEffect subclass
+
+
+========================================
+3. FEATURE: PLASMA TUBE ACTIVATION
+========================================
+
+File: Assets/Scripts/PlasmaEffect.cs (NEW, 55 lines)
+
+What it does:
+  - 4-sprite setup: tube body (always visible), interior off/on (swapped),
+    glow (shown + pulses on activation)
+  - On Activate(): hides interior off, shows interior on + glow
+  - Glow sprite pulses alpha for a breathing plasma effect
+
+Inspector fields:
+  - dormantState (GameObject) — interior off, hidden on activation
+  - activeState (GameObject)  — interior on, shown on activation
+  - glowEffect (GameObject)   — glow sprite, shown + pulses on activation
+  - pulseGlow (bool)          — enables glow alpha pulsing (default true)
+  - pulseSpeed (float)        — sine wave frequency (default 2)
+  - pulseMinAlpha (float)     — lowest glow alpha during pulse (default 0.3)
+
+How it works:
+  1. Start() hides activeState and glowEffect
+  2. Activate() hides dormantState, shows activeState and glowEffect
+  3. If pulseGlow, starts a coroutine on the glow sprite:
+     - Uses Mathf.Sin(Time.time * pulseSpeed) for smooth oscillation
+     - Lerps glow alpha between pulseMinAlpha and 1.0
+     - Runs forever (until scene unloads or object is destroyed)
+  Note: TubeBody is never toggled — it stays visible the entire time.
+
+Sprite setup (4 sprites):
+  PlasmaTube (root)
+    ├── TubeBody    (Order 2, always visible glass shell)
+    ├── InteriorOff (Order 1, behind glass) → assign to dormantState
+    ├── InteriorOn  (Order 1, behind glass) → assign to activeState
+    └── Glow        (Order 0, behind everything) → assign to glowEffect
+
+
+========================================
+4. FEATURE: CANDLE FLASK MELT
+========================================
+
+File: Assets/Scripts/CandleMeltEffect.cs (NEW, 62 lines)
+
+What it does:
+  - Over meltDuration seconds:
+    1. Liquid sprite appears and rises upward
+    2. Candle sprite sinks downward and rotates (tilts)
+    3. Flame sprite disappears at the end
+
+Inspector fields:
+  - candle (Transform)          — the candle sprite transform
+  - liquid (Transform)          — the melted wax/liquid sprite transform
+  - flame (GameObject)          — optional flame (deactivated at end)
+  - meltDuration (float)        — total animation time in seconds (default 3)
+  - candleSinkAmount (float)    — world units candle moves down (default 0.5)
+  - candleRotation (float)      — degrees candle tilts (default -15)
+  - liquidRiseAmount (float)    — world units liquid moves up (default 0.5)
+
+How it works:
+  1. Start() saves candle's initial position/rotation, hides liquid
+  2. Activate() starts MeltRoutine coroutine
+  3. MeltRoutine:
+     - Shows liquid
+     - Each frame: calculates progress t (0→1), applies SmoothStep
+     - Candle: localPosition += down * sinkAmount * t
+              localRotation *= Euler(0, 0, rotation * t)
+     - Liquid: localPosition += up * riseAmount * t
+     - At t=1: deactivates flame
+
+Animation curve: SmoothStep (ease in + ease out).
+Starts slow, speeds up in the middle, slows at the end.
+
+Recommended sprite hierarchy:
+  CandleFlask (CandleMeltEffect script)
+    ├── FlaskGlass  (SpriteRenderer, Order 3) — container, always visible
+    ├── Candle      (SpriteRenderer, Order 2) → assign to candle field
+    ├── Liquid      (SpriteRenderer, Order 1) → assign to liquid field
+    └── Flame       (SpriteRenderer, Order 2) → assign to flame field
+
+
+========================================
+5. FEATURE: ICE FLASK MELT
+========================================
+
+File: Assets/Scripts/IceMeltEffect.cs (NEW, 59 lines)
+
+What it does:
+  - Over meltDuration seconds:
+    1. Water sprite appears and rises upward
+    2. Ice sprite shrinks (scale 1→0) and fades (alpha 1→0)
+    3. Ice is deactivated when fully melted
+
+Inspector fields:
+  - ice (Transform)             — the ice sprite transform
+  - water (Transform)           — the water sprite transform
+  - meltDuration (float)        — total animation time in seconds (default 3)
+  - waterRiseAmount (float)     — world units water moves up (default 0.5)
+
+How it works:
+  1. Start() saves ice's initial scale, gets its SpriteRenderer, hides water
+  2. Activate() starts MeltRoutine coroutine
+  3. MeltRoutine:
+     - Shows water
+     - Each frame: calculates progress t (0→1), applies SmoothStep
+     - Ice: localScale = Lerp(startScale, zero, t)
+            color.alpha = 1 - t
+     - Water: localPosition += up * riseAmount * t
+     - At t=1: deactivates ice GameObject
+
+Animation curve: SmoothStep (same as candle for consistency).
+
+Recommended sprite hierarchy:
+  IceFlask (IceMeltEffect script)
+    ├── FlaskGlass  (SpriteRenderer, Order 3) — container, always visible
+    ├── Ice         (SpriteRenderer, Order 2) → assign to ice field
+    └── Water       (SpriteRenderer, Order 1) → assign to water field
+
+
+========================================
+6. COMPLETE DATA FLOW
+========================================
+
+Player drags HotPlate (with CandleFlask child) into SnapZone:
+  DraggableDevice.OnMouseUp() → finds SnapZone
+    → SnapZone.Snap(hotPlate)
+      → Main.Instance.DeviceConnected(hotPlate)
+        → Main.connectedDevice = hotPlate
+        → Main.isLocked = false
+
+Player connects all 4 wires:
+  Wire.OnMouseDrag() → color match → Main.Instance.LightOn(1)
+  ... repeat for all 4 ...
+  Main.LightOn() → count == wiresCount
+    → block.SetActive(true), color = green
+    → connectedDevice.GetComponentsInChildren<DeviceEffect>()
+      → finds CandleMeltEffect on CandleFlask child
+      → CandleMeltEffect.Activate()
+        → MeltRoutine starts: liquid rises, candle sinks/tilts, flame dies
+
+Same flow for PlasmaTube:
+  → finds PlasmaEffect on PlasmaTube
+  → PlasmaEffect.Activate()
+    → dormant hidden, active shown, pulse starts
+
+
+========================================
+7. FILES SUMMARY
+========================================
+
+Created:
+  Assets/Scripts/DebugCameraController.cs  (24 lines)  — WASD camera, temp
+  Assets/Scripts/DeviceEffect.cs           (8 lines)   — abstract base class
+  Assets/Scripts/PlasmaEffect.cs           (49 lines)  — plasma activation
+  Assets/Scripts/CandleMeltEffect.cs       (62 lines)  — candle melt animation
+  Assets/Scripts/IceMeltEffect.cs          (59 lines)  — ice melt animation
+
+Modified:
+  Assets/Scripts/Main.cs                   — added connectedDevice, effect trigger
+  Assets/Scripts/SnapZone.cs               — passes device to DeviceConnected()
+
+Documentation:
+  Assets/Scenes/WASD_Camera_Guide.txt
+  Assets/Scenes/PlasmaEffect_Guide.txt
+  Assets/Scenes/HotPlateEffects_Guide.txt
+  Assets/Scenes/Wires_Effects_Spec.txt     (this file)
+
+
+========================================
+8. WHAT STILL NEEDS TO BE DONE
+========================================
+
+In Unity Editor:
+  - Add DebugCameraController to Main Camera (see WASD_Camera_Guide.txt)
+  - Create sprite assets for plasma tube states
+  - Create sprite assets for flask items (candle, liquid, flame, ice, water, flask)
+  - Set up PlasmaTube child sprites + PlasmaEffect (see PlasmaEffect_Guide.txt)
+  - Set up HotPlate flask children + effects (see HotPlateEffects_Guide.txt)
+  - If device GameObjects don't exist yet, create them per Wire_Setup_Guide.txt first
+
+Future enhancements:
+  - Flask selection UI (let player choose which flask to put on hot plate)
+  - Sound effects for melt animations
+  - Particle effects (steam, bubbles, sparks for plasma)
+  - SpriteMask on flask glass for cleaner liquid containment
+  - Reset/replay melt animation if device is removed and reconnected

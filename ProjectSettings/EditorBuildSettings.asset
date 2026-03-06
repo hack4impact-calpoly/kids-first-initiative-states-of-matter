@@ -5,9 +5,21 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
+  - enabled: 1
+    path: Assets/Scenes/States of Matter Menu.unity
+    guid: 25de1d17ca95b447f85fc4cfd5a4d7eb
+  - enabled: 1
+    path: Assets/Scenes/Kitchen Game - Solid.unity
+    guid: 3166ed73ce5c1af4ea78cb9d4a613fe9
+  - enabled: 1
+    path: Assets/Scenes/Pipes game.unity
+    guid: 4b4286e67ac054f2bbcdc7161a22922d
+  - enabled: 1
+    path: Assets/Scenes/Wires.unity
+    guid: 46b514b82d1e347c7b8154f0cefe324f
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
