@@ -2,15 +2,18 @@ using UnityEngine;
 
 public class FreezeOnClick : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    PipeObject pipe;
+    FrozenFlowValidator validator;
+
+    void Awake()
     {
-        
+        pipe = GetComponent<PipeObject>();
+        validator = FindFirstObjectByType<FrozenFlowValidator>();
     }
 
-    // Update is called once per frame
-    void Update()
+    void OnMouseDown()
     {
-        
+        pipe.ToggleFreeze();          // updates connections + recalc water visuals
+        validator?.Validate();        // checks leak rules + end rules
     }
 }

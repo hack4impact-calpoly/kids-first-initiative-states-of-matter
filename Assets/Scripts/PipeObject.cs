@@ -5,15 +5,37 @@ public class PipeObject : MonoBehaviour
 {
     public int xPos;
     public int yPos;
+
+    [Header("Current connections")]
     public bool northConnection;
     public bool southConnection;
     public bool eastConnection;
     public bool westConnection;
+
+    [Header("Freeze")]
+    public bool isFreezable = true;
+    public bool isFrozen;
+
+    [Header("Frozen connections")]
+    public bool frozenNorthConnection;
+    public bool frozenSouthConnection;
+    public bool frozenEastConnection;
+    public bool frozenWestConnection;
+
+    [Header("State")]
     public bool water;
     public bool isSource;
     public bool isEnd;
+
+    [Header("Sprites")]
     public Sprite drySprite;
     public Sprite waterSprite;
+    
+    [Header("Tint")]
+    public Color normalColor = Color.white;
+    public Color frozenColor = Color.cyan;
+
+
     private SpriteRenderer spriteRenderer;
 
     public void setIsSource()
@@ -40,6 +62,31 @@ public class PipeObject : MonoBehaviour
         }
 
         return snapped;
+    }
+
+    void ApplyFrozenOverrides()
+    {
+        if (!isFrozen) return;
+
+        northConnection = frozenNorthConnection;
+        southConnection = frozenSouthConnection;
+        eastConnection = frozenEastConnection;
+        westConnection = frozenWestConnection;
+    }
+
+    public void ToggleFreeze()
+    {
+        if (!isFreezable) return;
+
+        isFrozen = !isFrozen;
+
+        updateConnections();
+        ApplyFrozenOverrides();
+
+        if (spriteRenderer != null)
+            spriteRenderer.color = isFrozen ? frozenColor : normalColor;
+        
+        recalculateWater();
     }
 
     public void recalculateWater()
@@ -86,7 +133,8 @@ public class PipeObject : MonoBehaviour
 
         foreach (PipeObject pipe in pipes)
         {
-            if ((pipe.xPos == xPos && Mathf.Abs(pipe.yPos - yPos) == 1) || (pipe.yPos == yPos && Mathf.Abs(pipe.xPos - xPos) == 1))
+            if ((pipe.xPos == xPos && Mathf.Abs(pipe.yPos - yPos) == 1) || 
+            (pipe.yPos == yPos && Mathf.Abs(pipe.xPos - xPos) == 1))
             {
                 adjacentPipes.Add(pipe);
             }
@@ -108,6 +156,7 @@ public class PipeObject : MonoBehaviour
             }
         }
     }
+
     public void updateVisual()
     {
         if (water)
@@ -123,18 +172,16 @@ public class PipeObject : MonoBehaviour
     void Start()
     {
         updateConnections();
-        setIsSource();
-        setIsEnd();
         recalculateWater();
     }
 
-    void OnMouseDown()
+    /*void OnMouseDown()
     {
         float degrees = 90f;
         transform.Rotate(0f, 0f, degrees);
 
         updateConnections();
         recalculateWater();
-    }
+    }*/
 }
     
