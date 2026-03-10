@@ -16,6 +16,14 @@ public class PipeObject : MonoBehaviour
     public bool isFreezable = true;
     public bool isFrozen;
 
+    [Header("Frozen level only")]
+    public bool isSink;
+
+    public bool CanTransmitWater()
+    {
+        return water && (!isSink || isFrozen);
+    }
+
     [Header("Frozen connections")]
     public bool frozenNorthConnection;
     public bool frozenSouthConnection;
@@ -91,34 +99,79 @@ public class PipeObject : MonoBehaviour
 
     public void recalculateWater()
     {
-        PipeObject[] pipes = FindObjectsOfType<PipeObject>();
-        foreach (PipeObject pipe in pipes)
+        var pipes = FindObjectsOfType<PipeObject>();
+        var map = new Dictionary<Vector2Int, PipeObject>();
+        PipeObject source = null;
+
+        foreach (var p in pipes)
         {
-           pipe.water = false;
+            p.water = false;
+            map[new Vector2Int(p.xPos, p.yPos)] = p;
+            if (p.isSource) source = p;
         }
-        
 
-        bool changed;
-        do
+        if (source == null) return;
+
+        var dist = new Dictionary<PipeObject, int>();
+        var q = new Queue<PipeObject>();
+
+        dist[source] = 0;
+        q.Enqueue(source);
+
+        int sinkDist = int.MaxValue;
+
+        while (q.Count > 0)
         {
-            changed = false;
+            var cur = q.Dequeue();
+            int d = dist[cur];
 
-            foreach (PipeObject pipe in pipes)
+            if (d >= sinkDist) continue;
+
+            if (cur.isSink && !cur.isFrozen)
             {
-                bool oldWater = pipe.water;
-
-                pipe.checkForWater(pipes);
-
-                if (pipe.water != oldWater)
-                    changed = true;
+                sinkDist = d;
+                continue;
             }
 
-        } while (changed);
+            foreach (var next in GetConnectedNeighbors(cur, map))
+            {
 
-        foreach (PipeObject pipe in pipes)
-        {
-            pipe.updateVisual();
+                if (!dist.ContainsKey(next))
+                {
+                    dist[next] = d + 1;
+                    q.Enqueue(next);
+                }
+            }
         }
+
+        foreach (var kv in dist)
+        {
+            var p = kv.Key;
+            int d = kv.Value;
+
+            if (d <= sinkDist) p.water = true;
+        }
+
+        foreach (var p in pipes) p.updateVisual();
+    }
+
+        IEnumerable<PipeObject> GetConnectedNeighbors(PipeObject p, Dictionary<Vector2Int, PipeObject> map)
+    {
+        // north (y+1)
+        if (p.northConnection && map.TryGetValue(new Vector2Int(p.xPos, p.yPos + 1), out var n) && n.southConnection)
+            yield return n;
+
+        // south (y-1)
+        if (p.southConnection && map.TryGetValue(new Vector2Int(p.xPos, p.yPos - 1), out var s) && s.northConnection)
+            yield return s;
+
+        // east (x+1)
+        if (p.eastConnection && map.TryGetValue(new Vector2Int(p.xPos + 1, p.yPos), out var e) && e.westConnection)
+            yield return e;
+
+        // west (x-1)
+        if (p.westConnection && map.TryGetValue(new Vector2Int(p.xPos - 1, p.yPos), out var w) && w.eastConnection)
+            yield return w;
     }
 
     public void checkForWater(PipeObject[] pipes)
@@ -133,26 +186,27 @@ public class PipeObject : MonoBehaviour
 
         foreach (PipeObject pipe in pipes)
         {
-            if ((pipe.xPos == xPos && Mathf.Abs(pipe.yPos - yPos) == 1) || 
-            (pipe.yPos == yPos && Mathf.Abs(pipe.xPos - xPos) == 1))
+            if ((pipe.xPos == xPos && Mathf.Abs(pipe.yPos - yPos) == 1) ||
+                (pipe.yPos == yPos && Mathf.Abs(pipe.xPos - xPos) == 1))
             {
                 adjacentPipes.Add(pipe);
             }
         }
 
         water = false;
+
         foreach (PipeObject pipe in adjacentPipes)
         {
-            if (pipe.water)
+            if (!pipe.CanTransmitWater())
+                continue;
+
+            if (pipe.xPos > xPos && pipe.westConnection && eastConnection ||
+                pipe.xPos < xPos && pipe.eastConnection && westConnection ||
+                pipe.yPos > yPos && pipe.southConnection && northConnection ||
+                pipe.yPos < yPos && pipe.northConnection && southConnection)
             {
-                if (pipe.xPos > xPos && pipe.westConnection && eastConnection ||
-                    pipe.xPos < xPos && pipe.eastConnection && westConnection ||
-                    pipe.yPos > yPos && pipe.southConnection && northConnection ||
-                    pipe.yPos < yPos && pipe.northConnection && southConnection)
-                {
-                    water = true;
-                    break;
-                }
+                water = true;
+                break;
             }
         }
     }
