@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
-
+using UnityEngine.SceneManagement;
 
 /// Drag a UI item to spawn a 2D prefab into the world that follows the pointer.
 /// On release, the prefab is dropped and physics is enabled.
@@ -8,7 +8,8 @@ public class IngredientBarDragToWorld2D : MonoBehaviour, IBeginDragHandler, IDra
 {
     [Header("Spawn")]
     [SerializeField] private GameObject worldPrefab;   // Chocolate.prefab
-    [SerializeField] private Camera worldCamera;       // Usually Main Camera
+    [SerializeField] private Camera worldCamera;   
+    [SerializeField] private Transform coolingStation;    // Usually Main Camera
 
     [Header("Drag Behavior")]
     [SerializeField] private float zDepthFromCamera = 10f; // used only for ScreenToWorldPoint conversion
@@ -55,26 +56,33 @@ public class IngredientBarDragToWorld2D : MonoBehaviour, IBeginDragHandler, IDra
     }
 
     public void OnEndDrag(PointerEventData eventData)
+{
+    if (spawned == null) return;
+
+    // Optional: cancel if released over UI
+    if (cancelIfReleasedOverUI && EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
     {
-        if (spawned == null) return;
-
-        // Optional: if you want to cancel drops when releasing over UI
-        if (cancelIfReleasedOverUI && EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
-        {
-            Destroy(spawned);
-            ClearRefs();
-            return;
-        }
-
-        // Enable physics so it drops naturally into the pot
-        if (spawnedCol != null)
-            spawnedCol.enabled = true;
-
-        if (spawnedRb != null)
-            spawnedRb.bodyType = RigidbodyType2D.Dynamic;
-
+        Destroy(spawned);
         ClearRefs();
+        return;
     }
+
+    // Enable physics so it drops naturally
+    if (spawnedCol != null)
+        spawnedCol.enabled = true;
+
+    if (spawnedRb != null)
+        spawnedRb.bodyType = RigidbodyType2D.Dynamic;
+
+    // 🔥 ADD THIS PART
+    if (IsOverCoolingStation())
+    {
+        Debug.Log("Switching to freezing scene");
+        SceneManager.LoadScene("Kitchen Game - Freezing Pour");
+    }
+
+    ClearRefs();
+}
 
     private void MoveSpawnedToPointer(PointerEventData eventData)
     {
@@ -95,5 +103,14 @@ public class IngredientBarDragToWorld2D : MonoBehaviour, IBeginDragHandler, IDra
         spawned = null;
         spawnedRb = null;
         spawnedCol = null;
+    }
+
+    private bool IsOverCoolingStation()
+    {
+        if (spawned == null || coolingStation == null) return false;
+
+        float distance = Vector2.Distance(spawned.transform.position, coolingStation.position);
+
+        return distance < 2f; // tweak this value if needed
     }
 }
