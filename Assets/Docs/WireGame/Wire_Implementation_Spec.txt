@@ -1,0 +1,255 @@
+Wire Scene - Device Connection Implementation Spec
+=====================================================
+Date: March 2026
+Scene: Assets/Scenes/Wires.unity
+
+This document explains everything that was built, why each decision was
+made, and how all the pieces connect together. Use this to trace back
+through the implementation and understand how it works.
+
+
+========================================
+1. THE PROBLEM
+========================================
+The Wires scene had a wire-matching puzzle (drag colored wires left-to-right
+to match colors). We needed to add a new mechanic: before the player can
+touch the wires, they must first drag a device (hot plate or plasma tube)
+into a snap zone connected to the wire board.
+
+Layout:
+  [Wire Board] ---connection wire--- ( snap zone )
+
+            [Hot Plate]    [Plasma Tube]
+
+
+========================================
+2. HOW THE EXISTING CODE WORKED (BEFORE)
+========================================
+
+Scene hierarchy (Wires.unity):
+  Main Camera
+  BG              ← has Main.cs (game manager singleton)
+  Canvas
+    └── Square    ← win indicator, activated when all wires match
+  Left            ← has RandomizeChildren.cs, holds 4 wire prefabs
+  Right           ← has RandomizeChildren.cs, holds 4 wire prefabs (x-scale = -1 to mirror)
+
+Prefab: Assets/Art/Wire_Task_Art/Wire.prefab
+  Wire (root)
+    ├── Light Off       (grey light sprite, always visible)
+    ├── Light           (colored light sprite, hidden until wire matched)
+    ├── Wire_start      (the fixed end cap sprite)
+    └── Moving          (BoxCollider2D + Wire.cs)
+        ├── Wire_in     (inner wire line sprite)
+        └── Wire_end    (the stretchy wire body, Sliced draw mode)
+
+Each wire prefab instance is color-tinted (Red, Green, Blue, Yellow) via
+SpriteRenderer.m_Color overrides on Wire_start, Wire_end, and Light.
+
+Scripts:
+
+  Main.cs (on BG object)
+    - Singleton: Main.Instance
+    - Tracks wiresCount (total = 4) and count (connected so far)
+    - LightOn(points): increments count, shows win state when count == wiresCount
+    - Win state: activates the "block" GameObject (Square) and sets it green
+
+  Wire.cs (on Moving child of each wire prefab)
+    - OnMouseDrag: converts mouse to world coords, checks for nearby colliders
+      using Physics2D.OverlapCircleAll with 0.2 radius
+    - If overlapping collider has same parent name (same color) → match!
+      Calls Main.Instance.LightOn(1), activates light, destroys Wire component
+    - OnMouseUp: resets wire to start position (rubber band back)
+    - UpdateWire: sets position, rotation (aims toward drag point), and
+      stretches wireEnd sprite via SpriteRenderer.size
+
+  RandomizeChildren.cs (on Left and Right containers)
+    - On Awake: shuffles child positions randomly so wire order is different
+      each playthrough
+
+
+========================================
+3. WHAT WE ADDED
+========================================
+
+Goal: Lock wire board until a device is snapped in. Two devices available
+(hot plate, plasma tube). Player can swap them freely.
+
+New scripts:
+  - Assets/Scripts/SnapZone.cs
+  - Assets/Scripts/DraggableDevice.cs
+
+Modified scripts:
+  - Assets/Scripts/Main.cs (added lock state)
+  - Assets/Scripts/Wire.cs (added lock check)
+
+
+========================================
+4. NEW SCRIPT: SnapZone.cs
+========================================
+File: Assets/Scripts/SnapZone.cs
+
+Purpose: Represents the ( ) snap area. Knows which device is currently
+snapped in (if any). Tells Main.cs when a device connects or disconnects.
+
+How it works:
+  - Has a public field "currentDevice" tracking whats snapped
+  - Snap(device): if something else is already snapped, kicks it back to
+    its start position first. Then sets currentDevice, moves the device
+    to the snap zone's position, and calls Main.Instance.DeviceConnected()
+  - Unsnap(): clears currentDevice, calls Main.Instance.DeviceDisconnected()
+
+Why this design:
+  - Keeping snap logic on the zone (not the device) means the zone is the
+    single source of truth for "is something connected"
+  - If we later want multiple snap zones, each manages its own state
+  - The zone handles the "kick out old device" logic so DraggableDevice
+    doesn't need to know about other devices
+
+Requires on its GameObject:
+  - BoxCollider2D with "Is Trigger" CHECKED
+    (Physics2D.OverlapCircleAll detects triggers)
+
+
+========================================
+5. NEW SCRIPT: DraggableDevice.cs
+========================================
+File: Assets/Scripts/DraggableDevice.cs
+
+Purpose: Makes a GameObject draggable with mouse. On release, checks if
+near a SnapZone and snaps in. Can be pulled back out.
+
+How it works:
+  - Start(): saves initial position as startPosition (for rubber-banding back)
+  - OnMouseDown(): if currently snapped, calls snappedZone.Unsnap() first
+    (this is how pulling a device OUT works)
+  - OnMouseDrag(): moves object to mouse world position
+    (same pattern as Wire.cs: Camera.main.ScreenToWorldPoint)
+  - OnMouseUp(): uses Physics2D.OverlapCircleAll to check for nearby SnapZone
+    components within snapRadius (default 0.5). If found → snap. If not →
+    return to startPosition.
+  - ReturnToStart(): public method so SnapZone can also call it when kicking
+    a device out to make room for another
+
+Why OnMouseDrag (not EventSystem):
+  - Wire.cs already uses OnMouseDrag, so this is consistent
+  - OnMouseDrag requires a non-trigger Collider2D on the object
+  - Simpler than EventSystem for world-space 2D objects
+
+Why OverlapCircleAll for snap detection:
+  - Same pattern Wire.cs uses for connection detection
+  - Works with trigger colliders (which SnapZone uses)
+  - snapRadius is exposed in Inspector so you can tune the "magnetism"
+
+Requires on its GameObject:
+  - BoxCollider2D with "Is Trigger" UNCHECKED
+    (OnMouseDrag only fires on non-trigger colliders)
+  - SpriteRenderer (for the visual)
+
+
+========================================
+6. MODIFIED SCRIPT: Main.cs
+========================================
+File: Assets/Scripts/Main.cs
+
+Changes:
+  - Added: public bool isLocked = true
+    → Starts locked. Wires check this before allowing drag.
+    → [HideInInspector] so it doesn't clutter the Inspector
+
+  - Added: DeviceConnected()
+    → Called by SnapZone.Snap(). Sets isLocked = false.
+    → This is the moment wires become interactive.
+
+  - Added: DeviceDisconnected()
+    → Called by SnapZone.Unsnap(). Sets isLocked = true.
+    → Has a TODO for optionally resetting in-progress wire connections.
+
+  - Unchanged: LightOn(int points)
+    → Still counts connections and triggers win state.
+    → Win state activates the Square object and colors it green.
+    → Has a comment marking where state transition logic goes.
+
+Why a bool instead of an event:
+  - Simple and direct. Wire.cs just checks Main.Instance.isLocked.
+  - No need for subscribe/unsubscribe complexity.
+  - If needed later, can easily add an event alongside the bool.
+
+
+========================================
+7. MODIFIED SCRIPT: Wire.cs
+========================================
+File: Assets/Scripts/Wire.cs
+
+Change: Added one line at the top of OnMouseDrag():
+  if (Main.Instance.isLocked) return;
+
+This prevents any wire interaction when no device is snapped in.
+Minimal change, no side effects.
+
+
+========================================
+8. HOW IT ALL CONNECTS (DATA FLOW)
+========================================
+
+Player drags HotPlate toward SnapZone:
+  DraggableDevice.OnMouseDrag() → follows mouse
+  DraggableDevice.OnMouseUp() → Physics2D.OverlapCircleAll finds SnapZone
+    → calls SnapZone.Snap(this)
+      → SnapZone sets currentDevice, moves device to snap position
+      → calls Main.Instance.DeviceConnected()
+        → Main.isLocked = false
+
+Player drags a wire:
+  Wire.OnMouseDrag() → checks Main.Instance.isLocked → false → proceeds
+    → normal wire matching logic
+
+Player pulls device out:
+  DraggableDevice.OnMouseDown() → calls snappedZone.Unsnap()
+    → SnapZone.Unsnap() → clears currentDevice
+      → calls Main.Instance.DeviceDisconnected()
+        → Main.isLocked = true
+  DraggableDevice.OnMouseDrag() → follows mouse again
+
+Player swaps device (drags PlasmaTube while HotPlate is snapped):
+  PlasmaTube.OnMouseUp() → finds SnapZone → calls SnapZone.Snap(plasmaTube)
+    → SnapZone sees currentDevice == hotPlate
+    → calls hotPlate.ReturnToStart() (kicks it back)
+    → sets currentDevice = plasmaTube
+    → calls Main.Instance.DeviceConnected() (stays unlocked)
+
+
+========================================
+9. FILES SUMMARY
+========================================
+
+Created:
+  Assets/Scripts/SnapZone.cs          (23 lines)
+  Assets/Scripts/DraggableDevice.cs   (57 lines)
+
+Modified:
+  Assets/Scripts/Main.cs              (added ~10 lines)
+  Assets/Scripts/Wire.cs              (added 1 line)
+
+Documentation:
+  Assets/Scenes/Wire_Setup_Guide.txt  (step-by-step Unity Editor setup)
+  Assets/Scenes/Wire_Implementation_Spec.txt  (this file)
+
+Not modified (scene setup is manual in Unity Editor):
+  Assets/Scenes/Wires.unity
+
+
+========================================
+10. WHAT STILL NEEDS TO BE DONE
+========================================
+
+In Unity Editor:
+  - Create ConnectionWire, SnapZone, HotPlate, PlasmaTube GameObjects
+  - Assign sprites, colliders, and scripts
+  - See Wire_Setup_Guide.txt for detailed steps
+
+In code (future):
+  - State transition after all wires connected (marked TODO in Main.cs)
+  - Optional: reset wire connections when device is pulled out
+  - Optional: visual feedback on SnapZone (glow, outline) when device is near
+  - Optional: sound effects on snap/unsnap/wire connect

@@ -1,0 +1,84 @@
+Plasma Tube Activation - Setup Guide
+======================================
+
+PURPOSE
+-------
+When all 4 wires are connected with the plasma tube snapped in,
+the tube switches from dormant to active: interior swaps, glow appears
+and pulses.
+
+
+SPRITES YOU NEED (4 total)
+--------------------------
+  1. plasma_tube_body.png       — Glass tube shell (always visible)
+  2. plasma_interior_off.png    — Dim/dark interior (visible when dormant)
+  3. plasma_interior_on.png     — Bright plasma interior (purples, pinks, electric blue)
+  4. plasma_glow.png            — Soft outer glow (larger than tube, semi-transparent)
+
+Tip for the glow sprite: make it bigger than the tube with soft feathered
+edges and a bright center. A simple radial gradient works well.
+
+
+HIERARCHY
+---------
+  PlasmaTube                ← DraggableDevice + BoxCollider2D (no SpriteRenderer needed on root)
+    ├── TubeBody            ← SpriteRenderer (plasma_tube_body.png, Order: 2)
+    ├── InteriorOff         ← SpriteRenderer (plasma_interior_off.png, Order: 1)
+    ├── InteriorOn          ← SpriteRenderer (plasma_interior_on.png, Order: 1)
+    └── Glow                ← SpriteRenderer (plasma_glow.png, Order: 0)
+
+Sorting order:
+  - TubeBody at 2 (front, always visible glass shell)
+  - InteriorOff / InteriorOn at 1 (behind the glass)
+  - Glow at 0 (behind everything, radiates outward)
+
+All children at localPosition (0, 0, 0) so they move together.
+
+
+SETUP STEPS
+-----------
+Step 1: Create child sprites on PlasmaTube
+  - If PlasmaTube doesn't exist yet, create it per Wire_Setup_Guide.txt first
+  - Create 4 child GameObjects under PlasmaTube: TubeBody, InteriorOff,
+    InteriorOn, Glow
+  - Add SpriteRenderer to each, assign sprites
+  - Set sorting orders: TubeBody=2, InteriorOff=1, InteriorOn=1, Glow=0
+  - Position all at (0, 0, 0) relative to parent
+
+Step 2: Add PlasmaEffect component
+  - Select the PlasmaTube root GameObject
+  - Add Component → PlasmaEffect
+  - Drag InteriorOff into the "Dormant State" field
+  - Drag InteriorOn into the "Active State" field
+  - Drag Glow into the "Glow Effect" field
+
+Step 3: Tune pulse settings
+  - "Pulse Glow" — check to make the glow breathe (default: on)
+  - "Pulse Speed" — higher = faster pulse (default 2)
+  - "Pulse Min Alpha" — lowest glow opacity during pulse (default 0.3)
+  - Uncheck "Pulse Glow" for a static glow with no animation
+
+Step 4: Remove PlasmaTube's own SpriteRenderer (if present)
+  - The visuals are now on child objects, so the root doesn't need one
+  - Keep BoxCollider2D and DraggableDevice on the root
+
+Step 5: Test
+  - Play the scene
+  - Drag PlasmaTube into the SnapZone
+  - Connect all 4 wires
+  - InteriorOff should disappear
+  - InteriorOn and Glow should appear (Glow pulsing if enabled)
+
+
+HOW IT WORKS
+------------
+1. PlasmaEffect.Start() hides InteriorOn and Glow
+2. Player snaps PlasmaTube into SnapZone
+3. Player connects all 4 wires → Main.LightOn() triggers win state
+4. Main.cs calls GetComponentsInChildren<DeviceEffect>() on the connected device
+5. PlasmaEffect.Activate() is called:
+   - Hides dormantState (InteriorOff)
+   - Shows activeState (InteriorOn)
+   - Shows glowEffect (Glow)
+   - Starts pulse coroutine on the Glow sprite (if enabled)
+   Note: TubeBody stays visible the entire time (never toggled)
