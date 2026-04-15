@@ -171,6 +171,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SpawnAndDragIngredient2D
   worldPrefab: {fileID: 8590451511247566294, guid: 2f0ea4cb2e29841d3a4f2e849761c66d, type: 3}
   worldCamera: {fileID: 1643071941}
+  coolingStation: {fileID: 0}
   zDepthFromCamera: 10
   cancelIfReleasedOverUI: 0
 --- !u!114 &131970023
@@ -1071,6 +1072,10 @@ PrefabInstance:
     - target: {fileID: 7817318477783309442, guid: 7f5e912ac733dca4a845e403dd4da9d6, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7985023772307231797, guid: 7f5e912ac733dca4a845e403dd4da9d6, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
