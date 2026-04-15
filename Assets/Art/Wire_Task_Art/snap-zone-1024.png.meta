@@ -1,0 +1,572 @@
+fileFormatVersion: 2
+guid: 2f7eaa0f9d7064eaeb60ffb08e45fc20
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 5475491393490559240
+    second: snap-zone-1024_0
+  - first:
+      213: -7926257724851364416
+    second: snap-zone-1024_1
+  - first:
+      213: 5383358809905342053
+    second: snap-zone-1024_2
+  - first:
+      213: -6155756647008640523
+    second: snap-zone-1024_3
+  - first:
+      213: -4138412605720013564
+    second: snap-zone-1024_4
+  - first:
+      213: 7449326917711842711
+    second: snap-zone-1024_5
+  - first:
+      213: -5013437835079049672
+    second: snap-zone-1024_6
+  - first:
+      213: -8133117341173445517
+    second: snap-zone-1024_7
+  - first:
+      213: -3643210678019774047
+    second: snap-zone-1024_8
+  - first:
+      213: -8796293702250981208
+    second: snap-zone-1024_9
+  - first:
+      213: -5501559798845596682
+    second: snap-zone-1024_10
+  - first:
+      213: -680308560795526765
+    second: snap-zone-1024_11
+  - first:
+      213: 9143514685370643496
+    second: snap-zone-1024_12
+  - first:
+      213: -6560932958163106777
+    second: snap-zone-1024_13
+  - first:
+      213: -2191242486793102363
+    second: snap-zone-1024_14
+  - first:
+      213: -2708788999989314525
+    second: snap-zone-1024_15
+  - first:
+      213: 1412995672348734874
+    second: snap-zone-1024_16
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: snap-zone-1024_0
+      rect:
+        serializedVersion: 2
+        x: 202
+        y: 1001
+        width: 162
+        height: 142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 801a6b7796adcfb40800000000000000
+      internalID: 5475491393490559240
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: snap-zone-1024_1
+      rect:
+        serializedVersion: 2
+        x: 323
+        y: 1134
+        width: 105
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0cdd9082896400290800000000000000
+      internalID: -7926257724851364416
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: snap-zone-1024_2
+      rect:
+        serializedVersion: 2
+        x: 489
+        y: 1134
+        width: 88
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 566a0eab05885ba40800000000000000
+      internalID: 5383358809905342053
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: snap-zone-1024_3
+      rect:
+        serializedVersion: 2
+        x: 638
+        y: 1001
+        width: 190
+        height: 168
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5f1ec43b1fb529aa0800000000000000
+      internalID: -6155756647008640523
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: snap-zone-1024_4
+      rect:
+        serializedVersion: 2
+        x: 196
+        y: 910
+        width: 35
+        height: 88
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4055f0e49a76196c0800000000000000
+      internalID: -4138412605720013564
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: snap-zone-1024_5
+      rect:
+        serializedVersion: 2
+        x: 793
+        y: 882
+        width: 35
+        height: 88
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 79d48f90d53516760800000000000000
+      internalID: 7449326917711842711
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: snap-zone-1024_6
+      rect:
+        serializedVersion: 2
+        x: 196
+        y: 760
+        width: 35
+        height: 89
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 83e1c90f9d0bc6ab0800000000000000
+      internalID: -5013437835079049672
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: snap-zone-1024_7
+      rect:
+        serializedVersion: 2
+        x: 793
+        y: 733
+        width: 35
+        height: 88
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 37c89ca8edc512f80800000000000000
+      internalID: -8133117341173445517
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: snap-zone-1024_8
+      rect:
+        serializedVersion: 2
+        x: 196
+        y: 611
+        width: 35
+        height: 88
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1a9a8bed037b07dc0800000000000000
+      internalID: -3643210678019774047
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: snap-zone-1024_9
+      rect:
+        serializedVersion: 2
+        x: 793
+        y: 583
+        width: 35
+        height: 89
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8a813598b794de580800000000000000
+      internalID: -8796293702250981208
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: snap-zone-1024_10
+      rect:
+        serializedVersion: 2
+        x: 196
+        y: 462
+        width: 35
+        height: 88
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6fb1d3fe28886a3b0800000000000000
+      internalID: -5501559798845596682
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: snap-zone-1024_11
+      rect:
+        serializedVersion: 2
+        x: 793
+        y: 434
+        width: 35
+        height: 88
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3991028e7fe0f86f0800000000000000
+      internalID: -680308560795526765
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: snap-zone-1024_12
+      rect:
+        serializedVersion: 2
+        x: 196
+        y: 309
+        width: 37
+        height: 92
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 824b514792a44ee70800000000000000
+      internalID: 9143514685370643496
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: snap-zone-1024_13
+      rect:
+        serializedVersion: 2
+        x: 231
+        y: 198
+        width: 133
+        height: 166
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 72409816c32e2f4a0800000000000000
+      internalID: -6560932958163106777
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: snap-zone-1024_14
+      rect:
+        serializedVersion: 2
+        x: 660
+        y: 196
+        width: 168
+        height: 177
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5eb14f561942791e0800000000000000
+      internalID: -2191242486793102363
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: snap-zone-1024_15
+      rect:
+        serializedVersion: 2
+        x: 379
+        y: 196
+        width: 89
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 32cb62c91c2786ad0800000000000000
+      internalID: -2708788999989314525
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: snap-zone-1024_16
+      rect:
+        serializedVersion: 2
+        x: 529
+        y: 196
+        width: 88
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a95b28fd318fb9310800000000000000
+      internalID: 1412995672348734874
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      snap-zone-1024_0: 5475491393490559240
+      snap-zone-1024_1: -7926257724851364416
+      snap-zone-1024_10: -5501559798845596682
+      snap-zone-1024_11: -680308560795526765
+      snap-zone-1024_12: 9143514685370643496
+      snap-zone-1024_13: -6560932958163106777
+      snap-zone-1024_14: -2191242486793102363
+      snap-zone-1024_15: -2708788999989314525
+      snap-zone-1024_16: 1412995672348734874
+      snap-zone-1024_2: 5383358809905342053
+      snap-zone-1024_3: -6155756647008640523
+      snap-zone-1024_4: -4138412605720013564
+      snap-zone-1024_5: 7449326917711842711
+      snap-zone-1024_6: -5013437835079049672
+      snap-zone-1024_7: -8133117341173445517
+      snap-zone-1024_8: -3643210678019774047
+      snap-zone-1024_9: -8796293702250981208
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -14,8 +14,10 @@ public class Wire : MonoBehaviour
         startPosition = transform.position; // Store initial pos
     }
 
-    private void OnMouseDrag() 
+    private void OnMouseDrag()
     {
+        if (Main.Instance.isLocked) return;
+
 
         // If output exists before dragging wire
         if (!HasOutputSide())

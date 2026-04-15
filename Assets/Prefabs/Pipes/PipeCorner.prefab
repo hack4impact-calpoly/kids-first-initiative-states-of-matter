@@ -53,6 +53,14 @@ PrefabInstance:
       value: PipeCorner
       objectReference: {fileID: 0}
     - target: {fileID: 4833124303655022323, guid: 599f99aea54ba449ab2b645da958273c, type: 3}
+      propertyPath: m_FlipX
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4833124303655022323, guid: 599f99aea54ba449ab2b645da958273c, type: 3}
+      propertyPath: m_FlipY
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4833124303655022323, guid: 599f99aea54ba449ab2b645da958273c, type: 3}
       propertyPath: m_Size.x
       value: 1.67
       objectReference: {fileID: 0}
@@ -63,7 +71,7 @@ PrefabInstance:
     - target: {fileID: 4833124303655022323, guid: 599f99aea54ba449ab2b645da958273c, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: -8605090860896828584, guid: d65c7eb83bc8f4ee4a1aa22898fd06e9, type: 3}
+      objectReference: {fileID: -4930073309866211860, guid: 58a83796764e64685934f68d69872acd, type: 3}
     - target: {fileID: 4833124303655022323, guid: 599f99aea54ba449ab2b645da958273c, type: 3}
       propertyPath: m_WasSpriteAssigned
       value: 1
@@ -103,5 +111,6 @@ MonoBehaviour:
   westConnection: 0
   water: 0
   isSource: 0
-  drySprite: {fileID: -8605090860896828584, guid: a44214e859f00456b96593bd8737e5a9, type: 3}
-  waterSprite: {fileID: -1653322534905013605, guid: f8b724a3d53474ee0b31893a7d7e937b, type: 3}
+  isEnd: 0
+  drySprite: {fileID: -4930073309866211860, guid: 58a83796764e64685934f68d69872acd, type: 3}
+  waterSprite: {fileID: 6687720662725131103, guid: bc92c77faf77448ddac1c9432150cdde, type: 3}

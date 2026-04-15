@@ -1,0 +1,32 @@
+WASD Debug Camera - Setup Guide
+================================
+
+PURPOSE
+-------
+Temporary WASD camera movement for testing the Wires scene.
+This is a debug tool — delete it before release.
+
+
+SETUP (1 step)
+--------------
+1. In the Wires.unity scene, select "Main Camera"
+2. Add Component → DebugCameraController
+3. Set "Move Speed" in Inspector (default 5, increase if camera moves too slow)
+4. Done. WASD now moves the camera during Play mode.
+
+
+CONTROLS
+--------
+  W = up
+  A = left
+  S = down
+  D = right
+
+
+REMOVING IT
+-----------
+When you're done testing:
+  1. Select Main Camera → remove the DebugCameraController component
+  2. Delete Assets/Scripts/DebugCameraController.cs
+  3. Delete Assets/Scripts/DebugCameraController.cs.meta
+That's it. No other scripts reference it.

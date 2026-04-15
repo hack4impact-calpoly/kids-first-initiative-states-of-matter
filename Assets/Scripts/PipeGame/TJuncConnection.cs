@@ -13,19 +13,19 @@ public class TJuncConnection : PipeObject
 
         if (rotation == 0)
         {
-            eastConnection = false;
+            westConnection = false;
         }
         else if (rotation == 90)
         {
-            northConnection = false;
+            southConnection = false;
         }
         else if (rotation == 180)
         {
-            westConnection = false;
+            eastConnection = false;
         }
         else if (rotation == 270)
         {
-            southConnection = false;
+            northConnection = false;
         }
     }
 

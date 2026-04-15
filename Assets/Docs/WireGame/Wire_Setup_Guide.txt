@@ -1,0 +1,101 @@
+Wire Scene - Device Connection Setup Guide
+============================================
+
+WHAT WAS BUILT
+--------------
+A snap-to-connect system where the player drags a hot plate or plasma tube
+into a snap zone on the right side of the wire board. The wire puzzle is
+locked until a device is snapped in. Devices can be swapped freely.
+
+Gameplay flow:
+  1. Hot plate and plasma tube sit below the wire board
+  2. Player drags one into the snap zone (right of wire board)
+  3. It snaps in place, wire board unlocks
+  4. Player can swap devices at any time (pull one out, drag the other in)
+  5. Player connects all 4 colored wires (left to right matching)
+  6. All wires connected → state transition (same scene, details TBD)
+
+Layout diagram:
+  [Wire Board] ---ConnectionWire--- ( SnapZone )
+
+            [Hot Plate]    [Plasma Tube]
+
+
+SCRIPTS CREATED / MODIFIED
+---------------------------
+NEW: Assets/Scripts/SnapZone.cs
+  - Manages the snap area where devices connect
+  - Tracks which device is currently snapped
+  - Notifies Main.cs when a device is snapped/unsnapped
+
+NEW: Assets/Scripts/DraggableDevice.cs
+  - Attach to hot plate and plasma tube
+  - Handles click-and-drag via OnMouseDrag
+  - On release: snaps to nearby SnapZone if close enough, otherwise returns to start
+  - Can be pulled out of snap zone and swapped
+  - Has a "snapRadius" field (default 0.5) you can tweak in the Inspector
+
+MODIFIED: Assets/Scripts/Main.cs
+  - Added "isLocked" bool (starts true = wires can't be dragged)
+  - Added DeviceConnected() → sets isLocked = false
+  - Added DeviceDisconnected() → sets isLocked = true
+
+MODIFIED: Assets/Scripts/Wire.cs
+  - Added lock check: if Main.Instance.isLocked, wire dragging is blocked
+
+
+WHAT YOU NEED TO DO IN UNITY EDITOR
+-------------------------------------
+IMPORTANT: Work in the Wires.unity scene (not Wire.unity).
+
+Step 1: Create the ConnectionWire (visual only)
+  - In the Wires scene, create an empty GameObject named "ConnectionWire"
+  - Add a SpriteRenderer component
+  - Assign your connection wire sprite asset
+  - Position it to the right of the wire board (roughly x: 4-5, y: 0)
+  - No script needed — this is purely visual
+
+Step 2: Create the SnapZone
+  - Create an empty GameObject named "SnapZone"
+  - Add a SpriteRenderer (optional — for a visual outline/placeholder)
+  - Add a BoxCollider2D component
+    → CHECK "Is Trigger" on the collider
+  - Add the SnapZone.cs script component
+  - Position it at the right end of the ConnectionWire (roughly x: 6-7, y: 0)
+  - Size the collider to roughly match your snap area visual
+
+Step 3: Create the HotPlate
+  - Create an empty GameObject named "HotPlate"
+  - Add a SpriteRenderer → assign your hot plate sprite
+  - Add a BoxCollider2D (NOT trigger — needs to be solid for OnMouseDrag)
+  - Add the DraggableDevice.cs script component
+  - Position below the wire board (roughly x: -1, y: -3)
+  - In the Inspector, adjust "Snap Radius" if 0.5 feels too tight or too loose
+
+Step 4: Create the PlasmaTube
+  - Same as HotPlate but with the plasma tube sprite
+  - Position next to the hot plate (roughly x: 1, y: -3)
+  - Add SpriteRenderer + BoxCollider2D + DraggableDevice.cs
+
+Step 5: Wire up the Main.cs references
+  - Select the BG object (which has Main.cs)
+  - The "block" field should still point to the Square object (win indicator)
+  - No new references needed on Main — SnapZone talks to Main via Main.Instance
+
+Step 6: Test it
+  - Play the scene
+  - Try dragging wires first — they should NOT move (locked)
+  - Drag the hot plate or plasma tube to the snap zone — it should snap in
+  - Now try dragging wires — they should work
+  - Pull the device out — wires should lock again
+  - Drag the other device in — should swap fine
+  - Connect all 4 wires — win state triggers
+
+
+NOTES
+------
+- The SnapZone collider must be a TRIGGER for Physics2D.OverlapCircleAll to detect it
+- The DraggableDevice colliders must NOT be triggers (OnMouseDrag needs a non-trigger collider)
+- All positions above are rough estimates — adjust to match your actual layout
+- The "snapRadius" on DraggableDevice controls how close you need to drag before it snaps
+- State transition after winning is marked with a TODO in Main.cs — hook it up when ready

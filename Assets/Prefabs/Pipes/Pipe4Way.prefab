@@ -63,7 +63,7 @@ PrefabInstance:
     - target: {fileID: 4833124303655022323, guid: 599f99aea54ba449ab2b645da958273c, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: -2399116456277263680, guid: 9b8d71534d6424ba79ef304da4f8cc98, type: 3}
+      objectReference: {fileID: 5499049081484896610, guid: 14eca02c0bbb34e928c224857a9c8a64, type: 3}
     - target: {fileID: 4833124303655022323, guid: 599f99aea54ba449ab2b645da958273c, type: 3}
       propertyPath: m_WasSpriteAssigned
       value: 1
@@ -103,5 +103,6 @@ MonoBehaviour:
   westConnection: 0
   water: 0
   isSource: 0
-  drySprite: {fileID: -2399116456277263680, guid: 981747825ae3349ea91a0ee34b83ac05, type: 3}
-  waterSprite: {fileID: -7496155505378249010, guid: fcfe021d123b4449a92ddb91dc2c3255, type: 3}
+  isEnd: 0
+  drySprite: {fileID: 5499049081484896610, guid: 14eca02c0bbb34e928c224857a9c8a64, type: 3}
+  waterSprite: {fileID: 2482553107058419936, guid: 828b877fd416e4256b5cb95cb947dcd1, type: 3}

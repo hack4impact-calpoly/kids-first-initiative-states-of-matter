@@ -1,0 +1,139 @@
+Hot Plate Effects (Candle + Ice Flask) - Setup Guide
+=====================================================
+
+PURPOSE
+-------
+When all 4 wires are connected with the hot plate snapped in,
+items on the hot plate start melting. Two flask experiments:
+
+  Candle Flask: candle sinks & tilts, melted wax liquid rises, flame goes out
+  Ice Flask:    ice shrinks & fades, water rises
+
+Both are children of HotPlate so they move together when dragged.
+Activate/deactivate whichever flask you want in the Inspector.
+
+
+SPRITES YOU NEED
+----------------
+Candle Flask (4 sprites):
+  - flask_glass.png       — Flask/beaker container shape
+  - candle.png            — Candle (will rotate + sink)
+  - wax_liquid.png        — Melted wax pool (warm color, e.g. orange/cream)
+  - flame.png             — Small flame on top of candle (optional)
+
+Ice Flask (3 sprites):
+  - flask_glass.png       — Same flask shape (reuse from candle)
+  - ice.png               — Ice cube/block (translucent blue)
+  - water.png             — Water (blue liquid)
+
+Tip: Make liquid/water sprites tall enough to fill the flask.
+They start hidden and rise upward during the melt animation.
+
+
+HIERARCHY
+---------
+  HotPlate                   ← DraggableDevice + BoxCollider2D + SpriteRenderer
+    ├── CandleFlask          ← CandleMeltEffect script
+    │   ├── FlaskGlass       ← SpriteRenderer (flask_glass.png, Order: 3)
+    │   ├── Candle           ← SpriteRenderer (candle.png, Order: 2)
+    │   ├── Liquid           ← SpriteRenderer (wax_liquid.png, Order: 1)
+    │   └── Flame            ← SpriteRenderer (flame.png, Order: 2)
+    │
+    └── IceFlask             ← IceMeltEffect script
+        ├── FlaskGlass       ← SpriteRenderer (flask_glass.png, Order: 3)
+        ├── Ice              ← SpriteRenderer (ice.png, Order: 2)
+        └── Water            ← SpriteRenderer (water.png, Order: 1)
+
+Note: Only one flask should be active at a time. Disable the other
+in the Inspector (uncheck the GameObject checkbox). You can swap
+which is active between play sessions, or add a selection UI later.
+
+Sorting order: Glass on top (3) so it visually contains the items.
+Candle/Ice in the middle (2). Liquid/Water in the back (1).
+
+
+SETUP STEPS
+-----------
+Step 1: Create CandleFlask under HotPlate
+  - Select HotPlate in the hierarchy
+  - Create child empty GameObject → name it "CandleFlask"
+  - Position it where you want the flask to sit on the hot plate
+    (e.g., localPosition (0, 0.5, 0) to sit on top)
+
+Step 2: Create CandleFlask children
+  - Under CandleFlask, create 4 child GameObjects:
+    FlaskGlass, Candle, Liquid, Flame
+  - Add SpriteRenderer to each, assign sprites
+  - Set sorting orders: FlaskGlass=3, Candle=2, Liquid=1, Flame=2
+  - Position Candle inside the flask
+  - Position Liquid at the BOTTOM of the flask (it will rise up)
+  - Position Flame on top of the candle
+
+Step 3: Add CandleMeltEffect to CandleFlask
+  - Select CandleFlask → Add Component → CandleMeltEffect
+  - Drag references:
+    Candle field  → Candle child
+    Liquid field  → Liquid child
+    Flame field   → Flame child (optional, leave empty to skip)
+  - Adjust settings:
+    Melt Duration       — seconds for the full melt (default 3)
+    Candle Sink Amount  — how far candle drops (default 0.5)
+    Candle Rotation     — tilt in degrees (default -15)
+    Liquid Rise Amount  — how far liquid rises (default 0.5)
+
+Step 4: Create IceFlask under HotPlate
+  - Same process as CandleFlask
+  - Create child empty "IceFlask" under HotPlate
+  - Create children: FlaskGlass, Ice, Water
+  - Add sprites and sorting orders
+
+Step 5: Add IceMeltEffect to IceFlask
+  - Select IceFlask → Add Component → IceMeltEffect
+  - Drag references:
+    Ice field   → Ice child
+    Water field → Water child
+  - Adjust settings:
+    Melt Duration      — seconds for full melt (default 3)
+    Water Rise Amount  — how far water rises (default 0.5)
+
+Step 6: Disable one flask
+  - In the Inspector, uncheck the IceFlask GameObject (or CandleFlask)
+  - Only the active flask will show and animate
+  - Swap which is active to test different experiments
+
+Step 7: Test
+  - Play the scene
+  - Drag HotPlate into SnapZone (flask children move with it)
+  - Connect all 4 wires
+  - Active flask should start its melt animation:
+    Candle: wax appears, candle tilts and sinks, flame disappears
+    Ice: water appears, ice shrinks and fades away
+
+
+ANIMATION DETAILS
+-----------------
+Both effects use SmoothStep easing (slow start, accelerates, slow end).
+
+Candle melt:
+  - Liquid starts hidden, becomes visible, rises by liquidRiseAmount
+  - Candle moves down by candleSinkAmount and rotates by candleRotation degrees
+  - Flame disappears at the end of the animation
+  - All happens over meltDuration seconds
+
+Ice melt:
+  - Water starts hidden, becomes visible, rises by waterRiseAmount
+  - Ice scales from full size to zero and fades from opaque to transparent
+  - Ice GameObject is deactivated at the end
+  - All happens over meltDuration seconds
+
+
+ADVANCED: SPRITE MASKING (optional polish)
+------------------------------------------
+For cleaner liquid containment (liquid doesn't overflow the flask):
+  1. Add a SpriteMask component to FlaskGlass
+  2. Set FlaskGlass sprite as the mask shape
+  3. On the Liquid/Water SpriteRenderer, set "Mask Interaction" to
+     "Visible Inside Mask"
+  4. This clips the liquid to only show inside the flask shape
+
+This is optional — the basic version works fine without masking.
