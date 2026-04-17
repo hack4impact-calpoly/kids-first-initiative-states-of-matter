@@ -381,8 +381,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b772a0adbde24dca8eb803637d478b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  wiresCount: 4
-  winText: {fileID: 1435689457}
 --- !u!4 &430547823 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4821295000721236160, guid: 748da194668ee4c3c8a1aa840c9e2ab3, type: 3}
@@ -1357,7 +1355,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1909295879
 MonoBehaviour:
   m_ObjectHideFlags: 0

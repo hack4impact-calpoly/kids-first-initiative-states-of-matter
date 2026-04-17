@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Wire : MonoBehaviour
 {
@@ -7,24 +8,15 @@ public class Wire : MonoBehaviour
     Vector3 startPoint;
     Vector3 startPosition;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         startPoint = transform.parent.position;
-        startPosition = transform.position; // Store initial pos
+        startPosition = transform.position;
     }
 
     private void OnMouseDrag()
     {
         if (Main.Instance.isLocked) return;
-
-
-        // If output exists before dragging wire
-        if (!HasOutputSide())
-        {
-            WireGameUIManager.Instance.ShowMessage("Add an output device (candle or plasma)");
-            return;
-        }
 
         // mouse position to world point
         Vector3 newPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -34,17 +26,9 @@ public class Wire : MonoBehaviour
         Collider2D[] colliders = Physics2D.OverlapCircleAll(newPosition, .2f);
         foreach (Collider2D collider in colliders)
         {
-
             // make sure not my own collider
             if (collider.gameObject != gameObject)
             {
-
-                // Validate output
-                if (!IsValidOutputSlot(collider))
-                {
-                    continue;
-                }
-
                 // update wire to the connection point position
                 UpdateWire(collider.transform.position);
 
@@ -67,7 +51,6 @@ public class Wire : MonoBehaviour
 
     void Done() {
         lightOn.SetActive(true);
-
         Destroy(this);
     }
 
@@ -77,7 +60,7 @@ public class Wire : MonoBehaviour
     }
 
     void UpdateWire(Vector3 newPosition) {
-        // update wire position
+        // update position
         transform.position = newPosition;
 
         // update direction
@@ -87,22 +70,5 @@ public class Wire : MonoBehaviour
         // update scale
         float dist = direction.magnitude;
         wireEnd.size = new Vector2(dist, wireEnd.size.y);
-    }
-
-    bool HasOutputSide()
-    {
-        Candle candle = FindObjectOfType<Candle>();
-        Plasma plasma = FindObjectOfType<Plasma>();
-        
-        return candle != null || plasma != null;
-    }
-
-    bool IsValidOutputSlot(Collider2D collider)
-    {
-        Wire wireComponent = collider.GetComponent<Wire>();
-        if (wireComponent == null)
-            return false;
-        
-        return true;
     }
 }

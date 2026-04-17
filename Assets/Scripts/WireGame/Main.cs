@@ -36,8 +36,9 @@ public class Main : MonoBehaviour
         if (count == wiresCount)
         {
             block.SetActive(true);
-            blockRenderer.material.color = Color.green;
-
+            if (blockRenderer != null)
+                blockRenderer.material.color = Color.green;
+            
             // Activate effects on the connected device
             if (connectedDevice != null)
             {

@@ -26,7 +26,7 @@ public class WireGameUIManager : MonoBehaviour
         if (messageTimer > 0)
         {
             messageTimer -= Time.deltaTime;
-            if (messageTimer <= 0)
+            if (messageTimer <= 0 && promptText != null)
             {
                 promptText.text = "";
             }
