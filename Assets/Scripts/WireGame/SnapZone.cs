@@ -21,7 +21,8 @@ public class SnapZone : MonoBehaviour
         if (guideSprite != null)
             guideSprite.enabled = false;
 
-        Main.Instance.DeviceConnected(device);
+        if (Main.Instance != null)
+            Main.Instance.DeviceConnected(device);
     }
 
     public void Unsnap()
@@ -31,6 +32,7 @@ public class SnapZone : MonoBehaviour
         if (guideSprite != null)
             guideSprite.enabled = true;
 
-        Main.Instance.DeviceDisconnected();
+        if (Main.Instance != null)
+            Main.Instance.DeviceDisconnected();
     }
 }

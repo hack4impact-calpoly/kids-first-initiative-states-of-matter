@@ -7,16 +7,24 @@ public class Wire : MonoBehaviour
     public GameObject lightOn;
     Vector3 startPoint;
     Vector3 startPosition;
+    private bool isConnected = false;
+    private string currentScene;
 
     void Start()
     {
         startPoint = transform.parent.position;
         startPosition = transform.position;
+        currentScene = SceneManager.GetActiveScene().name;
     }
 
     private void OnMouseDrag()
     {
-        if (Main.Instance.isLocked) return;
+        // Check if an output device is connected before allowing wire usage
+        if (Main.Instance != null && Main.Instance.isLocked)
+        {
+            WireGameUIManager.Instance.ShowMessage("Connect an output (candle or plasma) to use wires!");
+            return;
+        }
 
         // mouse position to world point
         Vector3 newPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -29,6 +37,12 @@ public class Wire : MonoBehaviour
             // make sure not my own collider
             if (collider.gameObject != gameObject)
             {
+                // Validate that this is a valid slot for connection
+                if (!IsValidSlot(collider))
+                {
+                    continue;
+                }
+
                 // update wire to the connection point position
                 UpdateWire(collider.transform.position);
 
@@ -36,7 +50,9 @@ public class Wire : MonoBehaviour
                 if (transform.parent.name.Equals(collider.transform.parent.name))
                 {
                     // count connection
-                    Main.Instance.LightOn(1);
+                    if (Main.Instance != null)
+                        Main.Instance.LightOn(1);
+                    isConnected = true;
 
                     // finish step
                     collider.GetComponent<Wire>()?.Done();
@@ -49,6 +65,13 @@ public class Wire : MonoBehaviour
         UpdateWire(newPosition);
     }
 
+    bool IsValidSlot(Collider2D collider)
+    {
+        // Validate that the target slot belongs to a valid output component
+        Wire targetWire = collider.GetComponent<Wire>();
+        return targetWire != null;
+    }
+
     void Done() {
         lightOn.SetActive(true);
         Destroy(this);
@@ -56,7 +79,11 @@ public class Wire : MonoBehaviour
 
     private void OnMouseUp()
     {
-        UpdateWire(startPosition);
+        // Return to original position if no valid connection was made
+        if (!isConnected)
+        {
+            UpdateWire(startPosition);
+        }
     }
 
     void UpdateWire(Vector3 newPosition) {
