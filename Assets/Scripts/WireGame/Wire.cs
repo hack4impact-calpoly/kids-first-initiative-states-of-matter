@@ -19,10 +19,16 @@ public class Wire : MonoBehaviour
 
     private void OnMouseDrag()
     {
+        if (Camera.main == null)
+            return;
+
         // Check if an output device is connected before allowing wire usage
         if (Main.Instance != null && Main.Instance.isLocked)
         {
-            WireGameUIManager.Instance.ShowMessage("Connect an output (candle or plasma) to use wires!");
+            if (WireGameUIManager.Instance != null)
+            {
+                WireGameUIManager.Instance.ShowMessage("Connect an output (candle or plasma) to use wires!", isWarning: true);
+            }
             return;
         }
 

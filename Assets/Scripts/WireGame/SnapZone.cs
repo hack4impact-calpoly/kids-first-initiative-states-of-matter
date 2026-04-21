@@ -9,7 +9,7 @@ public class SnapZone : MonoBehaviour
 
     public void Snap(DraggableDevice device)
     {
-        // If something is already snapped, kick it back first
+        // If something is already snapped, unsnap it first
         if (currentDevice != null && currentDevice != device)
         {
             currentDevice.ReturnToStart();

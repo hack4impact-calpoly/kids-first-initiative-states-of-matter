@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Main : MonoBehaviour
 {
@@ -16,19 +17,37 @@ public class Main : MonoBehaviour
     {
         Instance = this;
         blockRenderer = block.GetComponent<Renderer>();
+        
+        // Check which scene we're in
+        string sceneName = SceneManager.GetActiveScene().name;
+        if (sceneName.Contains("NoOutput") || sceneName.Contains("Without"))
+        {
+            // Scene without outputs - unlock wires immediately
+            isLocked = false;
+        }
+        else
+        {
+            // Scene with outputs - keep wires locked until device connected
+            isLocked = true;
+        }
     }
 
     public void DeviceConnected(DraggableDevice device)
     {
         isLocked = false;
         connectedDevice = device;
+        
+        // Clear the prompt when device is connected
+        if (WireGameUIManager.Instance != null)
+        {
+            WireGameUIManager.Instance.ClearPrompt();
+        }
     }
 
     public void DeviceDisconnected()
     {
         isLocked = true;
         connectedDevice = null;
-        // TODO: optionally reset any in-progress wire connections
     }
 
     public void LightOn(int points) {
@@ -47,6 +66,12 @@ public class Main : MonoBehaviour
                 {
                     effect.Activate();
                 }
+            }
+            
+            // Show congratulations message
+            if (WireGameUIManager.Instance != null)
+            {
+                WireGameUIManager.Instance.ShowMessage("Congratulations! You completed the wire game!", isWarning: false);
             }
         }
     }

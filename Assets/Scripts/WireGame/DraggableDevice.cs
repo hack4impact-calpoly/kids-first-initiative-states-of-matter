@@ -57,5 +57,11 @@ public class DraggableDevice : MonoBehaviour
         isSnapped = false;
         snappedZone = null;
         transform.position = startPosition;
+        
+        // Notify Main that the device has been disconnected
+        if (Main.Instance != null)
+        {
+            Main.Instance.DeviceDisconnected();
+        }
     }
 }
