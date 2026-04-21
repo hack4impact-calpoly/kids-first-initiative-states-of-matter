@@ -7,6 +7,7 @@ public class Main : MonoBehaviour
 
     public int wiresCount; // wires total
     public GameObject block;
+    public GameObject youDidItText;
     [HideInInspector] public bool isLocked = true;
     [HideInInspector] public DraggableDevice connectedDevice;
 
@@ -20,7 +21,7 @@ public class Main : MonoBehaviour
         
         // Check which scene we're in
         string sceneName = SceneManager.GetActiveScene().name;
-        if (sceneName.Contains("NoOutput") || sceneName.Contains("Without"))
+        if (sceneName == "Wire")
         {
             // Scene without outputs - unlock wires immediately
             isLocked = false;
@@ -73,6 +74,9 @@ public class Main : MonoBehaviour
             {
                 WireGameUIManager.Instance.ShowMessage("Congratulations! You completed the wire game!", isWarning: false);
             }
+            
+            if (youDidItText != null)
+                youDidItText.SetActive(true);
         }
     }
 }
