@@ -51,32 +51,37 @@ public class Main : MonoBehaviour
         connectedDevice = null;
     }
 
-    public void LightOn(int points) {
-        count = count + points;
+    public void LightOn(int points)
+    {
+        count += points;  // Simpler than: count = count + points
+        
         if (count == wiresCount)
         {
-            block.SetActive(true);
-            if (blockRenderer != null)
-                blockRenderer.material.color = Color.green;
-            
-            // Activate effects on the connected device
-            if (connectedDevice != null)
-            {
-                DeviceEffect[] effects = connectedDevice.GetComponentsInChildren<DeviceEffect>();
-                foreach (DeviceEffect effect in effects)
-                {
-                    effect.Activate();
-                }
-            }
-            
-            // Show congratulations message
-            if (WireGameUIManager.Instance != null)
-            {
-                WireGameUIManager.Instance.ShowMessage("Congratulations! You completed the wire game!", isWarning: false);
-            }
-            
-            if (youDidItText != null)
-                youDidItText.SetActive(true);
+            WinGame();
         }
+    }
+
+    void WinGame()
+    {
+        block.SetActive(true);
+        blockRenderer.material.color = Color.green;
+
+        if (connectedDevice != null)
+        {
+            DeviceEffect[] effects = connectedDevice.GetComponentsInChildren<DeviceEffect>();
+            foreach (DeviceEffect effect in effects)
+            {
+                effect.Activate();
+            }
+        }
+        
+        // Show congratulations message
+        if (WireGameUIManager.Instance != null)
+        {
+            WireGameUIManager.Instance.ShowMessage("Congratulations! You completed the wire game!", isWarning: false);
+        }
+        
+        if (youDidItText != null)
+            youDidItText.SetActive(true);
     }
 }

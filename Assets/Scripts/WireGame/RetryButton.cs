@@ -5,7 +5,7 @@ public class RetryButton : MonoBehaviour
 {
     public void OnRetryButtonPressed()
     {
-        // Reload the current scene
+        // Reload scene
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }

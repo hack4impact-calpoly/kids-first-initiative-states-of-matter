@@ -14,18 +14,13 @@ public class WireGameUIManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance == null)
-            Instance = this;
+        Instance = this;
     }
 
     void Start()
     {
-        if (promptText != null)
-        {
-            persistentMessage = "Please attach an output before connecting the wires";
-            promptText.text = persistentMessage;
-            promptText.color = normalColor;
-        }
+        persistentMessage = "Please attach an output before connecting the wires";
+        SetPromptText(persistentMessage, false);
     }
 
     void Update()
@@ -33,30 +28,31 @@ public class WireGameUIManager : MonoBehaviour
         if (messageTimer > 0)
         {
             messageTimer -= Time.deltaTime;
-            if (messageTimer <= 0 && promptText != null)
+            if (messageTimer <= 0)
             {
-                promptText.text = persistentMessage;
-                promptText.color = normalColor;
+                SetPromptText(persistentMessage, false);
             }
         }
     }
 
     public void ShowMessage(string message, bool isWarning = false)
     {
-        if (promptText != null)
-        {
-            promptText.text = message;
-            promptText.color = isWarning ? warningColor : normalColor;
-            messageTimer = messageDisplayTime;
-        }
+        SetPromptText(message, isWarning);
+        messageTimer = messageDisplayTime;
     }
 
     public void ClearPrompt()
     {
         persistentMessage = "";
+        SetPromptText("", false);
+    }
+
+    private void SetPromptText(string text, bool isWarning)
+    {
         if (promptText != null)
         {
-            promptText.text = "";
+            promptText.text = text;
+            promptText.color = isWarning ? warningColor : normalColor;
         }
     }
 }
