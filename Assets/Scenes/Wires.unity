@@ -962,7 +962,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8aaa1d83abb7d4e7989dcf3e43adfd27, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SnapZone
-  guideSprite: {fileID: 0}
+  guideSprite: {fileID: 1095456654}
   currentDevice: {fileID: 0}
 --- !u!4 &430547823 stripped
 Transform:
@@ -2003,7 +2003,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1054072943}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9c780371955f14635884a33a028e4c33, type: 3}
   m_Name: 
@@ -2811,8 +2811,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlasmaEffect
   dormantState: {fileID: 580003541}
-  activeState: {fileID: 0}
-  glowEffect: {fileID: 0}
+  activeState: {fileID: 918297908}
+  glowEffect: {fileID: 1472004292}
   pulseGlow: 1
   pulseSpeed: 2
   pulseMinAlpha: 0.3
@@ -3693,12 +3693,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1905221440}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5808374a85a19439cb618aae5ae94177, type: 3}
+  m_Script: {fileID: 11500000, guid: d79a73f6e239041c0a0a586654d50d89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CandleMeltEffect
-  candle: {fileID: 0}
-  liquid: {fileID: 0}
-  flame: {fileID: 0}
+  candle: {fileID: 1431374849}
+  liquid: {fileID: 482243217}
+  flame: {fileID: 147685555}
   meltDuration: 3
   candleSinkAmount: 0.5
   candleRotation: -15
@@ -3850,7 +3850,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1909295878}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 74fc827b02ec64c4693749f04eee7228, type: 3}
+  m_Script: {fileID: 11500000, guid: 4c7629bbdc183478483b0b4746503d91, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DebugCameraController
   moveSpeed: 5

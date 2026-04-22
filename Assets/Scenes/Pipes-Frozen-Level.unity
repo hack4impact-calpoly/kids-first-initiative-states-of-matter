@@ -2052,7 +2052,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7559993806680337950, guid: 31c8566ffd4ac44e9b0d2d68475d22ab, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 18090
+      value: 90
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -3472,14 +3472,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1334183846}
     m_Modifications:
-    - target: {fileID: -4861433619266709908, guid: 7f56dd6cc8de44110a69613b68cbf42b, type: 3}
-      propertyPath: xPos
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: -4861433619266709908, guid: 7f56dd6cc8de44110a69613b68cbf42b, type: 3}
-      propertyPath: yPos
-      value: 2
-      objectReference: {fileID: 0}
     - target: {fileID: -2639435776453239397, guid: fd4d7619ce49848feb9fb8f9f34a9644, type: 3}
       propertyPath: xPos
       value: 2
@@ -3543,6 +3535,14 @@ PrefabInstance:
     - target: {fileID: 3145570393506319165, guid: fd4d7619ce49848feb9fb8f9f34a9644, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: -4861433619266709908, guid: 7f56dd6cc8de44110a69613b68cbf42b, type: 3}
+      propertyPath: xPos
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -4861433619266709908, guid: 7f56dd6cc8de44110a69613b68cbf42b, type: 3}
+      propertyPath: yPos
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
