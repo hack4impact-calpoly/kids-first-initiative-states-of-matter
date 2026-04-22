@@ -4,6 +4,7 @@ using UnityEngine;
 public class resultscript : MonoBehaviour
 {   
     public TMP_Text resultText;
+    public GameObject tryAgainButton;
 
     public void ShowSuccess()
     {
@@ -13,6 +14,7 @@ public class resultscript : MonoBehaviour
     public void ShowFailure()
     {
         resultText.text = "Try Again";
+
     }
 
 
