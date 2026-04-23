@@ -26,6 +26,7 @@ public class DraggableDevice : MonoBehaviour
 
     private void OnMouseDrag()
     {
+        if (Camera.main == null) return; 
         Vector3 newPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         newPosition.z = 0;
         transform.position = newPosition;
@@ -56,5 +57,11 @@ public class DraggableDevice : MonoBehaviour
         isSnapped = false;
         snappedZone = null;
         transform.position = startPosition;
+        
+        // Notify Main that the device has been disconnected
+        if (Main.Instance != null)
+        {
+            Main.Instance.DeviceDisconnected();
+        }
     }
 }

@@ -9,7 +9,7 @@ public class SnapZone : MonoBehaviour
 
     public void Snap(DraggableDevice device)
     {
-        // If something is already snapped, kick it back first
+        // If something is already snapped, unsnap it first
         if (currentDevice != null && currentDevice != device)
         {
             currentDevice.ReturnToStart();
@@ -21,7 +21,8 @@ public class SnapZone : MonoBehaviour
         if (guideSprite != null)
             guideSprite.enabled = false;
 
-        Main.Instance.DeviceConnected(device);
+        if (Main.Instance != null)
+            Main.Instance.DeviceConnected(device);
     }
 
     public void Unsnap()
@@ -31,6 +32,7 @@ public class SnapZone : MonoBehaviour
         if (guideSprite != null)
             guideSprite.enabled = true;
 
-        Main.Instance.DeviceDisconnected();
+        if (Main.Instance != null)
+            Main.Instance.DeviceDisconnected();
     }
 }
