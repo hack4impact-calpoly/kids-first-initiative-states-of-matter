@@ -121,9 +121,9 @@ TextureImporter:
         width: 256
         height: 256
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
+      customData:
       outline: []
       physicsShape: []
       tessellationDetail: -1
@@ -131,17 +131,17 @@ TextureImporter:
       spriteID: 2d5e306d492251e30800000000000000
       internalID: 4473519827503539666
       vertices: []
-      indices: 
+      indices:
       edges: []
       weights: []
     outline: []
-    customData: 
+    customData:
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID:
     internalID: 0
     vertices: []
-    indices: 
+    indices:
     edges: []
     weights: []
     secondaryTextures: []
@@ -149,8 +149,8 @@ TextureImporter:
       entries: []
     nameFileIdTable:
       pipe-cross-ice_0: 4473519827503539666
-  mipmapLimitGroupName: 
+  mipmapLimitGroupName:
   pSDRemoveMatte: 0
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
+  userData:
+  assetBundleName:
+  assetBundleVariant:
