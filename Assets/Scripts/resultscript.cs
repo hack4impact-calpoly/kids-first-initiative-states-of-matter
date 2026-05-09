@@ -4,7 +4,6 @@ using UnityEngine;
 public class resultscript : MonoBehaviour
 {   
     public TMP_Text resultText;
-    public GameObject tryAgainButton;
 
     public void ShowSuccess()
     {
