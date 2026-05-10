@@ -99,7 +99,7 @@ public class PipeObject : MonoBehaviour
 
     public void recalculateWater()
     {
-        var pipes = FindObjectsOfType<PipeObject>();
+        var pipes = FindObjectsByType<PipeObject>(FindObjectsSortMode.None);
         var map = new Dictionary<Vector2Int, PipeObject>();
         PipeObject source = null;
 

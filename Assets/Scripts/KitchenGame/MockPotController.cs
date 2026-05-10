@@ -6,10 +6,12 @@ public class MockPotController : MonoBehaviour
 {
     public List<IngredientSO> currentIngredients = new List<IngredientSO>();
     public event Action<IngredientSO> IngredientAdded;
+    public Transform LastAddedIngredientTransform { get; private set; }
 
     private void Awake()
     {
         currentIngredients.Clear();
+        LastAddedIngredientTransform = null;
         Debug.Log("Cleared currentIngredients");
     }
 
@@ -42,10 +44,10 @@ public class MockPotController : MonoBehaviour
         }
 
         Debug.Log("Found IngredientInstance: " + ingredient.Data.name);
-        TryAddIngredient(ingredient.Data);
+        TryAddIngredient(ingredient.Data, ingredient.transform);
     }
 
-    private void TryAddIngredient(IngredientSO ingredient)
+    private void TryAddIngredient(IngredientSO ingredient, Transform ingredientTransform)
     {
         if (ingredient == null)
         {
@@ -60,6 +62,7 @@ public class MockPotController : MonoBehaviour
         }
 
         currentIngredients.Add(ingredient);
+        LastAddedIngredientTransform = ingredientTransform;
         Debug.Log("Invoking IngredientAdded for " + ingredient.name);
         IngredientAdded?.Invoke(ingredient);
     }
