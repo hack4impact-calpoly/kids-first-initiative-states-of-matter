@@ -10,7 +10,7 @@ public class JuicePouringGameManager : MonoBehaviour
     [SerializeField] private bool requireColdEnough = true;
 
     [Header("Scene Transition")]
-    [SerializeField] private string nextSceneName = "";
+    [SerializeField] private string nextSceneName = "States of Matter Menu";
     [SerializeField] private float sceneLoadDelay = 0.5f;
 
     [Header("Freezing Cutscene")]
@@ -35,6 +35,7 @@ public class JuicePouringGameManager : MonoBehaviour
         {
             Debug.Log("Subscribed to fridge IngredientAdded");
             fridge.IngredientAdded += OnIngredientAdded;
+            fridge.IngredientRemoved += OnIngredientRemoved;
         }
         else
         {
@@ -45,7 +46,10 @@ public class JuicePouringGameManager : MonoBehaviour
     private void OnDisable()
     {
         if (fridge != null)
+        {
             fridge.IngredientAdded -= OnIngredientAdded;
+            fridge.IngredientRemoved -= OnIngredientRemoved;
+        }
     }
 
     private void OnIngredientAdded(IngredientSO ing)
@@ -60,6 +64,12 @@ public class JuicePouringGameManager : MonoBehaviour
         EvaluateCompletion();
     }
 
+    private void OnIngredientRemoved(IngredientSO ing)
+    {
+        Debug.Log("OnIngredientRemoved fired");
+        ingredientInFridge = IsIngredientCurrentlyInFridge();
+    }
+
     private void Update()
     {
         EvaluateCompletion();
@@ -67,7 +77,7 @@ public class JuicePouringGameManager : MonoBehaviour
 
     private void EvaluateCompletion()
     {
-        if (isCompletingStep || !ingredientInFridge)
+        if (isCompletingStep || !IsIngredientCurrentlyInFridge())
             return;
 
         if (requireColdEnough && !IsColdEnough())
@@ -78,6 +88,15 @@ public class JuicePouringGameManager : MonoBehaviour
             return;
 
         CompleteFreezingStep();
+    }
+
+    private bool IsIngredientCurrentlyInFridge()
+    {
+        if (fridge == null)
+            return ingredientInFridge;
+
+        ingredientInFridge = fridge.HasIngredients;
+        return ingredientInFridge;
     }
 
     private void LoadNextScene()

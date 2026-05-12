@@ -146,43 +146,118 @@ public class CutsceneManager : MonoBehaviour
     private IEnumerator PlayRoutine(CutsceneRequest request)
     {
         IsPlaying = true;
-        CutscenePlaybackSettings settings = CutscenePlaybackSettings.From(this, request.Definition);
+        CutscenePlaybackSettings settings;
+        CameraSnapshot startSnapshot;
 
-        EnsureOverlay(settings.OverlaySortingOrder);
-        DestroyActiveOverlayInstance();
-        SetOverlayActive(true);
+        try
+        {
+            settings = CutscenePlaybackSettings.From(this, request.Definition);
 
-        CameraSnapshot startSnapshot = CameraSnapshot.From(sceneCamera);
-        BeginPlayback(request.Finished, settings, startSnapshot);
+            EnsureOverlay(settings.OverlaySortingOrder);
+            DestroyActiveOverlayInstance();
+            SetOverlayActive(true);
 
-        Vector3 focusPosition = ResolveFocusPosition(request.FocusTarget, settings.FocusOffset, startSnapshot.Position.z);
-        float focusSize = sceneCamera.orthographic ? settings.FocusOrthographicSize : sceneCamera.fieldOfView;
+            startSnapshot = CameraSnapshot.From(sceneCamera);
+            BeginPlayback(request.Finished, settings, startSnapshot);
+        }
+        catch (Exception exception)
+        {
+            Debug.LogException(exception, this);
+            CleanupPrePlaybackFailure();
+            yield break;
+        }
 
-        yield return MoveCamera(startSnapshot, focusPosition, focusSize, settings.MoveToFocusDuration, settings.UseUnscaledTime, settings.CameraEase);
+        Vector3 focusPosition;
+        float focusSize;
 
-        activeOverlayInstance = InstantiateOverlayPrefab(settings.OverlayPrefab);
-        ICutsceneAnimation animation = request.AnimationOverride ?? FindAnimation(activeOverlayInstance);
+        try
+        {
+            focusPosition = ResolveFocusPosition(request.FocusTarget, settings.FocusOffset, startSnapshot.Position.z);
+            focusSize = sceneCamera.orthographic ? settings.FocusOrthographicSize : sceneCamera.fieldOfView;
+        }
+        catch (Exception exception)
+        {
+            FailCurrentPlayback(exception);
+            yield break;
+        }
+
+        yield return RunPlaybackStep(MoveCamera(startSnapshot, focusPosition, focusSize, settings.MoveToFocusDuration, settings.UseUnscaledTime, settings.CameraEase));
+        if (!IsPlaying)
+            yield break;
+
+        ICutsceneAnimation animation;
+
+        try
+        {
+            activeOverlayInstance = InstantiateOverlayPrefab(settings.OverlayPrefab);
+            animation = request.AnimationOverride ?? FindAnimation(activeOverlayInstance);
+        }
+        catch (Exception exception)
+        {
+            FailCurrentPlayback(exception);
+            yield break;
+        }
+
         if (animation != null)
         {
             var context = new CutsceneContext(sceneCamera, request.FocusTarget, overlayRoot, settings.UseUnscaledTime, activeOverlayInstance);
             activeAnimation = animation;
             activeContext = context;
-            yield return animation.Play(context);
+            IEnumerator animationRoutine;
+            try
+            {
+                animationRoutine = animation.Play(context);
+            }
+            catch (Exception exception)
+            {
+                FailCurrentPlayback(exception);
+                yield break;
+            }
+
+            yield return RunPlaybackStep(animationRoutine);
+            if (!IsPlaying)
+                yield break;
+
             activeAnimation = null;
             activeContext = null;
         }
         else if (activeOverlayInstance != null && settings.HoldDuration > 0f)
         {
-            yield return Wait(settings.HoldDuration, settings.UseUnscaledTime);
+            yield return RunPlaybackStep(Wait(settings.HoldDuration, settings.UseUnscaledTime));
+            if (!IsPlaying)
+                yield break;
         }
 
-        if (settings.DestroyOverlayWhenFinished)
-            DestroyActiveOverlayInstance();
-        else if (activeOverlayInstance != null)
-            activeOverlayInstance.SetActive(false);
+        try
+        {
+            if (settings.DestroyOverlayWhenFinished)
+                DestroyActiveOverlayInstance();
+            else if (activeOverlayInstance != null)
+                activeOverlayInstance.SetActive(false);
+        }
+        catch (Exception exception)
+        {
+            FailCurrentPlayback(exception);
+            yield break;
+        }
 
         if (settings.RestoreCameraWhenFinished)
-            yield return MoveCamera(CameraSnapshot.From(sceneCamera), startSnapshot.Position, startSnapshot.Size, settings.ReturnDuration, settings.UseUnscaledTime, settings.CameraEase);
+        {
+            IEnumerator returnCameraRoutine;
+            try
+            {
+                returnCameraRoutine = MoveCamera(CameraSnapshot.From(sceneCamera), startSnapshot.Position, startSnapshot.Size, settings.ReturnDuration, settings.UseUnscaledTime, settings.CameraEase);
+            }
+            catch (Exception exception)
+            {
+                FailCurrentPlayback(exception);
+                yield break;
+            }
+
+            yield return RunPlaybackStep(returnCameraRoutine);
+            if (!IsPlaying)
+                yield break;
+        }
 
         FinishPlayback(true);
     }
@@ -215,6 +290,60 @@ public class CutsceneManager : MonoBehaviour
             ApplyCamera(activeStartSnapshot.Position, activeStartSnapshot.Size);
 
         FinishPlayback(invokeFinished);
+    }
+
+    private IEnumerator RunPlaybackStep(IEnumerator routine)
+    {
+        if (routine == null)
+            yield break;
+
+        while (IsPlaying)
+        {
+            object current;
+            try
+            {
+                if (!routine.MoveNext())
+                    yield break;
+
+                current = routine.Current;
+            }
+            catch (Exception exception)
+            {
+                FailCurrentPlayback(exception);
+                yield break;
+            }
+
+            if (current is IEnumerator nestedRoutine)
+            {
+                yield return RunPlaybackStep(nestedRoutine);
+                if (!IsPlaying)
+                    yield break;
+            }
+            else
+            {
+                yield return current;
+            }
+        }
+    }
+
+    private void FailCurrentPlayback(Exception exception)
+    {
+        Debug.LogException(exception, this);
+        CleanupActiveAnimation();
+        DestroyActiveOverlayInstance();
+
+        if (hasActiveSnapshot && activeSettings.RestoreCameraWhenFinished && sceneCamera != null)
+            ApplyCamera(activeStartSnapshot.Position, activeStartSnapshot.Size);
+
+        FinishPlayback(false);
+    }
+
+    private void CleanupPrePlaybackFailure()
+    {
+        DestroyActiveOverlayInstance();
+        SetOverlayActive(false);
+        IsPlaying = false;
+        currentRoutine = null;
     }
 
     private void FinishPlayback(bool invokeFinished)

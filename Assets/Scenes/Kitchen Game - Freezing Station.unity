@@ -349,7 +349,7 @@ MonoBehaviour:
   fridge: {fileID: 959296357}
   juiceCoolingController: {fileID: 2106392881}
   requireColdEnough: 1
-  nextSceneName:
+  nextSceneName: States of Matter Menu
   sceneLoadDelay: 0
   playFreezingCutscene: 1
   freezingCutsceneDefinition: {fileID: 0}
