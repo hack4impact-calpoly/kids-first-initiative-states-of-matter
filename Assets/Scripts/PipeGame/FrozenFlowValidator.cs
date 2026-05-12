@@ -10,7 +10,7 @@ public class FrozenFlowValidator : MonoBehaviour
 
     public bool Validate()
     {
-        var pipes = FindObjectsOfType<PipeObject>();
+        var pipes = FindObjectsByType<PipeObject>(FindObjectsSortMode.None);
         map.Clear();
 
         PipeObject end = null;

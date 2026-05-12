@@ -4,12 +4,27 @@ using System;
 
 public class MockPotController : MonoBehaviour
 {
+    [Header("Container Visual")]
+    [SerializeField] private SpriteRenderer containerRenderer;
+    [SerializeField] private Sprite openContainerSprite;
+    [SerializeField] private Sprite closedContainerSprite;
+    [SerializeField] private bool startsOpen = false;
+    [SerializeField] private bool closeWhenIngredientAdded = true;
+
     public List<IngredientSO> currentIngredients = new List<IngredientSO>();
     public event Action<IngredientSO> IngredientAdded;
+    public event Action<IngredientSO> IngredientRemoved;
+    public Transform LastAddedIngredientTransform { get; private set; }
+    public bool HasIngredients => activeIngredientContacts.Count > 0;
+
+    private readonly Dictionary<IngredientInstance, int> activeIngredientContacts = new Dictionary<IngredientInstance, int>();
 
     private void Awake()
     {
         currentIngredients.Clear();
+        activeIngredientContacts.Clear();
+        LastAddedIngredientTransform = null;
+        SetContainerOpen(startsOpen);
         Debug.Log("Cleared currentIngredients");
     }
 
@@ -19,15 +34,44 @@ public class MockPotController : MonoBehaviour
         TryRegisterIngredient(other);
     }
 
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        Debug.Log("TRIGGER EXIT: " + other.name);
+        TryUnregisterIngredient(other);
+    }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
         Debug.Log("COLLISION HIT: " + collision.collider.name);
         TryRegisterIngredient(collision.collider);
     }
 
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        Debug.Log("COLLISION EXIT: " + collision.collider.name);
+        TryUnregisterIngredient(collision.collider);
+    }
+
     private void TryRegisterIngredient(Collider2D other)
     {
-        var ingredient = other.GetComponent<IngredientInstance>();
+        if (!TryGetIngredient(other, out IngredientInstance ingredient))
+            return;
+
+        Debug.Log("Found IngredientInstance: " + (ingredient.Data != null ? ingredient.Data.name : "NULL"));
+        TryAddIngredient(ingredient);
+    }
+
+    private void TryUnregisterIngredient(Collider2D other)
+    {
+        if (!TryGetIngredient(other, out IngredientInstance ingredient))
+            return;
+
+        TryRemoveIngredient(ingredient);
+    }
+
+    private bool TryGetIngredient(Collider2D other, out IngredientInstance ingredient)
+    {
+        ingredient = other.GetComponent<IngredientInstance>();
 
         if (ingredient == null)
             ingredient = other.GetComponentInParent<IngredientInstance>();
@@ -35,23 +79,30 @@ public class MockPotController : MonoBehaviour
         if (ingredient == null)
             ingredient = other.GetComponentInChildren<IngredientInstance>();
 
-        if (ingredient == null)
-        {
-            Debug.Log("Still no IngredientInstance found on " + other.name);
-            return;
-        }
+        if (ingredient != null)
+            return true;
 
-        Debug.Log("Found IngredientInstance: " + ingredient.Data.name);
-        TryAddIngredient(ingredient.Data);
+        Debug.Log("Still no IngredientInstance found on " + other.name);
+        return false;
     }
 
-    private void TryAddIngredient(IngredientSO ingredient)
+    private void TryAddIngredient(IngredientInstance ingredientInstance)
     {
+        IngredientSO ingredient = ingredientInstance.Data;
+
         if (ingredient == null)
         {
             Debug.Log("IngredientSO is null");
             return;
         }
+
+        if (activeIngredientContacts.TryGetValue(ingredientInstance, out int contactCount))
+        {
+            activeIngredientContacts[ingredientInstance] = contactCount + 1;
+            return;
+        }
+
+        activeIngredientContacts.Add(ingredientInstance, 1);
 
         if (currentIngredients.Contains(ingredient))
         {
@@ -60,10 +111,61 @@ public class MockPotController : MonoBehaviour
         }
 
         currentIngredients.Add(ingredient);
+        LastAddedIngredientTransform = ingredientInstance.transform;
+        if (closeWhenIngredientAdded)
+            SetContainerOpen(false);
         Debug.Log("Invoking IngredientAdded for " + ingredient.name);
         IngredientAdded?.Invoke(ingredient);
     }
 
+    private void TryRemoveIngredient(IngredientInstance ingredientInstance)
+    {
+        if (!activeIngredientContacts.TryGetValue(ingredientInstance, out int contactCount))
+            return;
+
+        if (contactCount > 1)
+        {
+            activeIngredientContacts[ingredientInstance] = contactCount - 1;
+            return;
+        }
+
+        activeIngredientContacts.Remove(ingredientInstance);
+
+        IngredientSO ingredient = ingredientInstance.Data;
+        if (ingredient == null || HasActiveIngredientWithData(ingredient))
+            return;
+
+        currentIngredients.Remove(ingredient);
+
+        if (LastAddedIngredientTransform == ingredientInstance.transform)
+            LastAddedIngredientTransform = null;
+
+        Debug.Log("Invoking IngredientRemoved for " + ingredient.name);
+        IngredientRemoved?.Invoke(ingredient);
+    }
+
+    private bool HasActiveIngredientWithData(IngredientSO ingredient)
+    {
+        foreach (IngredientInstance activeIngredient in activeIngredientContacts.Keys)
+        {
+            if (activeIngredient != null && activeIngredient.Data == ingredient)
+                return true;
+        }
+
+        return false;
+    }
+
     public bool ContainsIngredient(IngredientSO requiredIngredient)
         => requiredIngredient != null && currentIngredients.Contains(requiredIngredient);
+
+    public void SetContainerOpen(bool isOpen)
+    {
+        if (containerRenderer == null)
+            return;
+
+        Sprite targetSprite = isOpen ? openContainerSprite : closedContainerSprite;
+
+        if (targetSprite != null)
+            containerRenderer.sprite = targetSprite;
+    }
 }

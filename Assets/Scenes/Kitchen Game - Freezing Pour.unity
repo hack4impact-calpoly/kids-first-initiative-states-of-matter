@@ -147,7 +147,7 @@ RectTransform:
   m_GameObject: {fileID: 50703118}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 4.5164666, y: 3.37875, z: 1}
+  m_LocalScale: {x: 4.5164666, y: 5.25, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 266467697}
@@ -172,6 +172,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::IceTray
   fillImage: {fileID: 266467698}
   fillPerDroplet: 0.05
+  hitboxTopInset: 0.3
+  hitboxHorizontalInset: 0.08
+  tintFillImage: 0
   emptyColor: {r: 1, g: 1, b: 1, a: 0.15}
   fullColor: {r: 1, g: 0.55, b: 0, a: 1}
 --- !u!114 &50703121
@@ -196,7 +199,7 @@ MonoBehaviour:
       m_Calls: []
   m_Sprite: {fileID: 1233945897140024561, guid: cc56016d7e8564873a4c5e54d11970b7, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -269,9 +272,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1233945897140024561, guid: cc56016d7e8564873a4c5e54d11970b7, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 9a5f3e2d4c174e0c9b6e72e5ef8d9a31, type: 3}
   m_Type: 3
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 1
   m_FillAmount: 0
@@ -546,6 +549,15 @@ MonoBehaviour:
   juiceCoolingController: {fileID: 1656392881}
   tray: {fileID: 50703120}
   winText: {fileID: 2029627397}
+  loadNextSceneOnTrayFull: 1
+  nextSceneName: Kitchen Game - Freezing Station
+  sceneLoadDelay: 0.5
+  requireColdEnough: 0
+  playLiquidFlowCutsceneOnTrayFull: 1
+  liquidFlowCutsceneDefinition: {fileID: 0}
+  cutsceneManager: {fileID: 0}
+  liquidFlowCutscene: {fileID: 0}
+  liquidFlowCutsceneTargetOverride: {fileID: 0}
 --- !u!1001 &692592941
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1095,6 +1107,10 @@ PrefabInstance:
     - target: {fileID: 4163914946462717213, guid: a418c39ef254846bb98834ef43452a46, type: 3}
       propertyPath: m_Name
       value: FreezeSlider
+      objectReference: {fileID: 0}
+    - target: {fileID: 4163914946462717213, guid: a418c39ef254846bb98834ef43452a46, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7665049191203955182, guid: a418c39ef254846bb98834ef43452a46, type: 3}
       propertyPath: m_Pivot.x

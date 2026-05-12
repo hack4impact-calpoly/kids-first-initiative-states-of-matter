@@ -8,7 +8,7 @@ public class FreezeOnClick : MonoBehaviour
     void Awake()
     {
         pipe = GetComponent<PipeObject>();
-        validator = FindFirstObjectByType<FrozenFlowValidator>();
+        validator = FindAnyObjectByType<FrozenFlowValidator>();
     }
 
     void OnMouseDown()

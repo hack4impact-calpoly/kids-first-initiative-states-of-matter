@@ -10,7 +10,7 @@ public class JuiceCoolingController : MonoBehaviour
 
     public float CurrentTemperature { get; private set; }
 
-    // Left side = cold enough
+    // Bottom/minimum temperature is cold enough.
     public bool IsColdEnough => temperatureSlider != null && temperatureSlider.value <= freezeThreshold;
 
     public event Action<float> TemperatureChanged;

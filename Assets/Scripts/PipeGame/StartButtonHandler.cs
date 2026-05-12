@@ -1,9 +1,19 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class StartButtonHandler : MonoBehaviour
 {
     public PipeUIController ui;
     public GameObject startButton;
+
+    [Header("Success Cutscene")]
+    [SerializeField] private bool playSuccessCutscene = true;
+    [SerializeField] private CutsceneDefinition successCutsceneDefinition;
+    [SerializeField] private CutsceneManager cutsceneManager;
+    [SerializeField] private StateChangeCutsceneAnimation successCutscene;
+    [SerializeField] private Transform cutsceneTargetOverride;
+
+    private PipeObject lastEndPipe;
 
     public void OnStartPressed()
     {
@@ -19,14 +29,21 @@ public class StartButtonHandler : MonoBehaviour
         bool success = CheckEndWater();
 
         if (success)
+        {
+            if (TryPlaySuccessCutscene())
+                return;
+
             ui.ShowSuccess();
+        }
         else
+        {
             ui.ShowFailure();
+        }
     }
 
     private bool CheckEndWater()
     {
-        PipeObject[] pipes = FindObjectsOfType<PipeObject>();
+        PipeObject[] pipes = FindObjectsByType<PipeObject>(FindObjectsSortMode.None);
 
         if (pipes.Length == 0)
         {
@@ -42,11 +59,88 @@ public class StartButtonHandler : MonoBehaviour
             if (pipe.isEnd)
             {
                 Debug.Log("End pipe found. Water = " + pipe.water);
+                lastEndPipe = pipe;
                 return pipe.water;
             }
         }
 
         Debug.LogWarning("No PipeObject with isEnd == true found.");
         return false;
+    }
+
+    private bool TryPlaySuccessCutscene()
+    {
+        if (!playSuccessCutscene)
+            return false;
+
+        CutsceneManager manager = ResolveCutsceneManager();
+        StateChangeCutsceneAnimation animation = ResolveSuccessCutscene();
+
+        if (manager == null || animation == null)
+            return false;
+
+        animation.Configure(ResolveCutsceneKind());
+        Transform target = ResolveCutsceneTarget();
+
+        if (successCutsceneDefinition != null)
+            return manager.TryPlay(successCutsceneDefinition, target, (ICutsceneAnimation)animation, ShowSuccess);
+
+        return manager.TryPlay(target, (ICutsceneAnimation)animation, ShowSuccess);
+    }
+
+    private MatterCutsceneKind ResolveCutsceneKind()
+    {
+        string sceneName = SceneManager.GetActiveScene().name;
+        if (sceneName.Contains("Frozen"))
+            return MatterCutsceneKind.PipeFreezing;
+
+        PipeObject[] pipes = FindObjectsByType<PipeObject>(FindObjectsSortMode.None);
+        for (int i = 0; i < pipes.Length; i++)
+        {
+            if (pipes[i].isSink || pipes[i].isFrozen)
+                return MatterCutsceneKind.PipeFreezing;
+        }
+
+        return MatterCutsceneKind.PipeWaterFlow;
+    }
+
+    private Transform ResolveCutsceneTarget()
+    {
+        if (cutsceneTargetOverride != null)
+            return cutsceneTargetOverride;
+
+        return lastEndPipe != null ? lastEndPipe.transform : transform;
+    }
+
+    private CutsceneManager ResolveCutsceneManager()
+    {
+        if (cutsceneManager != null)
+            return cutsceneManager;
+
+        cutsceneManager = FindAnyObjectByType<CutsceneManager>();
+
+        if (cutsceneManager == null)
+            cutsceneManager = gameObject.AddComponent<CutsceneManager>();
+
+        return cutsceneManager;
+    }
+
+    private StateChangeCutsceneAnimation ResolveSuccessCutscene()
+    {
+        if (successCutscene != null)
+            return successCutscene;
+
+        successCutscene = GetComponent<StateChangeCutsceneAnimation>();
+
+        if (successCutscene == null)
+            successCutscene = gameObject.AddComponent<StateChangeCutsceneAnimation>();
+
+        return successCutscene;
+    }
+
+    private void ShowSuccess()
+    {
+        if (ui != null)
+            ui.ShowSuccess();
     }
 }
