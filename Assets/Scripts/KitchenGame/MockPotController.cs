@@ -4,6 +4,13 @@ using System;
 
 public class MockPotController : MonoBehaviour
 {
+    [Header("Container Visual")]
+    [SerializeField] private SpriteRenderer containerRenderer;
+    [SerializeField] private Sprite openContainerSprite;
+    [SerializeField] private Sprite closedContainerSprite;
+    [SerializeField] private bool startsOpen = false;
+    [SerializeField] private bool closeWhenIngredientAdded = true;
+
     public List<IngredientSO> currentIngredients = new List<IngredientSO>();
     public event Action<IngredientSO> IngredientAdded;
     public Transform LastAddedIngredientTransform { get; private set; }
@@ -12,6 +19,7 @@ public class MockPotController : MonoBehaviour
     {
         currentIngredients.Clear();
         LastAddedIngredientTransform = null;
+        SetContainerOpen(startsOpen);
         Debug.Log("Cleared currentIngredients");
     }
 
@@ -63,10 +71,23 @@ public class MockPotController : MonoBehaviour
 
         currentIngredients.Add(ingredient);
         LastAddedIngredientTransform = ingredientTransform;
+        if (closeWhenIngredientAdded)
+            SetContainerOpen(false);
         Debug.Log("Invoking IngredientAdded for " + ingredient.name);
         IngredientAdded?.Invoke(ingredient);
     }
 
     public bool ContainsIngredient(IngredientSO requiredIngredient)
         => requiredIngredient != null && currentIngredients.Contains(requiredIngredient);
+
+    public void SetContainerOpen(bool isOpen)
+    {
+        if (containerRenderer == null)
+            return;
+
+        Sprite targetSprite = isOpen ? openContainerSprite : closedContainerSprite;
+
+        if (targetSprite != null)
+            containerRenderer.sprite = targetSprite;
+    }
 }

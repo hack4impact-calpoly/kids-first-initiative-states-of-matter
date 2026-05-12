@@ -75,6 +75,7 @@ public class CoolingStationLoader : MonoBehaviour
 
     private void LoadNextScene()
     {
-        SceneManager.LoadScene(nextSceneName);
+        if (!string.IsNullOrWhiteSpace(nextSceneName))
+            SceneManager.LoadScene(nextSceneName);
     }
 }

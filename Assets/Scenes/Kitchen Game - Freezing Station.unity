@@ -154,8 +154,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 274}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchoredPosition: {x: 0, y: 230}
+  m_SizeDelta: {x: 160, y: 160}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &131970022
 MonoBehaviour:
@@ -167,7 +167,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e6e1e3cd2f004a1cbc9e13471aab037, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::SpawnAndDragIngredient2D
   worldPrefab: {fileID: 8590451511247566294, guid: 63650139b5f2847b2bdd6f20d92d65ad, type: 3}
   worldCamera: {fileID: 1643071941}
@@ -187,16 +187,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.51526874, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: 32f814bacc1d4a6b9d413e0b037f1dc2, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -347,8 +347,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JuicePouringGameManager
   fridge: {fileID: 959296357}
-  nextSceneName: Kitchen Game - Freezing Pour
+  juiceCoolingController: {fileID: 2106392881}
+  requireColdEnough: 1
+  nextSceneName:
   sceneLoadDelay: 0
+  playFreezingCutscene: 1
+  freezingCutsceneDefinition: {fileID: 0}
+  cutsceneManager: {fileID: 0}
+  freezingCutscene: {fileID: 0}
+  freezingCutsceneTargetOverride: {fileID: 0}
 --- !u!1 &1089687371
 GameObject:
   m_ObjectHideFlags: 0
@@ -397,7 +404,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 0.392}
@@ -425,51 +432,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1089687371}
   m_CullTransparentMesh: 0
---- !u!1 &1406667750
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1406667752}
-  - component: {fileID: 1406667753}
-  m_Layer: 0
-  m_Name: CoolingStation
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1406667752
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1406667750}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -54.32496, y: 69.74989, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1406667753
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1406667750}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7ca05ee8aa9e5414bbe728368e00d06d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CoolingStationLoader
-  nextSceneName: Kitchen Game - Freezing Pour
 --- !u!1 &1643071939
 GameObject:
   m_ObjectHideFlags: 0
@@ -618,7 +580,7 @@ GameObject:
   - component: {fileID: 1953932547}
   - component: {fileID: 1953932546}
   m_Layer: 0
-  m_Name: Square
+  m_Name: IceChest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -673,8 +635,8 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 5473872203702090495, guid: ddbf73dd865bc4bfbb3c5a174a26168f, type: 3}
-  m_Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  m_Sprite: {fileID: 21300000, guid: c0f0a9e252b64647b6c74f2d25b852e5, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -693,7 +655,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 1}
+  m_LocalScale: {x: 2.15, y: 2.15, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -793,6 +755,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1089687372}
+  - {fileID: 2106392880}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -800,6 +763,139 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!1001 &2100183012
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2062068552}
+    m_Modifications:
+    - target: {fileID: 4103703716394249822, guid: a418c39ef254846bb98834ef43452a46, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4103703716394249822, guid: a418c39ef254846bb98834ef43452a46, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4103703716394249822, guid: a418c39ef254846bb98834ef43452a46, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4103703716394249822, guid: a418c39ef254846bb98834ef43452a46, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4163914946462717213, guid: a418c39ef254846bb98834ef43452a46, type: 3}
+      propertyPath: m_Name
+      value: FreezeSlider
+      objectReference: {fileID: 0}
+    - target: {fileID: 7665049191203955182, guid: a418c39ef254846bb98834ef43452a46, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7665049191203955182, guid: a418c39ef254846bb98834ef43452a46, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7665049191203955182, guid: a418c39ef254846bb98834ef43452a46, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7665049191203955182, guid: a418c39ef254846bb98834ef43452a46, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7665049191203955182, guid: a418c39ef254846bb98834ef43452a46, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7665049191203955182, guid: a418c39ef254846bb98834ef43452a46, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7665049191203955182, guid: a418c39ef254846bb98834ef43452a46, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 165
+      objectReference: {fileID: 0}
+    - target: {fileID: 7665049191203955182, guid: a418c39ef254846bb98834ef43452a46, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 440
+      objectReference: {fileID: 0}
+    - target: {fileID: 7665049191203955182, guid: a418c39ef254846bb98834ef43452a46, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7665049191203955182, guid: a418c39ef254846bb98834ef43452a46, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7665049191203955182, guid: a418c39ef254846bb98834ef43452a46, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7665049191203955182, guid: a418c39ef254846bb98834ef43452a46, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7665049191203955182, guid: a418c39ef254846bb98834ef43452a46, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7665049191203955182, guid: a418c39ef254846bb98834ef43452a46, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7665049191203955182, guid: a418c39ef254846bb98834ef43452a46, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7665049191203955182, guid: a418c39ef254846bb98834ef43452a46, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 700
+      objectReference: {fileID: 0}
+    - target: {fileID: 7665049191203955182, guid: a418c39ef254846bb98834ef43452a46, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -145
+      objectReference: {fileID: 0}
+    - target: {fileID: 7665049191203955182, guid: a418c39ef254846bb98834ef43452a46, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7665049191203955182, guid: a418c39ef254846bb98834ef43452a46, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7665049191203955182, guid: a418c39ef254846bb98834ef43452a46, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7817318477783309442, guid: a418c39ef254846bb98834ef43452a46, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: a418c39ef254846bb98834ef43452a46, type: 3}
+--- !u!224 &2106392880 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 7665049191203955182, guid: a418c39ef254846bb98834ef43452a46, type: 3}
+  m_PrefabInstance: {fileID: 2100183012}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2106392881 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8232129922224583124, guid: a418c39ef254846bb98834ef43452a46, type: 3}
+  m_PrefabInstance: {fileID: 2100183012}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ce2105f4283b4f7c97c43a3b3131211, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::JuiceCoolingController
 --- !u!1001 &6587501963178789583
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -813,8 +909,24 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: -8025714326218165295, guid: 0d7f2314e656f9e4f94a87a6663de650, type: 3}
+      propertyPath: m_Size.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8025714326218165295, guid: 0d7f2314e656f9e4f94a87a6663de650, type: 3}
+      propertyPath: m_Size.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -8025714326218165295, guid: 0d7f2314e656f9e4f94a87a6663de650, type: 3}
+      propertyPath: m_Offset.y
+      value: -0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -8025714326218165295, guid: 0d7f2314e656f9e4f94a87a6663de650, type: 3}
       propertyPath: m_IsTrigger
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8025714326218165295, guid: 0d7f2314e656f9e4f94a87a6663de650, type: 3}
+      propertyPath: m_LayerOverridePriority
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -7285618462354312427, guid: 0d7f2314e656f9e4f94a87a6663de650, type: 3}
       propertyPath: m_Size.x
@@ -909,6 +1021,26 @@ PrefabInstance:
       value: 0.6
       objectReference: {fileID: 0}
     - target: {fileID: 8123739754782350630, guid: 0d7f2314e656f9e4f94a87a6663de650, type: 3}
+      propertyPath: startsOpen
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8123739754782350630, guid: 0d7f2314e656f9e4f94a87a6663de650, type: 3}
+      propertyPath: containerRenderer
+      value:
+      objectReference: {fileID: 1953932546}
+    - target: {fileID: 8123739754782350630, guid: 0d7f2314e656f9e4f94a87a6663de650, type: 3}
+      propertyPath: openContainerSprite
+      value:
+      objectReference: {fileID: 21300000, guid: c0f0a9e252b64647b6c74f2d25b852e5, type: 3}
+    - target: {fileID: 8123739754782350630, guid: 0d7f2314e656f9e4f94a87a6663de650, type: 3}
+      propertyPath: closedContainerSprite
+      value:
+      objectReference: {fileID: 21300000, guid: 91f6c2e2d8af42ea934f6d605c7e164f, type: 3}
+    - target: {fileID: 8123739754782350630, guid: 0d7f2314e656f9e4f94a87a6663de650, type: 3}
+      propertyPath: closeWhenIngredientAdded
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8123739754782350630, guid: 0d7f2314e656f9e4f94a87a6663de650, type: 3}
       propertyPath: 'currentIngredients.Array.data[0]'
       value: 
       objectReference: {fileID: 11400000, guid: 234739a2573e14be1916f012786f6ea1, type: 2}
@@ -927,4 +1059,3 @@ SceneRoots:
   - {fileID: 6587501963178789583}
   - {fileID: 1002658046}
   - {fileID: 1953932547}
-  - {fileID: 1406667752}

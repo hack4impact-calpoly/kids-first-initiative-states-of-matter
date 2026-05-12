@@ -120,8 +120,10 @@ public class StateChangeCutsceneAnimation : MonoBehaviour, ICutsceneAnimation, I
         List<ParticleView> particles = CreateParticles(particleArea);
         List<BondView> bonds = CreateBonds(particleArea, particles);
         List<RectTransform> flowLines = CreateFlowLines(particleArea);
+        IceCubeView iceCube = CreateIceCube(particleArea);
+        ContainerView container = CreateContainer(particleArea);
 
-        return new CutsceneView(root, group, title, stageLabel, particleArea, particles, bonds, flowLines);
+        return new CutsceneView(root, group, title, stageLabel, particleArea, particles, bonds, flowLines, iceCube, container);
     }
 
     private List<ParticleView> CreateParticles(RectTransform parent)
@@ -203,6 +205,91 @@ public class StateChangeCutsceneAnimation : MonoBehaviour, ICutsceneAnimation, I
         return lines;
     }
 
+    private IceCubeView CreateIceCube(RectTransform parent)
+    {
+        Vector2 size = new Vector2(particleAreaSize.x * 0.8f, particleAreaSize.y * 0.82f);
+        RectTransform fill = CreateRect("Ice Cube Fill", parent, size, Vector2.zero);
+        Image fillImage = fill.gameObject.AddComponent<Image>();
+        fillImage.color = new Color(0.55f, 0.9f, 1f, 0f);
+        fillImage.raycastTarget = false;
+        fill.SetAsFirstSibling();
+
+        float thickness = 10f;
+        float halfWidth = size.x * 0.5f;
+        float halfHeight = size.y * 0.5f;
+        var edges = new List<Image>(4)
+        {
+            CreateIceCubeEdge(parent, "Ice Cube Top Edge", new Vector2(size.x, thickness), new Vector2(0f, halfHeight)),
+            CreateIceCubeEdge(parent, "Ice Cube Bottom Edge", new Vector2(size.x, thickness), new Vector2(0f, -halfHeight)),
+            CreateIceCubeEdge(parent, "Ice Cube Left Edge", new Vector2(thickness, size.y), new Vector2(-halfWidth, 0f)),
+            CreateIceCubeEdge(parent, "Ice Cube Right Edge", new Vector2(thickness, size.y), new Vector2(halfWidth, 0f))
+        };
+
+        return new IceCubeView(fillImage, edges);
+    }
+
+    private Image CreateIceCubeEdge(RectTransform parent, string objectName, Vector2 size, Vector2 position)
+    {
+        RectTransform edge = CreateRect(objectName, parent, size, position);
+        Image image = edge.gameObject.AddComponent<Image>();
+        image.color = new Color(0.84f, 0.98f, 1f, 0f);
+        image.raycastTarget = false;
+        return image;
+    }
+
+    private ContainerView CreateContainer(RectTransform parent)
+    {
+        float bodyWidth = particleAreaSize.x * 0.23f;
+        float neckWidth = particleAreaSize.x * 0.12f;
+        float bottomY = -particleAreaSize.y * 0.43f;
+        float bodyTopY = particleAreaSize.y * 0.13f;
+        float neckBottomY = particleAreaSize.y * 0.3f;
+        float neckTopY = particleAreaSize.y * 0.43f;
+        float thickness = 9f;
+
+        float bodyHalfWidth = bodyWidth * 0.5f;
+        float neckHalfWidth = neckWidth * 0.5f;
+        Vector2 leftShoulderStart = new Vector2(-bodyHalfWidth, bodyTopY);
+        Vector2 leftShoulderEnd = new Vector2(-neckHalfWidth, neckBottomY);
+        Vector2 rightShoulderStart = new Vector2(bodyHalfWidth, bodyTopY);
+        Vector2 rightShoulderEnd = new Vector2(neckHalfWidth, neckBottomY);
+
+        var edges = new List<Image>(7)
+        {
+            CreateContainerEdge(parent, "Container Bottom", new Vector2(bodyWidth, thickness), new Vector2(0f, bottomY), 0f),
+            CreateContainerEdge(parent, "Container Left Wall", new Vector2(thickness, bodyTopY - bottomY), new Vector2(-bodyHalfWidth, (bottomY + bodyTopY) * 0.5f), 0f),
+            CreateContainerEdge(parent, "Container Right Wall", new Vector2(thickness, bodyTopY - bottomY), new Vector2(bodyHalfWidth, (bottomY + bodyTopY) * 0.5f), 0f),
+            CreateContainerEdgeBetween(parent, "Container Left Shoulder", leftShoulderStart, leftShoulderEnd, thickness),
+            CreateContainerEdgeBetween(parent, "Container Right Shoulder", rightShoulderStart, rightShoulderEnd, thickness),
+            CreateContainerEdge(parent, "Container Left Neck", new Vector2(thickness, neckTopY - neckBottomY), new Vector2(-neckHalfWidth, (neckBottomY + neckTopY) * 0.5f), 0f),
+            CreateContainerEdge(parent, "Container Right Neck", new Vector2(thickness, neckTopY - neckBottomY), new Vector2(neckHalfWidth, (neckBottomY + neckTopY) * 0.5f), 0f)
+        };
+
+        Image lip = CreateContainerEdge(parent, "Container Lip", new Vector2(neckWidth * 1.15f, thickness), new Vector2(0f, neckTopY), 0f);
+        edges.Add(lip);
+        return new ContainerView(edges);
+    }
+
+    private Image CreateContainerEdgeBetween(RectTransform parent, string objectName, Vector2 start, Vector2 end, float thickness)
+    {
+        Vector2 delta = end - start;
+        Vector2 size = new Vector2(delta.magnitude, thickness);
+        Vector2 position = (start + end) * 0.5f;
+        float rotation = Mathf.Atan2(delta.y, delta.x) * Mathf.Rad2Deg;
+        return CreateContainerEdge(parent, objectName, size, position, rotation);
+    }
+
+    private Image CreateContainerEdge(RectTransform parent, string objectName, Vector2 size, Vector2 position, float rotation)
+    {
+        RectTransform edge = CreateRect(objectName, parent, size, position);
+        edge.localRotation = Quaternion.Euler(0f, 0f, rotation);
+
+        Image image = edge.gameObject.AddComponent<Image>();
+        image.color = new Color(0.78f, 0.96f, 1f, 0f);
+        image.raycastTarget = false;
+        return image;
+    }
+
     private IEnumerator AnimateStage(CutsceneView view, float duration, int stage, CutsceneContext context)
     {
         CaptureStageStartPositions(view);
@@ -233,7 +320,7 @@ public class StateChangeCutsceneAnimation : MonoBehaviour, ICutsceneAnimation, I
                 AnimateCircuit(view, stage, progress, view.ElapsedTime, deltaTime);
                 break;
             default:
-                AnimateLiquid(view, progress, view.ElapsedTime, deltaTime);
+                AnimateLiquid(view, stage, progress, view.ElapsedTime, deltaTime);
                 break;
         }
     }
@@ -244,18 +331,19 @@ public class StateChangeCutsceneAnimation : MonoBehaviour, ICutsceneAnimation, I
             view.Particles[i].StageStartPosition = view.Particles[i].Position;
     }
 
-    private void AnimateLiquid(CutsceneView view, float progress, float elapsed, float deltaTime)
+    private void AnimateLiquid(CutsceneView view, int stage, float progress, float elapsed, float deltaTime)
     {
         for (int i = 0; i < view.Particles.Count; i++)
         {
             ParticleView particle = view.Particles[i];
             particle.Position += particle.Velocity * deltaTime;
-            particle.Position = BounceInside(particle.Position, ref particle.Velocity);
+            particle.Position = BounceInsideContainer(particle.Position, ref particle.Velocity);
             particle.Rect.anchoredPosition = particle.Position + Vector2.up * Mathf.Sin(elapsed * 3.2f + particle.Phase) * 10f;
         }
 
         UpdateBonds(view.Bonds, 0f);
-        SetFlowLineAlpha(view.FlowLines, 0.28f);
+        SetFlowLineAlpha(view.FlowLines, 0f);
+        SetContainerAlpha(view.Container, stage == 0 ? progress : 1f);
     }
 
     private void AnimateChocolateMelting(CutsceneView view, int stage, float progress, float elapsed, float deltaTime)
@@ -308,7 +396,8 @@ public class StateChangeCutsceneAnimation : MonoBehaviour, ICutsceneAnimation, I
         }
 
         UpdateBonds(view.Bonds, lockAmount);
-        SetFlowLineAlpha(view.FlowLines, Mathf.Lerp(0.26f, 0f, lockAmount));
+        SetFlowLineAlpha(view.FlowLines, 0f);
+        SetIceCubeAlpha(view.IceCube, lockAmount);
     }
 
     private void AnimatePipeFlow(CutsceneView view, int stage, float progress, float elapsed, float deltaTime, bool freezes)
@@ -442,6 +531,38 @@ public class StateChangeCutsceneAnimation : MonoBehaviour, ICutsceneAnimation, I
         }
     }
 
+    private void SetIceCubeAlpha(IceCubeView iceCube, float amount)
+    {
+        if (iceCube == null)
+            return;
+
+        float eased = Mathf.SmoothStep(0f, 1f, amount);
+        Color fillColor = iceCube.Fill.color;
+        fillColor.a = 0.2f * eased;
+        iceCube.Fill.color = fillColor;
+
+        for (int i = 0; i < iceCube.Edges.Count; i++)
+        {
+            Color edgeColor = iceCube.Edges[i].color;
+            edgeColor.a = 0.82f * eased;
+            iceCube.Edges[i].color = edgeColor;
+        }
+    }
+
+    private void SetContainerAlpha(ContainerView container, float amount)
+    {
+        if (container == null)
+            return;
+
+        float eased = Mathf.SmoothStep(0f, 1f, amount);
+        for (int i = 0; i < container.Edges.Count; i++)
+        {
+            Color edgeColor = container.Edges[i].color;
+            edgeColor.a = 0.84f * eased;
+            container.Edges[i].color = edgeColor;
+        }
+    }
+
     private Vector2 BounceInside(Vector2 position, ref Vector2 velocity)
     {
         float maxX = particleAreaSize.x * 0.45f;
@@ -460,6 +581,44 @@ public class StateChangeCutsceneAnimation : MonoBehaviour, ICutsceneAnimation, I
         }
 
         return position;
+    }
+
+    private Vector2 BounceInsideContainer(Vector2 position, ref Vector2 velocity)
+    {
+        float minY = -particleAreaSize.y * 0.4f;
+        float maxY = particleAreaSize.y * 0.4f;
+
+        if (position.y < minY || position.y > maxY)
+        {
+            velocity.y *= -1f;
+            position.y = Mathf.Clamp(position.y, minY, maxY);
+        }
+
+        float maxX = GetContainerHalfWidth(position.y);
+        if (position.x < -maxX || position.x > maxX)
+        {
+            velocity.x *= -1f;
+            position.x = Mathf.Clamp(position.x, -maxX, maxX);
+        }
+
+        return position;
+    }
+
+    private float GetContainerHalfWidth(float y)
+    {
+        float bodyHalfWidth = particleAreaSize.x * 0.115f;
+        float neckHalfWidth = particleAreaSize.x * 0.06f;
+        float shoulderStartY = particleAreaSize.y * 0.13f;
+        float shoulderEndY = particleAreaSize.y * 0.3f;
+
+        if (y <= shoulderStartY)
+            return bodyHalfWidth;
+
+        if (y >= shoulderEndY)
+            return neckHalfWidth;
+
+        float shoulderProgress = Mathf.InverseLerp(shoulderStartY, shoulderEndY, y);
+        return Mathf.Lerp(bodyHalfWidth, neckHalfWidth, shoulderProgress);
     }
 
     private IEnumerator Fade(CanvasGroup group, float from, float to, float duration, CutsceneContext context)
@@ -500,12 +659,19 @@ public class StateChangeCutsceneAnimation : MonoBehaviour, ICutsceneAnimation, I
                 return Color.Lerp(new Color(0.34f, 0.14f, 0.045f, 1f), new Color(0.86f, 0.42f, 0.14f, 1f), (index % 5) * 0.16f);
             case MatterCutsceneKind.CircuitEnergy:
                 return Color.Lerp(new Color(0.25f, 0.78f, 1f, 1f), new Color(1f, 0.95f, 0.2f, 1f), index / Mathf.Max(1f, particleCount - 1f));
-            case MatterCutsceneKind.PipeFreezing:
+            case MatterCutsceneKind.LiquidFlow:
             case MatterCutsceneKind.LiquidFreezing:
+                return GetJuiceParticleColor(index);
+            case MatterCutsceneKind.PipeFreezing:
                 return Color.Lerp(new Color(0.35f, 0.85f, 1f, 1f), new Color(0.8f, 1f, 1f, 1f), (index % 4) * 0.2f);
             default:
                 return Color.Lerp(new Color(0.1f, 0.58f, 1f, 1f), new Color(0.55f, 0.9f, 1f, 1f), (index % 5) * 0.16f);
         }
+    }
+
+    private Color GetJuiceParticleColor(int index)
+    {
+        return Color.Lerp(new Color(0.91f, 0.42f, 0.03f, 1f), new Color(1f, 0.67f, 0.28f, 1f), (index % 5) * 0.18f);
     }
 
     private Color GetBackdropColor()
@@ -600,7 +766,7 @@ public class StateChangeCutsceneAnimation : MonoBehaviour, ICutsceneAnimation, I
 
     private sealed class CutsceneView
     {
-        public CutsceneView(RectTransform root, CanvasGroup group, TextMeshProUGUI title, TextMeshProUGUI stageLabel, RectTransform particleArea, List<ParticleView> particles, List<BondView> bonds, List<RectTransform> flowLines)
+        public CutsceneView(RectTransform root, CanvasGroup group, TextMeshProUGUI title, TextMeshProUGUI stageLabel, RectTransform particleArea, List<ParticleView> particles, List<BondView> bonds, List<RectTransform> flowLines, IceCubeView iceCube, ContainerView container)
         {
             Root = root;
             Group = group;
@@ -610,6 +776,8 @@ public class StateChangeCutsceneAnimation : MonoBehaviour, ICutsceneAnimation, I
             Particles = particles;
             Bonds = bonds;
             FlowLines = flowLines;
+            IceCube = iceCube;
+            Container = container;
         }
 
         public RectTransform Root { get; }
@@ -620,7 +788,31 @@ public class StateChangeCutsceneAnimation : MonoBehaviour, ICutsceneAnimation, I
         public List<ParticleView> Particles { get; }
         public List<BondView> Bonds { get; }
         public List<RectTransform> FlowLines { get; }
+        public IceCubeView IceCube { get; }
+        public ContainerView Container { get; }
         public float ElapsedTime;
+    }
+
+    private sealed class IceCubeView
+    {
+        public IceCubeView(Image fill, List<Image> edges)
+        {
+            Fill = fill;
+            Edges = edges;
+        }
+
+        public Image Fill { get; }
+        public List<Image> Edges { get; }
+    }
+
+    private sealed class ContainerView
+    {
+        public ContainerView(List<Image> edges)
+        {
+            Edges = edges;
+        }
+
+        public List<Image> Edges { get; }
     }
 
     private sealed class ParticleView
