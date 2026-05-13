@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class PowerDialController : MonoBehaviour
 {
     [SerializeField] private Slider powerSlider;
+    [Range(0f, 1f)]
     [SerializeField] private float powerThreshold = 0.95f;
     [SerializeField] private bool snapToOnOnRelease = true;
     [Range(0f, 1f)]
@@ -24,7 +25,7 @@ public class PowerDialController : MonoBehaviour
     private bool wasPoweredOn;
     private bool isListening;
 
-    public bool IsPoweredOn => powerSlider != null && powerSlider.value >= powerThreshold;
+    public bool IsPoweredOn => powerSlider != null && GetNormalizedSliderValue() >= powerThreshold;
     public AttentionHighlight GuidanceHighlight => ResolveGuidanceHighlight();
     public event Action<bool> PowerStateChanged;
 
@@ -61,8 +62,7 @@ public class PowerDialController : MonoBehaviour
         if (!snapToOnOnRelease || powerSlider == null)
             return;
 
-        float normalizedValue = Mathf.InverseLerp(powerSlider.minValue, powerSlider.maxValue, powerSlider.value);
-        if (normalizedValue < releaseSnapThreshold)
+        if (GetNormalizedSliderValue() < releaseSnapThreshold)
             return;
 
         powerSlider.value = powerSlider.maxValue;
@@ -72,6 +72,14 @@ public class PowerDialController : MonoBehaviour
     {
         if (powerSlider == null)
             powerSlider = GetComponentInChildren<Slider>();
+    }
+
+    private float GetNormalizedSliderValue()
+    {
+        if (powerSlider == null)
+            return 0f;
+
+        return Mathf.InverseLerp(powerSlider.minValue, powerSlider.maxValue, powerSlider.value);
     }
 
     private void StartListening()

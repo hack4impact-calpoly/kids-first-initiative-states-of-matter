@@ -6,14 +6,13 @@ using UnityEngine.UI;
 
 public enum MatterCutsceneKind
 {
-    ChocolateMelting,
-    LiquidFlow,
-    LiquidFreezing,
-    PipeWaterFlow,
-    PipeFreezing,
-    CircuitEnergy,
-    CircuitCandleMelting,
-    CircuitPlasmaIonizing
+    ChocolateMelting = 0,
+    LiquidFlow = 1,
+    LiquidFreezing = 2,
+    PipeWaterFlow = 3,
+    PipeFreezing = 4,
+    CircuitCandleMelting = 6,
+    CircuitPlasmaIonizing = 7
 }
 
 public class StateChangeCutsceneAnimation : MonoBehaviour, ICutsceneAnimation, ICutsceneAnimationCleanup
@@ -368,9 +367,6 @@ public class StateChangeCutsceneAnimation : MonoBehaviour, ICutsceneAnimation, I
             case MatterCutsceneKind.PipeFreezing:
                 AnimatePipeFlow(view, stage, progress, view.ElapsedTime, deltaTime, true);
                 break;
-            case MatterCutsceneKind.CircuitEnergy:
-                AnimateCircuit(view, stage, progress, view.ElapsedTime, deltaTime);
-                break;
             case MatterCutsceneKind.CircuitCandleMelting:
                 AnimateCandleMelting(view, stage, progress, view.ElapsedTime, deltaTime);
                 break;
@@ -488,27 +484,6 @@ public class StateChangeCutsceneAnimation : MonoBehaviour, ICutsceneAnimation, I
         SetFlowLineAlpha(view.FlowLines, Mathf.Lerp(0.38f, 0.08f, freezeAmount));
     }
 
-    private void AnimateCircuit(CutsceneView view, int stage, float progress, float elapsed, float deltaTime)
-    {
-        float speed = stage == 0 ? 0.45f : 0.95f;
-        float energy = stage == 0 ? progress : 1f;
-        float halfWidth = particleAreaSize.x * 0.42f;
-        float halfHeight = particleAreaSize.y * 0.34f;
-
-        for (int i = 0; i < view.Particles.Count; i++)
-        {
-            ParticleView particle = view.Particles[i];
-            float t = Mathf.Repeat(elapsed * speed + i / (float)view.Particles.Count, 1f);
-            particle.Position = PositionOnCircuit(t, halfWidth, halfHeight);
-            particle.Rect.anchoredPosition = particle.Position;
-            particle.Image.color = Color.Lerp(new Color(0.35f, 0.85f, 1f, 1f), new Color(1f, 0.95f, 0.25f, 1f), energy);
-            particle.Rect.localScale = Vector3.one * Mathf.Lerp(0.8f, 1.22f + Mathf.Sin(elapsed * 12f + particle.Phase) * 0.08f, energy);
-        }
-
-        UpdateBonds(view.Bonds, 0f);
-        SetFlowLineAlpha(view.FlowLines, 0.18f + energy * 0.35f);
-    }
-
     private void AnimateCandleMelting(CutsceneView view, int stage, float progress, float elapsed, float deltaTime)
     {
         float meltAmount = stage == 0 ? 0f : stage == 1 ? Mathf.SmoothStep(0f, 1f, progress) : 1f;
@@ -606,7 +581,7 @@ public class StateChangeCutsceneAnimation : MonoBehaviour, ICutsceneAnimation, I
                 Vector2 arcOffset = new Vector2(
                     Mathf.Sin(elapsed * 19f + particle.Phase) * Mathf.Lerp(4f, 28f, ionization),
                     Mathf.Cos(elapsed * 23f + particle.Phase) * Mathf.Lerp(2f, 18f, ionization));
-                particle.Position = Vector2.Lerp(particle.StageStartPosition, plasmaPath + arcOffset, ionization);
+                particle.Position = ClampInsidePlasmaTube(Vector2.Lerp(particle.StageStartPosition, plasmaPath + arcOffset, ionization), particleSize * 0.5f);
             }
 
             particle.Rect.anchoredPosition = particle.Position;
@@ -618,19 +593,6 @@ public class StateChangeCutsceneAnimation : MonoBehaviour, ICutsceneAnimation, I
         SetFlowLineAlpha(view.FlowLines, 0f);
         SetContainerAlpha(view.Container, Mathf.Lerp(0.26f, 0.92f, ionization));
         SetIceCubeAlpha(view.IceCube, 0f);
-    }
-
-    private Vector2 PositionOnCircuit(float t, float halfWidth, float halfHeight)
-    {
-        float side = t * 4f;
-        if (side < 1f)
-            return new Vector2(Mathf.Lerp(-halfWidth, halfWidth, side), halfHeight);
-        if (side < 2f)
-            return new Vector2(halfWidth, Mathf.Lerp(halfHeight, -halfHeight, side - 1f));
-        if (side < 3f)
-            return new Vector2(Mathf.Lerp(halfWidth, -halfWidth, side - 2f), -halfHeight);
-
-        return new Vector2(-halfWidth, Mathf.Lerp(-halfHeight, halfHeight, side - 3f));
     }
 
     private Vector2 PositionOnEllipse(float t, float halfWidth, float halfHeight)
@@ -669,12 +631,6 @@ public class StateChangeCutsceneAnimation : MonoBehaviour, ICutsceneAnimation, I
                 label = stage == 0 ? "Water particles move through open pipe paths." :
                     stage == 1 ? "Freezing removes energy and stops unwanted flow." :
                     "Frozen water holds its shape as a solid barrier.";
-                break;
-            case MatterCutsceneKind.CircuitEnergy:
-                title = "Energy Transfer";
-                label = stage == 0 ? "A complete circuit lets electrical energy move." :
-                    stage == 1 ? "Energy transfers to the material at the output." :
-                    "Added energy can change how matter particles behave.";
                 break;
             case MatterCutsceneKind.CircuitCandleMelting:
                 title = "Candle Melting";
@@ -857,6 +813,16 @@ public class StateChangeCutsceneAnimation : MonoBehaviour, ICutsceneAnimation, I
         return position;
     }
 
+    private Vector2 ClampInsidePlasmaTube(Vector2 position, float margin)
+    {
+        float maxX = particleAreaSize.x * 0.39f - margin;
+        float maxY = particleAreaSize.y * 0.2f - margin;
+
+        position.x = Mathf.Clamp(position.x, -maxX, maxX);
+        position.y = Mathf.Clamp(position.y, -maxY, maxY);
+        return position;
+    }
+
     private float GetContainerHalfWidth(float y)
     {
         float bodyHalfWidth = particleAreaSize.x * 0.115f;
@@ -910,8 +876,6 @@ public class StateChangeCutsceneAnimation : MonoBehaviour, ICutsceneAnimation, I
         {
             case MatterCutsceneKind.ChocolateMelting:
                 return Color.Lerp(new Color(0.34f, 0.14f, 0.045f, 1f), new Color(0.86f, 0.42f, 0.14f, 1f), (index % 5) * 0.16f);
-            case MatterCutsceneKind.CircuitEnergy:
-                return Color.Lerp(new Color(0.25f, 0.78f, 1f, 1f), new Color(1f, 0.95f, 0.2f, 1f), index / Mathf.Max(1f, particleCount - 1f));
             case MatterCutsceneKind.CircuitCandleMelting:
                 return GetWaxParticleColor(index);
             case MatterCutsceneKind.CircuitPlasmaIonizing:

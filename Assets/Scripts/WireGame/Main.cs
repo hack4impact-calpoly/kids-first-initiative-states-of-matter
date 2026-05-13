@@ -76,24 +76,41 @@ public class Main : MonoBehaviour
 
     public void DeviceConnected(DraggableDevice device)
     {
+        if (hasWon)
+            return;
+
         isLocked = false;
         connectedDevice = device;
         
-        // Clear the prompt when device is connected
         if (WireGameUIManager.Instance != null)
         {
-            if (IsPowerReady())
+            if (count >= wiresCount && IsPowerReady())
+            {
                 WireGameUIManager.Instance.ClearPrompt();
+            }
+            else if (IsPowerReady())
+            {
+                WireGameUIManager.Instance.SetPersistentPrompt("Power dial is on. Complete the wire connections.", isWarning: false);
+            }
             else
+            {
                 WireGameUIManager.Instance.SetPersistentPrompt("Connect the wires, then turn on the power dial.", isWarning: false);
+            }
         }
 
-        ClearGuidance();
+        if (IsPowerReady() && count < wiresCount && guidanceController != null)
+            guidanceController.ShowWireBoardGuidance();
+        else
+            ClearGuidance();
+
         EvaluateWinCondition();
     }
 
     public void DeviceDisconnected()
     {
+        if (hasWon)
+            return;
+
         isLocked = true;
         connectedDevice = null;
 
@@ -166,6 +183,8 @@ public class Main : MonoBehaviour
     private void WinGame()
     {
         hasWon = true;
+        LockOutputInteractions();
+
         if (guidanceController != null)
             guidanceController.ClearGuidance();
 
@@ -209,13 +228,16 @@ public class Main : MonoBehaviour
         if (!playCircuitCutsceneOnWin)
             return false;
 
+        if (!TryResolveCircuitCutsceneKind(out MatterCutsceneKind cutsceneKind))
+            return false;
+
         CutsceneManager manager = ResolveCutsceneManager();
         StateChangeCutsceneAnimation animation = ResolveCircuitCutscene();
 
         if (manager == null || animation == null)
             return false;
 
-        animation.Configure(ResolveCircuitCutsceneKind());
+        animation.Configure(cutsceneKind);
         Transform target = ResolveCutsceneTarget();
 
         if (circuitCutsceneDefinition != null)
@@ -255,18 +277,26 @@ public class Main : MonoBehaviour
             guidanceController.ClearGuidance();
     }
 
-    private MatterCutsceneKind ResolveCircuitCutsceneKind()
+    private bool TryResolveCircuitCutsceneKind(out MatterCutsceneKind cutsceneKind)
     {
+        cutsceneKind = default;
+
         if (connectedDevice == null)
-            return MatterCutsceneKind.CircuitEnergy;
+            return false;
 
         if (connectedDevice.GetComponentInChildren<CandleMeltEffect>() != null)
-            return MatterCutsceneKind.CircuitCandleMelting;
+        {
+            cutsceneKind = MatterCutsceneKind.CircuitCandleMelting;
+            return true;
+        }
 
         if (connectedDevice.GetComponentInChildren<PlasmaEffect>() != null)
-            return MatterCutsceneKind.CircuitPlasmaIonizing;
+        {
+            cutsceneKind = MatterCutsceneKind.CircuitPlasmaIonizing;
+            return true;
+        }
 
-        return MatterCutsceneKind.CircuitEnergy;
+        return false;
     }
 
     private Transform ResolveCutsceneTarget()
@@ -316,5 +346,12 @@ public class Main : MonoBehaviour
         
         if (youDidItText != null)
             youDidItText.SetActive(true);
+    }
+
+    private void LockOutputInteractions()
+    {
+        DraggableDevice[] devices = FindObjectsByType<DraggableDevice>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        for (int i = 0; i < devices.Length; i++)
+            devices[i].LockInteraction();
     }
 }

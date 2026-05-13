@@ -9,9 +9,18 @@ public class SnapZone : MonoBehaviour
 
     public void Snap(DraggableDevice device)
     {
+        if (device == null || device.IsInteractionLocked)
+            return;
+
         // If something is already snapped, unsnap it first
         if (currentDevice != null && currentDevice != device)
         {
+            if (currentDevice.IsInteractionLocked)
+            {
+                device.ReturnToStart();
+                return;
+            }
+
             currentDevice.ReturnToStart();
         }
 
@@ -27,6 +36,9 @@ public class SnapZone : MonoBehaviour
 
     public void Unsnap()
     {
+        if (currentDevice != null && currentDevice.IsInteractionLocked)
+            return;
+
         currentDevice = null;
 
         if (guideSprite != null)
