@@ -44,7 +44,7 @@ public partial class StateChangeCutsceneAnimation
         List<RectTransform> flowLines = CreateFlowLines(particleArea);
         IceCubeView iceCube = CreateIceCube(particleArea);
         IStateChangeCutsceneBehavior behavior = CurrentBehavior;
-        ContainerView container = behavior != null && behavior.UsesPlasmaTubeContainer
+        ContainerView container = behavior.UsesPlasmaTubeContainer
             ? CreatePlasmaTube(particleArea)
             : CreateContainer(particleArea);
 
@@ -302,15 +302,7 @@ public partial class StateChangeCutsceneAnimation
 
     private Color GetParticleColor(int index)
     {
-        IStateChangeCutsceneBehavior behavior = CurrentBehavior;
-        if (behavior != null)
-            return behavior.GetParticleColor(index);
-
-        switch (cutsceneKind)
-        {
-            default:
-                return GetWaterParticleColor(index);
-        }
+        return CurrentBehavior.GetParticleColor(index);
     }
 
     private Color GetWaterParticleColor(int index)

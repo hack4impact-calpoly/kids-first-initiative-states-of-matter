@@ -113,34 +113,17 @@ public partial class StateChangeCutsceneAnimation : MonoBehaviour, ICutsceneAnim
 
     private float GetFinalStageHoldDuration()
     {
-        IStateChangeCutsceneBehavior behavior = CurrentBehavior;
-        if (behavior != null)
-            return behavior.FinalStageHoldDuration;
-
-        return 0f;
+        return CurrentBehavior.FinalStageHoldDuration;
     }
 
     private void TickStage(CutsceneView view, int stage, float progress, float deltaTime)
     {
-        IStateChangeCutsceneBehavior behavior = CurrentBehavior;
-        if (behavior != null)
-        {
-            behavior.Tick(view, stage, progress, view.ElapsedTime, deltaTime);
-            return;
-        }
-
-        switch (cutsceneKind)
-        {
-            default:
-                AnimateLiquid(view, stage, progress, view.ElapsedTime, deltaTime);
-                break;
-        }
+        CurrentBehavior.Tick(view, stage, progress, view.ElapsedTime, deltaTime);
     }
 
     private void CaptureStageStartPositions(CutsceneView view, int stage)
     {
-        IStateChangeCutsceneBehavior behavior = CurrentBehavior;
-        bool captureRenderedPosition = behavior != null && behavior.ShouldCaptureRenderedPosition(stage);
+        bool captureRenderedPosition = CurrentBehavior.ShouldCaptureRenderedPosition(stage);
 
         for (int i = 0; i < view.Particles.Count; i++)
         {
@@ -153,21 +136,6 @@ public partial class StateChangeCutsceneAnimation : MonoBehaviour, ICutsceneAnim
         }
     }
 
-    private void AnimateLiquid(CutsceneView view, int stage, float progress, float elapsed, float deltaTime)
-    {
-        for (int i = 0; i < view.Particles.Count; i++)
-        {
-            ParticleView particle = view.Particles[i];
-            particle.Position += particle.Velocity * deltaTime;
-            particle.Position = BounceInsideContainer(particle.Position, ref particle.Velocity);
-            particle.Rect.anchoredPosition = particle.Position + Vector2.up * Mathf.Sin(elapsed * 3.2f + particle.Phase) * 10f;
-        }
-
-        UpdateBonds(view.Bonds, 0f);
-        SetFlowLineAlpha(view.FlowLines, 0f);
-        SetContainerAlpha(view.Container, stage == 0 ? progress : 1f);
-    }
-
     private Vector2 PositionOnEllipse(float t, float halfWidth, float halfHeight)
     {
         float angle = t * Mathf.PI * 2f;
@@ -177,28 +145,8 @@ public partial class StateChangeCutsceneAnimation : MonoBehaviour, ICutsceneAnim
     private void ApplyText(CutsceneView view, int stage)
     {
         IStateChangeCutsceneBehavior behavior = CurrentBehavior;
-        if (behavior != null)
-        {
-            view.Title.text = behavior.Title;
-            view.StageLabel.text = behavior.GetStageLabel(stage);
-            return;
-        }
-
-        string title;
-        string label;
-
-        switch (cutsceneKind)
-        {
-            default:
-                title = "Liquid Particles";
-                label = stage == 0 ? "Particles are close together." :
-                    stage == 1 ? "They slide and flow around each other." :
-                    "Liquids take the shape of their container.";
-                break;
-        }
-
-        view.Title.text = title;
-        view.StageLabel.text = label;
+        view.Title.text = behavior.Title;
+        view.StageLabel.text = behavior.GetStageLabel(stage);
     }
 
     private Vector2 BounceInside(Vector2 position, ref Vector2 velocity)

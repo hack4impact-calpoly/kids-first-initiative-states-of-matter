@@ -48,7 +48,7 @@ public partial class StateChangeCutsceneAnimation
             case MatterCutsceneKind.CircuitPlasmaIonizing:
                 return new CircuitPlasmaIonizingCutsceneBehavior(BehaviorContext);
             default:
-                return null;
+                throw new System.ArgumentOutOfRangeException(nameof(kind), kind, "Unsupported state change cutscene kind.");
         }
     }
 
