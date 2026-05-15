@@ -18,37 +18,56 @@ public partial class StateChangeCutsceneAnimation
     {
         get
         {
-            if (!hasResolvedCurrentBehavior || currentBehaviorKind != cutsceneKind)
-            {
-                currentBehaviorKind = cutsceneKind;
-                currentBehavior = CreateBehavior(cutsceneKind);
-                hasResolvedCurrentBehavior = true;
-            }
+            if (TryResolveCurrentBehavior(out IStateChangeCutsceneBehavior behavior))
+                return behavior;
 
-            return currentBehavior;
+            throw new System.InvalidOperationException($"Unsupported state change cutscene kind '{cutsceneKind}'.");
         }
     }
 
-    private IStateChangeCutsceneBehavior CreateBehavior(MatterCutsceneKind kind)
+    private bool TryResolveCurrentBehavior(out IStateChangeCutsceneBehavior behavior)
+    {
+        if (!hasResolvedCurrentBehavior || currentBehaviorKind != cutsceneKind)
+        {
+            currentBehaviorKind = cutsceneKind;
+            hasResolvedCurrentBehavior = true;
+            currentBehavior = TryCreateBehavior(cutsceneKind, out IStateChangeCutsceneBehavior resolvedBehavior)
+                ? resolvedBehavior
+                : null;
+        }
+
+        behavior = currentBehavior;
+        return behavior != null;
+    }
+
+    private bool TryCreateBehavior(MatterCutsceneKind kind, out IStateChangeCutsceneBehavior behavior)
     {
         switch (kind)
         {
             case MatterCutsceneKind.ChocolateMelting:
-                return new ChocolateMeltingCutsceneBehavior(BehaviorContext);
+                behavior = new ChocolateMeltingCutsceneBehavior(BehaviorContext);
+                return true;
             case MatterCutsceneKind.LiquidFlow:
-                return new LiquidFlowCutsceneBehavior(BehaviorContext);
+                behavior = new LiquidFlowCutsceneBehavior(BehaviorContext);
+                return true;
             case MatterCutsceneKind.LiquidFreezing:
-                return new LiquidFreezingCutsceneBehavior(BehaviorContext);
+                behavior = new LiquidFreezingCutsceneBehavior(BehaviorContext);
+                return true;
             case MatterCutsceneKind.PipeWaterFlow:
-                return new PipeFlowCutsceneBehavior(BehaviorContext, false);
+                behavior = new PipeFlowCutsceneBehavior(BehaviorContext, false);
+                return true;
             case MatterCutsceneKind.PipeFreezing:
-                return new PipeFlowCutsceneBehavior(BehaviorContext, true);
+                behavior = new PipeFlowCutsceneBehavior(BehaviorContext, true);
+                return true;
             case MatterCutsceneKind.CircuitCandleMelting:
-                return new CircuitCandleMeltingCutsceneBehavior(BehaviorContext);
+                behavior = new CircuitCandleMeltingCutsceneBehavior(BehaviorContext);
+                return true;
             case MatterCutsceneKind.CircuitPlasmaIonizing:
-                return new CircuitPlasmaIonizingCutsceneBehavior(BehaviorContext);
+                behavior = new CircuitPlasmaIonizingCutsceneBehavior(BehaviorContext);
+                return true;
             default:
-                throw new System.ArgumentOutOfRangeException(nameof(kind), kind, "Unsupported state change cutscene kind.");
+                behavior = null;
+                return false;
         }
     }
 

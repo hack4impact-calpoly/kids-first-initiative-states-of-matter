@@ -45,6 +45,12 @@ public partial class StateChangeCutsceneAnimation : MonoBehaviour, ICutsceneAnim
 
         Cleanup(context);
 
+        if (!TryResolveCurrentBehavior(out _))
+        {
+            Debug.LogError($"Unsupported state change cutscene kind '{cutsceneKind}'. State change cutscene will not play.", this);
+            yield break;
+        }
+
         CutsceneView view = BuildView(context.OverlayRoot);
         activeView = view;
 
