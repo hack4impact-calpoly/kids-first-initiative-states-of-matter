@@ -4,7 +4,7 @@ public partial class StateChangeCutsceneAnimation
 {
     private sealed class ChocolateMeltingCutsceneBehavior : StateChangeCutsceneBehavior
     {
-        public ChocolateMeltingCutsceneBehavior(StateChangeCutsceneAnimation animation) : base(animation)
+        public ChocolateMeltingCutsceneBehavior(StateChangeCutsceneContext context) : base(context)
         {
         }
 
@@ -34,7 +34,7 @@ public partial class StateChangeCutsceneAnimation
                 if (stage == 2)
                 {
                     particle.Position += particle.Velocity * deltaTime;
-                    particle.Position = Animation.BounceInside(particle.Position, ref particle.Velocity);
+                    particle.Position = Context.BounceInside(particle.Position, ref particle.Velocity);
                 }
                 else
                 {
@@ -47,14 +47,14 @@ public partial class StateChangeCutsceneAnimation
                 particle.Rect.anchoredPosition = particle.Position + vibration;
             }
 
-            Animation.UpdateBonds(view.Bonds, 1f - meltAmount);
-            Animation.SetFlowLineAlpha(view.FlowLines, Mathf.Lerp(0.08f, 0.35f, meltAmount));
+            Context.UpdateBonds(view.Bonds, 1f - meltAmount);
+            Context.SetFlowLineAlpha(view.FlowLines, Mathf.Lerp(0.08f, 0.35f, meltAmount));
         }
     }
 
     private sealed class LiquidFlowCutsceneBehavior : StateChangeCutsceneBehavior
     {
-        public LiquidFlowCutsceneBehavior(StateChangeCutsceneAnimation animation) : base(animation)
+        public LiquidFlowCutsceneBehavior(StateChangeCutsceneContext context) : base(context)
         {
         }
 
@@ -69,7 +69,7 @@ public partial class StateChangeCutsceneAnimation
 
         public override Color GetParticleColor(int index)
         {
-            return Animation.GetJuiceParticleColor(index);
+            return Context.GetJuiceParticleColor(index);
         }
 
         public override void Tick(CutsceneView view, int stage, float progress, float elapsed, float deltaTime)
@@ -78,19 +78,19 @@ public partial class StateChangeCutsceneAnimation
             {
                 ParticleView particle = view.Particles[i];
                 particle.Position += particle.Velocity * deltaTime;
-                particle.Position = Animation.BounceInsideContainer(particle.Position, ref particle.Velocity);
+                particle.Position = Context.BounceInsideContainer(particle.Position, ref particle.Velocity);
                 particle.Rect.anchoredPosition = particle.Position + Vector2.up * Mathf.Sin(elapsed * 3.2f + particle.Phase) * 10f;
             }
 
-            Animation.UpdateBonds(view.Bonds, 0f);
-            Animation.SetFlowLineAlpha(view.FlowLines, 0f);
-            Animation.SetContainerAlpha(view.Container, stage == 0 ? progress : 1f);
+            Context.UpdateBonds(view.Bonds, 0f);
+            Context.SetFlowLineAlpha(view.FlowLines, 0f);
+            Context.SetContainerAlpha(view.Container, stage == 0 ? progress : 1f);
         }
     }
 
     private sealed class LiquidFreezingCutsceneBehavior : StateChangeCutsceneBehavior
     {
-        public LiquidFreezingCutsceneBehavior(StateChangeCutsceneAnimation animation) : base(animation)
+        public LiquidFreezingCutsceneBehavior(StateChangeCutsceneContext context) : base(context)
         {
         }
 
@@ -105,7 +105,7 @@ public partial class StateChangeCutsceneAnimation
 
         public override Color GetParticleColor(int index)
         {
-            return Animation.GetJuiceParticleColor(index);
+            return Context.GetJuiceParticleColor(index);
         }
 
         public override void Tick(CutsceneView view, int stage, float progress, float elapsed, float deltaTime)
@@ -119,7 +119,7 @@ public partial class StateChangeCutsceneAnimation
                 if (stage == 0)
                 {
                     particle.Position += particle.Velocity * deltaTime;
-                    particle.Position = Animation.BounceInside(particle.Position, ref particle.Velocity);
+                    particle.Position = Context.BounceInside(particle.Position, ref particle.Velocity);
                 }
                 else
                 {
@@ -130,9 +130,9 @@ public partial class StateChangeCutsceneAnimation
                 particle.Rect.anchoredPosition = particle.Position + vibration;
             }
 
-            Animation.UpdateBonds(view.Bonds, lockAmount);
-            Animation.SetFlowLineAlpha(view.FlowLines, 0f);
-            Animation.SetIceCubeAlpha(view.IceCube, lockAmount);
+            Context.UpdateBonds(view.Bonds, lockAmount);
+            Context.SetFlowLineAlpha(view.FlowLines, 0f);
+            Context.SetIceCubeAlpha(view.IceCube, lockAmount);
         }
     }
 }

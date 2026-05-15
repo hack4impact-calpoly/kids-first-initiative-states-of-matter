@@ -31,6 +31,7 @@ public partial class StateChangeCutsceneAnimation : MonoBehaviour, ICutsceneAnim
     private static Sprite circleSprite;
     private CutsceneView activeView;
     private IStateChangeCutsceneBehavior currentBehavior;
+    private StateChangeCutsceneContext behaviorContext;
     private MatterCutsceneKind currentBehaviorKind;
     private bool hasResolvedCurrentBehavior;
 

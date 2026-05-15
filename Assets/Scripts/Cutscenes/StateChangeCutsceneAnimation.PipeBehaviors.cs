@@ -6,7 +6,7 @@ public partial class StateChangeCutsceneAnimation
     {
         private readonly bool freezes;
 
-        public PipeFlowCutsceneBehavior(StateChangeCutsceneAnimation animation, bool freezes) : base(animation)
+        public PipeFlowCutsceneBehavior(StateChangeCutsceneContext context, bool freezes) : base(context)
         {
             this.freezes = freezes;
         }
@@ -31,14 +31,14 @@ public partial class StateChangeCutsceneAnimation
         {
             return freezes
                 ? Color.Lerp(new Color(0.35f, 0.85f, 1f, 1f), new Color(0.8f, 1f, 1f, 1f), (index % 4) * 0.2f)
-                : Animation.GetWaterParticleColor(index);
+                : Context.GetWaterParticleColor(index);
         }
 
         public override void Tick(CutsceneView view, int stage, float progress, float elapsed, float deltaTime)
         {
             float freezeAmount = freezes ? (stage == 0 ? 0f : stage == 1 ? Mathf.SmoothStep(0f, 1f, progress) : 1f) : 0f;
             float speed = Mathf.Lerp(180f, 12f, freezeAmount);
-            float halfWidth = Animation.particleAreaSize.x * 0.45f;
+            float halfWidth = Context.ParticleAreaSize.x * 0.45f;
 
             for (int i = 0; i < view.Particles.Count; i++)
             {
@@ -51,8 +51,8 @@ public partial class StateChangeCutsceneAnimation
                 particle.Rect.anchoredPosition = particle.Position;
             }
 
-            Animation.UpdateBonds(view.Bonds, freezeAmount);
-            Animation.SetFlowLineAlpha(view.FlowLines, Mathf.Lerp(0.38f, 0.08f, freezeAmount));
+            Context.UpdateBonds(view.Bonds, freezeAmount);
+            Context.SetFlowLineAlpha(view.FlowLines, Mathf.Lerp(0.38f, 0.08f, freezeAmount));
         }
     }
 }
