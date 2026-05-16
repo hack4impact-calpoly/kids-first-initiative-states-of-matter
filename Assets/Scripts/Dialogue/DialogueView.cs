@@ -12,8 +12,12 @@ public enum DialogueBubblePlacement
 public class DialogueView : MonoBehaviour
 {
     [SerializeField] private GameObject root;
+    [SerializeField] private DialogueRoundedRectGraphic shadowGraphic;
     [SerializeField] private DialogueRoundedRectGraphic bubbleGraphic;
     [SerializeField] private DialogueRoundedRectGraphic bubbleFillGraphic;
+    [SerializeField] private DialogueRoundedRectGraphic portraitFrameGraphic;
+    [SerializeField] private DialogueRoundedRectGraphic nameplateGraphic;
+    [SerializeField] private DialogueRoundedRectGraphic continuePromptFrameGraphic;
     [SerializeField] private TMP_Text speakerNameText;
     [SerializeField] private TMP_Text bodyText;
     [SerializeField] private Image portraitImage;
@@ -24,16 +28,21 @@ public class DialogueView : MonoBehaviour
     [SerializeField] private bool buildDefaultLayoutIfMissing = true;
     [SerializeField] private DialogueBubblePlacement placement = DialogueBubblePlacement.Bottom;
     [SerializeField] private bool stretchToParentWidth = true;
-    [SerializeField] private Vector2 bubbleSize = new Vector2(980f, 116f);
-    [SerializeField] private Vector2 bubbleOffset = new Vector2(0f, 12f);
-    [SerializeField] private float horizontalMargin = 24f;
-    [SerializeField] private float borderThickness = 2f;
-    [SerializeField] private float portraitSize = 88f;
-    [SerializeField] private Color bubbleColor = new Color(0.98f, 0.97f, 1f, 0.98f);
-    [SerializeField] private Color borderColor = new Color(0.27f, 0.25f, 0.58f, 1f);
-    [SerializeField] private Color speakerNameColor = new Color(0.25f, 0.22f, 0.58f, 1f);
-    [SerializeField] private Color bodyTextColor = new Color(0.08f, 0.07f, 0.1f, 1f);
+    [SerializeField] private Vector2 bubbleSize = new Vector2(980f, 132f);
+    [SerializeField] private Vector2 bubbleOffset = new Vector2(0f, 10f);
+    [SerializeField] private float horizontalMargin = 16f;
+    [SerializeField] private float borderThickness = 3f;
+    [SerializeField] private float portraitSize = 90f;
+    [SerializeField] private Color shadowColor = new Color(0.03f, 0.03f, 0.08f, 0.24f);
+    [SerializeField] private Color bubbleColor = new Color(0.98f, 0.96f, 1f, 0.99f);
+    [SerializeField] private Color borderColor = new Color(0.35f, 0.28f, 0.6f, 1f);
+    [SerializeField] private Color portraitFrameColor = new Color(1f, 0.98f, 1f, 1f);
+    [SerializeField] private Color nameplateColor = new Color(0.89f, 0.83f, 0.96f, 1f);
+    [SerializeField] private Color continuePromptFrameColor = new Color(0.91f, 0.86f, 0.98f, 1f);
+    [SerializeField] private Color speakerNameColor = new Color(0.14f, 0.11f, 0.31f, 1f);
+    [SerializeField] private Color bodyTextColor = new Color(0.08f, 0.06f, 0.11f, 1f);
     [SerializeField] private Color warningBorderColor = new Color(0.82f, 0.32f, 0.08f, 1f);
+    [SerializeField] private Color warningNameplateColor = new Color(1f, 0.86f, 0.75f, 1f);
     [SerializeField] private Color warningSpeakerNameColor = new Color(0.82f, 0.32f, 0.08f, 1f);
     [SerializeField] private Color warningBodyTextColor = new Color(0.18f, 0.08f, 0.02f, 1f);
 
@@ -98,7 +107,13 @@ public class DialogueView : MonoBehaviour
         ApplyStyle(isWarning);
 
         if (speakerNameText != null)
+        {
             speakerNameText.text = speakerName;
+            speakerNameText.gameObject.SetActive(!string.IsNullOrWhiteSpace(speakerName));
+        }
+
+        if (nameplateGraphic != null)
+            nameplateGraphic.gameObject.SetActive(!string.IsNullOrWhiteSpace(speakerName));
 
         if (bodyText != null)
             bodyText.text = text;
@@ -109,6 +124,9 @@ public class DialogueView : MonoBehaviour
             portraitImage.enabled = portrait != null;
         }
 
+        if (portraitFrameGraphic != null)
+            portraitFrameGraphic.gameObject.SetActive(portrait != null);
+
         ApplyContentLayout(portrait != null);
         SetContinueEnabled(canContinue);
     }
@@ -117,6 +135,9 @@ public class DialogueView : MonoBehaviour
     {
         if (continueButton != null)
             continueButton.interactable = canContinue;
+
+        if (continuePromptFrameGraphic != null)
+            continuePromptFrameGraphic.gameObject.SetActive(canContinue);
 
         if (continuePrompt != null)
             continuePrompt.SetActive(canContinue);
@@ -170,12 +191,26 @@ public class DialogueView : MonoBehaviour
         RectTransform bubbleRect = bubbleObject.GetComponent<RectTransform>();
         bubbleRect.sizeDelta = bubbleSize;
 
-        bubbleObject.AddComponent<CanvasRenderer>();
-        bubbleGraphic = bubbleObject.AddComponent<DialogueRoundedRectGraphic>();
-        bubbleGraphic.CornerRadius = 14f;
+        GameObject shadowObject = CreateUiObject("Dialogue Shadow", bubbleRect);
+        RectTransform shadowRect = shadowObject.GetComponent<RectTransform>();
+        StretchToFill(shadowRect);
+        shadowRect.offsetMin = new Vector2(6f, -8f);
+        shadowRect.offsetMax = new Vector2(6f, -8f);
+        shadowObject.AddComponent<CanvasRenderer>();
+        shadowGraphic = shadowObject.AddComponent<DialogueRoundedRectGraphic>();
+        shadowGraphic.CornerRadius = 16f;
+        shadowGraphic.color = shadowColor;
+        shadowGraphic.raycastTarget = false;
+
+        GameObject panelObject = CreateUiObject("Dialogue Panel", bubbleRect);
+        RectTransform panelRect = panelObject.GetComponent<RectTransform>();
+        StretchToFill(panelRect);
+        panelObject.AddComponent<CanvasRenderer>();
+        bubbleGraphic = panelObject.AddComponent<DialogueRoundedRectGraphic>();
+        bubbleGraphic.CornerRadius = 12f;
         bubbleGraphic.color = borderColor;
 
-        GameObject fillObject = CreateUiObject("Bubble Fill", bubbleRect);
+        GameObject fillObject = CreateUiObject("Bubble Fill", panelRect);
         RectTransform fillRect = fillObject.GetComponent<RectTransform>();
         fillRect.anchorMin = Vector2.zero;
         fillRect.anchorMax = Vector2.one;
@@ -203,10 +238,24 @@ public class DialogueView : MonoBehaviour
             return;
 
         if (bubbleGraphic == null)
-            bubbleGraphic = root.GetComponent<DialogueRoundedRectGraphic>();
+            bubbleGraphic = root.transform.Find("Dialogue Panel")?.GetComponent<DialogueRoundedRectGraphic>()
+                ?? root.GetComponent<DialogueRoundedRectGraphic>();
 
         if (bubbleFillGraphic == null)
-            bubbleFillGraphic = root.transform.Find("Bubble Fill")?.GetComponent<DialogueRoundedRectGraphic>();
+            bubbleFillGraphic = root.transform.Find("Dialogue Panel/Bubble Fill")?.GetComponent<DialogueRoundedRectGraphic>()
+                ?? root.transform.Find("Bubble Fill")?.GetComponent<DialogueRoundedRectGraphic>();
+
+        if (shadowGraphic == null)
+            shadowGraphic = root.transform.Find("Dialogue Shadow")?.GetComponent<DialogueRoundedRectGraphic>();
+
+        if (portraitFrameGraphic == null)
+            portraitFrameGraphic = root.transform.Find("Portrait Frame")?.GetComponent<DialogueRoundedRectGraphic>();
+
+        if (nameplateGraphic == null)
+            nameplateGraphic = root.transform.Find("Nameplate")?.GetComponent<DialogueRoundedRectGraphic>();
+
+        if (continuePromptFrameGraphic == null)
+            continuePromptFrameGraphic = root.transform.Find("Continue Prompt Frame")?.GetComponent<DialogueRoundedRectGraphic>();
     }
 
     private void ApplyPlacement()
@@ -239,11 +288,23 @@ public class DialogueView : MonoBehaviour
     {
         Color resolvedBorderColor = isWarning ? warningBorderColor : borderColor;
 
+        if (shadowGraphic != null)
+            shadowGraphic.color = shadowColor;
+
         if (bubbleGraphic != null)
             bubbleGraphic.color = resolvedBorderColor;
 
         if (bubbleFillGraphic != null)
             bubbleFillGraphic.color = bubbleColor;
+
+        if (portraitFrameGraphic != null)
+            portraitFrameGraphic.color = portraitFrameColor;
+
+        if (nameplateGraphic != null)
+            nameplateGraphic.color = isWarning ? warningNameplateColor : nameplateColor;
+
+        if (continuePromptFrameGraphic != null)
+            continuePromptFrameGraphic.color = isWarning ? warningNameplateColor : continuePromptFrameColor;
 
         if (speakerNameText != null)
             speakerNameText.color = isWarning ? warningSpeakerNameColor : speakerNameColor;
@@ -261,12 +322,26 @@ public class DialogueView : MonoBehaviour
 
     private void BuildPortrait(RectTransform bubbleRect)
     {
-        GameObject portraitObject = CreateUiObject("Portrait", bubbleRect);
+        GameObject frameObject = CreateUiObject("Portrait Frame", bubbleRect);
+        RectTransform frameRect = frameObject.GetComponent<RectTransform>();
+        frameRect.anchorMin = new Vector2(0f, 0.5f);
+        frameRect.anchorMax = new Vector2(0f, 0.5f);
+        frameRect.pivot = new Vector2(0.5f, 0.5f);
+        frameRect.anchoredPosition = new Vector2(64f, 0f);
+        frameRect.sizeDelta = new Vector2(108f, 102f);
+
+        frameObject.AddComponent<CanvasRenderer>();
+        portraitFrameGraphic = frameObject.AddComponent<DialogueRoundedRectGraphic>();
+        portraitFrameGraphic.CornerRadius = 10f;
+        portraitFrameGraphic.color = portraitFrameColor;
+        portraitFrameGraphic.raycastTarget = false;
+
+        GameObject portraitObject = CreateUiObject("Portrait", frameRect);
         RectTransform portraitRect = portraitObject.GetComponent<RectTransform>();
-        portraitRect.anchorMin = new Vector2(0f, 0.5f);
-        portraitRect.anchorMax = new Vector2(0f, 0.5f);
+        portraitRect.anchorMin = new Vector2(0.5f, 0.5f);
+        portraitRect.anchorMax = new Vector2(0.5f, 0.5f);
         portraitRect.pivot = new Vector2(0.5f, 0.5f);
-        portraitRect.anchoredPosition = new Vector2(58f, -1f);
+        portraitRect.anchoredPosition = Vector2.zero;
         portraitRect.sizeDelta = new Vector2(portraitSize, portraitSize);
 
         portraitImage = portraitObject.AddComponent<Image>();
@@ -276,16 +351,30 @@ public class DialogueView : MonoBehaviour
 
     private void BuildSpeakerName(RectTransform bubbleRect)
     {
+        GameObject nameplateObject = CreateUiObject("Nameplate", bubbleRect);
+        RectTransform nameplateRect = nameplateObject.GetComponent<RectTransform>();
+        nameplateRect.anchorMin = new Vector2(0f, 1f);
+        nameplateRect.anchorMax = new Vector2(0f, 1f);
+        nameplateRect.pivot = new Vector2(0f, 1f);
+        nameplateRect.anchoredPosition = new Vector2(124f, -12f);
+        nameplateRect.sizeDelta = new Vector2(164f, 31f);
+
+        nameplateObject.AddComponent<CanvasRenderer>();
+        nameplateGraphic = nameplateObject.AddComponent<DialogueRoundedRectGraphic>();
+        nameplateGraphic.CornerRadius = 8f;
+        nameplateGraphic.color = nameplateColor;
+        nameplateGraphic.raycastTarget = false;
+
         GameObject textObject = CreateUiObject("Speaker Name", bubbleRect);
         RectTransform textRect = textObject.GetComponent<RectTransform>();
         textRect.anchorMin = new Vector2(0f, 1f);
         textRect.anchorMax = new Vector2(1f, 1f);
         textRect.pivot = new Vector2(0f, 1f);
-        textRect.offsetMin = new Vector2(120f, -37f);
-        textRect.offsetMax = new Vector2(-40f, -11f);
+        textRect.offsetMin = new Vector2(140f, -40f);
+        textRect.offsetMax = new Vector2(-72f, -14f);
 
         TextMeshProUGUI text = textObject.AddComponent<TextMeshProUGUI>();
-        text.fontSize = 22f;
+        text.fontSize = 18f;
         text.fontStyle = FontStyles.Bold;
         text.color = speakerNameColor;
         text.alignment = TextAlignmentOptions.Left;
@@ -299,32 +388,46 @@ public class DialogueView : MonoBehaviour
         RectTransform textRect = textObject.GetComponent<RectTransform>();
         textRect.anchorMin = new Vector2(0f, 0f);
         textRect.anchorMax = new Vector2(1f, 1f);
-        textRect.offsetMin = new Vector2(120f, 14f);
-        textRect.offsetMax = new Vector2(-44f, -42f);
+        textRect.offsetMin = new Vector2(140f, 23f);
+        textRect.offsetMax = new Vector2(-82f, -55f);
 
         TextMeshProUGUI text = textObject.AddComponent<TextMeshProUGUI>();
-        text.fontSize = 24f;
+        text.fontSize = 21f;
         text.fontStyle = FontStyles.Italic;
         text.color = bodyTextColor;
         text.alignment = TextAlignmentOptions.Left;
         text.textWrappingMode = TextWrappingModes.Normal;
+        text.lineSpacing = 6f;
         text.raycastTarget = false;
         bodyText = text;
     }
 
     private void BuildContinuePrompt(RectTransform bubbleRect)
     {
-        GameObject promptObject = CreateUiObject("Continue Prompt", bubbleRect);
+        GameObject frameObject = CreateUiObject("Continue Prompt Frame", bubbleRect);
+        RectTransform frameRect = frameObject.GetComponent<RectTransform>();
+        frameRect.anchorMin = new Vector2(1f, 0.5f);
+        frameRect.anchorMax = new Vector2(1f, 0.5f);
+        frameRect.pivot = new Vector2(1f, 0.5f);
+        frameRect.anchoredPosition = new Vector2(-22f, -2f);
+        frameRect.sizeDelta = new Vector2(42f, 42f);
+
+        frameObject.AddComponent<CanvasRenderer>();
+        continuePromptFrameGraphic = frameObject.AddComponent<DialogueRoundedRectGraphic>();
+        continuePromptFrameGraphic.CornerRadius = 8f;
+        continuePromptFrameGraphic.color = continuePromptFrameColor;
+        continuePromptFrameGraphic.raycastTarget = false;
+
+        GameObject promptObject = CreateUiObject("Continue Prompt", frameRect);
         RectTransform promptRect = promptObject.GetComponent<RectTransform>();
-        promptRect.anchorMin = new Vector2(1f, 0.5f);
-        promptRect.anchorMax = new Vector2(1f, 0.5f);
-        promptRect.pivot = new Vector2(1f, 0.5f);
-        promptRect.anchoredPosition = new Vector2(-16f, -4f);
-        promptRect.sizeDelta = new Vector2(24f, 32f);
+        promptRect.anchorMin = Vector2.zero;
+        promptRect.anchorMax = Vector2.one;
+        promptRect.offsetMin = Vector2.zero;
+        promptRect.offsetMax = Vector2.zero;
 
         TextMeshProUGUI promptText = promptObject.AddComponent<TextMeshProUGUI>();
         promptText.text = ">";
-        promptText.fontSize = 28f;
+        promptText.fontSize = 24f;
         promptText.fontStyle = FontStyles.Bold;
         promptText.color = borderColor;
         promptText.alignment = TextAlignmentOptions.Center;
@@ -334,21 +437,35 @@ public class DialogueView : MonoBehaviour
 
     private void ApplyContentLayout(bool hasPortrait)
     {
-        float textLeft = hasPortrait ? 120f : 28f;
+        float textLeft = hasPortrait ? 140f : 34f;
 
         if (speakerNameText != null)
         {
             RectTransform speakerRect = speakerNameText.rectTransform;
-            speakerRect.offsetMin = new Vector2(textLeft, -37f);
-            speakerRect.offsetMax = new Vector2(-40f, -11f);
+            speakerRect.offsetMin = new Vector2(textLeft, -40f);
+            speakerRect.offsetMax = new Vector2(-72f, -14f);
+        }
+
+        if (nameplateGraphic != null)
+        {
+            RectTransform nameplateRect = nameplateGraphic.rectTransform;
+            nameplateRect.anchoredPosition = new Vector2(textLeft - 16f, -12f);
         }
 
         if (bodyText != null)
         {
             RectTransform bodyRect = bodyText.rectTransform;
-            bodyRect.offsetMin = new Vector2(textLeft, 14f);
-            bodyRect.offsetMax = new Vector2(-44f, -42f);
+            bodyRect.offsetMin = new Vector2(textLeft, 23f);
+            bodyRect.offsetMax = new Vector2(-82f, -55f);
         }
+    }
+
+    private static void StretchToFill(RectTransform rect)
+    {
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
     }
 
     private static GameObject CreateUiObject(string objectName, Transform parent)
