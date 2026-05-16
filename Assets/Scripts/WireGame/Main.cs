@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class Main : MonoBehaviour
 {
@@ -48,19 +47,7 @@ public class Main : MonoBehaviour
         Instance = this;
         blockRenderer = block.GetComponent<Renderer>();
         hasWon = false;
-        
-        // Check which scene we're in
-        string sceneName = SceneManager.GetActiveScene().name;
-        if (sceneName == "Wire")
-        {
-            // Scene without outputs - unlock wires immediately
-            isLocked = false;
-        }
-        else
-        {
-            // Scene with outputs - keep wires locked until device connected
-            isLocked = true;
-        }
+        isLocked = true;
     }
 
     private void Start()

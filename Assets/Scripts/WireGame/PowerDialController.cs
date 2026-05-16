@@ -15,7 +15,7 @@ public class PowerDialController : MonoBehaviour
     [SerializeField] private bool createRuntimeUiIfMissing = true;
     [SerializeField] private Vector2 runtimeAnchoredPosition = new Vector2(-520f, 260f);
     [SerializeField] private bool placeRuntimeUiNearWireBoard = true;
-    [SerializeField] private Vector2 wireBoardWorldOffset = new Vector2(6.4f, 3.5f);
+    [SerializeField] private Vector2 wireBoardWorldOffset = new Vector2(6.4f, 2.9f);
     [SerializeField] private float canvasEdgeMargin = 24f;
 
     private Image fillImage;
