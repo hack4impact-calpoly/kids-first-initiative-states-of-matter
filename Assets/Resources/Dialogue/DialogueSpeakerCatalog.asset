@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2038e0ea557f4ddab67cae1615fed042, type: 3}
+  m_Name: DialogueSpeakerCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueSpeakerCatalog
+  speakers:
+  - {fileID: 11400000, guid: 9a4579a462b64f61af5e81c3da2bcb8f, type: 2}
+  - {fileID: 11400000, guid: e98f1a9ee3d84ce08626ce3fd8baeebb, type: 2}
+  - {fileID: 11400000, guid: 51039f2bcaf144b5a8784272e0205648, type: 2}
+  - {fileID: 11400000, guid: 3be4b4d754ee4d30825a966dca2f7f09, type: 2}

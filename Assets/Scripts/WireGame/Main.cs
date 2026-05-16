@@ -6,6 +6,12 @@ public class Main : MonoBehaviour
 {
     static public Main Instance;
 
+    private const string OutputConnectedCondition = "wire.output_connected";
+    private const string PowerOnCondition = "wire.power_on";
+    private const string ConnectedWireCountCondition = "wire.connected_wire_count";
+    private const string RequiredWireCountCondition = "wire.required_wire_count";
+    private const string CircuitCompleteCondition = "wire.circuit_complete";
+
     public int wiresCount; // wires total
     public GameObject block;
     public GameObject youDidItText;
@@ -25,6 +31,9 @@ public class Main : MonoBehaviour
     [Header("Guidance Highlights")]
     [SerializeField] private bool createGuidanceControllerIfMissing = true;
     [SerializeField] private WireGameGuidanceController guidanceController;
+
+    [Header("Dialogue Conditions")]
+    [SerializeField] private bool publishDialogueConditions = true;
 
     [HideInInspector] public bool isLocked = true;
     [HideInInspector] public DraggableDevice connectedDevice;
@@ -63,6 +72,7 @@ public class Main : MonoBehaviour
             powerDial.PowerStateChanged += OnPowerStateChanged;
 
         ClearGuidance();
+        PublishDialogueConditions();
     }
 
     private void OnDestroy()
@@ -81,6 +91,7 @@ public class Main : MonoBehaviour
 
         isLocked = false;
         connectedDevice = device;
+        PublishDialogueConditions();
         
         if (WireGameUIManager.Instance != null)
         {
@@ -113,6 +124,7 @@ public class Main : MonoBehaviour
 
         isLocked = true;
         connectedDevice = null;
+        PublishDialogueConditions();
 
         if (WireGameUIManager.Instance != null)
             WireGameUIManager.Instance.ResetPrompt();
@@ -126,6 +138,7 @@ public class Main : MonoBehaviour
             return;
 
         count += points;  // Simpler than: count = count + points
+        PublishDialogueConditions();
         EvaluateWinCondition();
     }
 
@@ -133,6 +146,8 @@ public class Main : MonoBehaviour
     {
         if (hasWon)
             return;
+
+        PublishDialogueConditions();
 
         if (connectedDevice != null && WireGameUIManager.Instance != null)
         {
@@ -183,6 +198,7 @@ public class Main : MonoBehaviour
     private void WinGame()
     {
         hasWon = true;
+        PublishDialogueConditions();
         LockOutputInteractions();
 
         if (guidanceController != null)
@@ -353,5 +369,17 @@ public class Main : MonoBehaviour
         DraggableDevice[] devices = FindObjectsByType<DraggableDevice>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
         for (int i = 0; i < devices.Length; i++)
             devices[i].LockInteraction();
+    }
+
+    private void PublishDialogueConditions()
+    {
+        if (!publishDialogueConditions)
+            return;
+
+        DialogueConditionState.SetBool(OutputConnectedCondition, connectedDevice != null);
+        DialogueConditionState.SetBool(PowerOnCondition, IsPowerReady());
+        DialogueConditionState.SetNumber(ConnectedWireCountCondition, count);
+        DialogueConditionState.SetNumber(RequiredWireCountCondition, wiresCount);
+        DialogueConditionState.SetBool(CircuitCompleteCondition, hasWon);
     }
 }
