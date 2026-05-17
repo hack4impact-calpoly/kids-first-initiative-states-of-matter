@@ -13,7 +13,7 @@ public class RetryButton : MonoBehaviour
     {
         if (playDialogueBeforeReload && TryPlayRetryDialogue())
         {
-            StartCoroutine(ReloadAfterDelay());
+            StartCoroutine(ReloadWhenDialogueIdle());
             return;
         }
 
@@ -28,10 +28,12 @@ public class RetryButton : MonoBehaviour
         return flowController != null && flowController.TryPlayNow(retryDialogueKey);
     }
 
-    private IEnumerator ReloadAfterDelay()
+    private IEnumerator ReloadWhenDialogueIdle()
     {
         if (reloadDelay > 0f)
             yield return new WaitForSecondsRealtime(reloadDelay);
+
+        yield return DialogueWaitUtility.WaitUntilIdle();
 
         ReloadScene();
     }

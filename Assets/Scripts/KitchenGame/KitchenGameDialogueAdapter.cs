@@ -113,7 +113,6 @@ public class KitchenGameDialogueAdapter : DialogueFlowAdapterBase
 
         if (freezingStationManager != null)
         {
-            freezingStationManager.IngredientAddedToFreezer += OnStationIngredientAdded;
             freezingStationManager.ColdEnoughReached += OnStationColdEnoughReached;
             freezingStationManager.FreezingCompleted += OnStationFreezingCompleted;
             subscribedFreezingStationManager = freezingStationManager;
@@ -140,7 +139,6 @@ public class KitchenGameDialogueAdapter : DialogueFlowAdapterBase
 
         if (subscribedFreezingStationManager != null)
         {
-            subscribedFreezingStationManager.IngredientAddedToFreezer -= OnStationIngredientAdded;
             subscribedFreezingStationManager.ColdEnoughReached -= OnStationColdEnoughReached;
             subscribedFreezingStationManager.FreezingCompleted -= OnStationFreezingCompleted;
             subscribedFreezingStationManager = null;
@@ -175,11 +173,6 @@ public class KitchenGameDialogueAdapter : DialogueFlowAdapterBase
     private void OnPourStepCompleted()
     {
         TryPlayFlow(PourWinKey);
-    }
-
-    private void OnStationIngredientAdded(IngredientSO ingredient)
-    {
-        TryPlayFlow(StationIntroKey);
     }
 
     private void OnStationColdEnoughReached()

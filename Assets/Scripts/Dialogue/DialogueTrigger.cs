@@ -14,6 +14,7 @@ public class DialogueTrigger : MonoBehaviour
     [SerializeField] private UnityEvent triggered;
 
     private bool hasPlayed;
+    private bool isPending;
 
     private void Start()
     {
@@ -35,7 +36,7 @@ public class DialogueTrigger : MonoBehaviour
 
     public void Play()
     {
-        if (playOnce && hasPlayed)
+        if (playOnce && (hasPlayed || isPending))
             return;
 
         if (!conditions.IsMet())
@@ -48,10 +49,20 @@ public class DialogueTrigger : MonoBehaviour
             return;
         }
 
-        bool accepted = queueIfRunnerBusy ? targetRunner.Queue(sequence) : targetRunner.PlayNow(sequence);
+        if (playOnce)
+            isPending = true;
+
+        System.Action onStarted = playOnce ? MarkStarted : null;
+        System.Action onCanceled = playOnce ? MarkCanceled : null;
+        bool accepted = queueIfRunnerBusy
+            ? targetRunner.Queue(sequence, onStarted, onCanceled: onCanceled)
+            : targetRunner.PlayNow(sequence, onStarted, onCanceled: onCanceled);
+
+        if (!accepted && playOnce)
+            isPending = false;
+
         if (accepted)
         {
-            hasPlayed = true;
             triggered?.Invoke();
         }
     }
@@ -59,6 +70,18 @@ public class DialogueTrigger : MonoBehaviour
     public void ResetTrigger()
     {
         hasPlayed = false;
+        isPending = false;
+    }
+
+    private void MarkStarted()
+    {
+        isPending = false;
+        hasPlayed = true;
+    }
+
+    private void MarkCanceled()
+    {
+        isPending = false;
     }
 
     private bool ShouldPlayFromTrigger(GameObject other)

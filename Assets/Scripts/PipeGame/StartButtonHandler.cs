@@ -47,12 +47,10 @@ public class StartButtonHandler : MonoBehaviour
         if (success)
         {
             MatterCutsceneKind cutsceneKind = ResolveCutsceneKind();
-            ValidationSucceeded?.Invoke(cutsceneKind);
-
             if (TryPlaySuccessCutscene(cutsceneKind))
                 return;
 
-            ui.ShowSuccess();
+            ShowSuccess(cutsceneKind);
         }
         else
         {
@@ -103,9 +101,9 @@ public class StartButtonHandler : MonoBehaviour
         Transform target = ResolveCutsceneTarget();
 
         if (successCutsceneDefinition != null)
-            return manager.TryPlay(successCutsceneDefinition, target, (ICutsceneAnimation)animation, ShowSuccess);
+            return manager.TryPlay(successCutsceneDefinition, target, (ICutsceneAnimation)animation, () => ShowSuccess(cutsceneKind));
 
-        return manager.TryPlay(target, (ICutsceneAnimation)animation, ShowSuccess);
+        return manager.TryPlay(target, (ICutsceneAnimation)animation, () => ShowSuccess(cutsceneKind));
     }
 
     private MatterCutsceneKind ResolveCutsceneKind()
@@ -158,10 +156,12 @@ public class StartButtonHandler : MonoBehaviour
         return successCutscene;
     }
 
-    private void ShowSuccess()
+    private void ShowSuccess(MatterCutsceneKind cutsceneKind)
     {
         if (ui != null)
             ui.ShowSuccess();
+
+        ValidationSucceeded?.Invoke(cutsceneKind);
     }
 
     private void ResolveDialogueAdapter()

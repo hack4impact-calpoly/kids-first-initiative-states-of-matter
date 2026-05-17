@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class WireGameUIManager : MonoBehaviour
@@ -12,11 +13,29 @@ public class WireGameUIManager : MonoBehaviour
     private float messageTimer = 0f;
     private string persistentMessage = "";
     private bool persistentIsWarning = false;
+    private DialogueRunner subscribedDialogueRunner;
+    private Coroutine promptRestoreRoutine;
 
     void Awake()
     {
         Instance = this;
         ResolveDialoguePromptPresenter();
+    }
+
+    private void OnEnable()
+    {
+        SubscribeToDialogueRunner(FindAnyObjectByType<DialogueRunner>(FindObjectsInactive.Include));
+    }
+
+    private void OnDisable()
+    {
+        UnsubscribeFromDialogueRunner();
+
+        if (promptRestoreRoutine != null)
+        {
+            StopCoroutine(promptRestoreRoutine);
+            promptRestoreRoutine = null;
+        }
     }
 
     void Start()
@@ -68,8 +87,7 @@ public class WireGameUIManager : MonoBehaviour
             return;
         }
 
-        DialogueRunner activeRunner = FindAnyObjectByType<DialogueRunner>(FindObjectsInactive.Include);
-        if (activeRunner != null && activeRunner.IsPlaying)
+        if (DialogueWaitUtility.IsBusy(subscribedDialogueRunner))
             return;
 
         dialoguePromptPresenter.ShowPrompt(text, isWarning);
@@ -83,7 +101,7 @@ public class WireGameUIManager : MonoBehaviour
         if (dialoguePromptPresenter == null)
             dialoguePromptPresenter = CreateDialoguePromptPresenter();
 
-        EnsureDialogueRunnerAndInput();
+        SubscribeToDialogueRunner(EnsureDialogueRunnerAndInput());
 
         if (dialoguePromptPresenter == null)
             Debug.LogError("WireGameUIManager could not create a DialoguePromptPresenter.", this);
@@ -107,12 +125,12 @@ public class WireGameUIManager : MonoBehaviour
         return canvas != null ? canvas.transform : transform;
     }
 
-    private void EnsureDialogueRunnerAndInput()
+    private DialogueRunner EnsureDialogueRunnerAndInput()
     {
         if (dialoguePromptPresenter == null)
         {
             Debug.LogError("WireGameUIManager cannot create dialogue infrastructure without a DialoguePromptPresenter.", this);
-            return;
+            return null;
         }
 
         DialogueRunner runner = FindAnyObjectByType<DialogueRunner>(FindObjectsInactive.Include);
@@ -122,10 +140,49 @@ public class WireGameUIManager : MonoBehaviour
         if (runner == null)
         {
             Debug.LogError("WireGameUIManager could not create a DialogueRunner for wire game prompts.", this);
-            return;
+            return null;
         }
 
         if (FindAnyObjectByType<DialogueAdvanceInput>(FindObjectsInactive.Include) == null)
             runner.gameObject.AddComponent<DialogueAdvanceInput>();
+
+        return runner;
+    }
+
+    private void SubscribeToDialogueRunner(DialogueRunner runner)
+    {
+        if (runner == null || subscribedDialogueRunner == runner)
+            return;
+
+        UnsubscribeFromDialogueRunner();
+        subscribedDialogueRunner = runner;
+        subscribedDialogueRunner.DialogueFinished += OnDialogueFinished;
+    }
+
+    private void UnsubscribeFromDialogueRunner()
+    {
+        if (subscribedDialogueRunner == null)
+            return;
+
+        subscribedDialogueRunner.DialogueFinished -= OnDialogueFinished;
+        subscribedDialogueRunner = null;
+    }
+
+    private void OnDialogueFinished()
+    {
+        if (promptRestoreRoutine != null)
+            StopCoroutine(promptRestoreRoutine);
+
+        promptRestoreRoutine = StartCoroutine(RestorePromptWhenDialogueIdle());
+    }
+
+    private IEnumerator RestorePromptWhenDialogueIdle()
+    {
+        yield return null;
+
+        if (!DialogueWaitUtility.IsBusy(subscribedDialogueRunner))
+            ShowPrompt(persistentMessage, persistentIsWarning);
+
+        promptRestoreRoutine = null;
     }
 }

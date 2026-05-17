@@ -17,6 +17,7 @@ public class DialogueRunner : MonoBehaviour
     [SerializeField] private UnityEvent finished;
 
     private readonly Queue<DialogueRequest> queuedRequests = new Queue<DialogueRequest>();
+    private DialogueRequest activeRequest;
     private DialogueSequence activeSequence;
     private Coroutine autoAdvanceRoutine;
     private Coroutine voiceGateRoutine;
@@ -84,12 +85,12 @@ public class DialogueRunner : MonoBehaviour
         return Queue(sequence);
     }
 
-    public bool Queue(DialogueSequence sequence)
+    public bool Queue(DialogueSequence sequence, Action onStarted = null, Action onFinished = null, Action onCanceled = null)
     {
         if (!CanAccept(sequence))
             return false;
 
-        queuedRequests.Enqueue(new DialogueRequest(sequence));
+        queuedRequests.Enqueue(new DialogueRequest(sequence, onStarted, onFinished, onCanceled));
 
         if (!IsPlaying && queuedStartRoutine == null)
             StartNextQueuedDialogue();
@@ -97,14 +98,14 @@ public class DialogueRunner : MonoBehaviour
         return true;
     }
 
-    public bool PlayNow(DialogueSequence sequence)
+    public bool PlayNow(DialogueSequence sequence, Action onStarted = null, Action onFinished = null, Action onCanceled = null)
     {
         if (!CanAccept(sequence))
             return false;
 
         ClearQueue();
         EndDialogue(false, false, true);
-        StartDialogue(sequence);
+        StartDialogue(new DialogueRequest(sequence, onStarted, onFinished, onCanceled));
         return true;
     }
 
@@ -130,7 +131,9 @@ public class DialogueRunner : MonoBehaviour
 
     public void ClearQueue()
     {
-        queuedRequests.Clear();
+        while (queuedRequests.Count > 0)
+            queuedRequests.Dequeue().InvokeCanceled();
+
         StopQueuedStartRoutine();
     }
 
@@ -157,16 +160,18 @@ public class DialogueRunner : MonoBehaviour
             return;
 
         DialogueRequest request = queuedRequests.Dequeue();
-        StartDialogue(request.Sequence);
+        StartDialogue(request);
     }
 
-    private void StartDialogue(DialogueSequence sequence)
+    private void StartDialogue(DialogueRequest request)
     {
-        activeSequence = sequence;
+        activeRequest = request;
+        activeSequence = request.Sequence;
         currentIndex = 0;
         IsPlaying = true;
-        PauseTimeIfNeeded(sequence);
+        PauseTimeIfNeeded(activeSequence);
 
+        activeRequest.InvokeStarted();
         started?.Invoke();
         DialogueStarted?.Invoke();
         PresentCurrentLine();
@@ -257,6 +262,7 @@ public class DialogueRunner : MonoBehaviour
     private void EndDialogue(bool notifyFinished, bool continueQueue, bool forceStopAudio)
     {
         DialogueSequence finishingSequence = activeSequence;
+        DialogueRequest finishingRequest = activeRequest;
         bool shouldStopAudio = forceStopAudio || (!notifyFinished && finishingSequence != null && finishingSequence.StopLineAudioWhenSkipped);
 
         StopLineRoutines();
@@ -268,6 +274,7 @@ public class DialogueRunner : MonoBehaviour
         }
 
         activeSequence = null;
+        activeRequest = default;
         currentIndex = -1;
         currentLineReadyToAdvance = false;
 
@@ -282,8 +289,13 @@ public class DialogueRunner : MonoBehaviour
 
         if (notifyFinished && wasPlaying)
         {
+            finishingRequest.InvokeFinished();
             finished?.Invoke();
             DialogueFinished?.Invoke();
+        }
+        else if (wasPlaying)
+        {
+            finishingRequest.InvokeCanceled();
         }
 
         if (!continueQueue)
@@ -362,11 +374,32 @@ public class DialogueRunner : MonoBehaviour
 
     private readonly struct DialogueRequest
     {
-        public DialogueRequest(DialogueSequence sequence)
+        public DialogueRequest(DialogueSequence sequence, Action onStarted, Action onFinished, Action onCanceled)
         {
             Sequence = sequence;
+            OnStarted = onStarted;
+            OnFinished = onFinished;
+            OnCanceled = onCanceled;
         }
 
         public DialogueSequence Sequence { get; }
+        private Action OnStarted { get; }
+        private Action OnFinished { get; }
+        private Action OnCanceled { get; }
+
+        public void InvokeStarted()
+        {
+            OnStarted?.Invoke();
+        }
+
+        public void InvokeFinished()
+        {
+            OnFinished?.Invoke();
+        }
+
+        public void InvokeCanceled()
+        {
+            OnCanceled?.Invoke();
+        }
     }
 }

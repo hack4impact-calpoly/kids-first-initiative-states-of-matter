@@ -162,7 +162,7 @@ public class WireGameDialogueAdapter : DialogueFlowAdapterBase
 
     private bool TryPlay(string key)
     {
-        return TryPlayFlow(key);
+        return TryPlayFlowNow(key);
     }
 
     private string ResolveDeviceSuccessKey(DraggableDevice device)

@@ -13,6 +13,7 @@ public class DialogueConditionWatcher : MonoBehaviour
     [SerializeField] private UnityEvent queued;
 
     private bool hasQueued;
+    private bool isPending;
 
     private void OnEnable()
     {
@@ -37,7 +38,7 @@ public class DialogueConditionWatcher : MonoBehaviour
 
     public void EvaluateAndQueue()
     {
-        if (playOnce && hasQueued)
+        if (playOnce && (hasQueued || isPending))
             return;
 
         if (!conditions.IsMet())
@@ -50,17 +51,39 @@ public class DialogueConditionWatcher : MonoBehaviour
             return;
         }
 
-        bool accepted = queueIfRunnerBusy ? targetRunner.Queue(sequence) : targetRunner.PlayNow(sequence);
+        if (playOnce)
+            isPending = true;
+
+        System.Action onStarted = playOnce ? MarkStarted : null;
+        System.Action onCanceled = playOnce ? MarkCanceled : null;
+        bool accepted = queueIfRunnerBusy
+            ? targetRunner.Queue(sequence, onStarted, onCanceled: onCanceled)
+            : targetRunner.PlayNow(sequence, onStarted, onCanceled: onCanceled);
+
+        if (!accepted && playOnce)
+            isPending = false;
+
         if (!accepted)
             return;
 
-        hasQueued = true;
         queued?.Invoke();
     }
 
     public void ResetWatcher()
     {
         hasQueued = false;
+        isPending = false;
+    }
+
+    private void MarkStarted()
+    {
+        isPending = false;
+        hasQueued = true;
+    }
+
+    private void MarkCanceled()
+    {
+        isPending = false;
     }
 
     private void OnConditionChanged(string key, DialogueConditionValue value)

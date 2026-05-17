@@ -162,6 +162,7 @@ public class DialogueFlowController : MonoBehaviour
     private readonly Dictionary<string, DialogueFlowEntry> flowLookup = new Dictionary<string, DialogueFlowEntry>(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, DialogueFlowEntry> runtimeFlows = new Dictionary<string, DialogueFlowEntry>(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> playedKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> pendingKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     private bool lookupDirty = true;
 
     private void Awake()
@@ -175,12 +176,12 @@ public class DialogueFlowController : MonoBehaviour
         lookupDirty = true;
     }
 
-    public bool TryPlay(string key)
+    public bool TryPlay(string key, Action onFinished = null)
     {
         if (!TryResolveFlow(key, out DialogueFlowEntry flow))
             return false;
 
-        if (flow.PlayOnce && playedKeys.Contains(flow.Key))
+        if (flow.PlayOnce && (playedKeys.Contains(flow.Key) || pendingKeys.Contains(flow.Key)))
             return false;
 
         DialogueSequence sequence = flow.ResolveSequence();
@@ -191,19 +192,27 @@ public class DialogueFlowController : MonoBehaviour
         if (targetRunner == null)
             return false;
 
-        bool accepted = flow.QueueIfRunnerBusy ? targetRunner.Queue(sequence) : targetRunner.PlayNow(sequence);
-        if (accepted && flow.PlayOnce)
-            playedKeys.Add(flow.Key);
+        Action onStarted = flow.PlayOnce ? () => MarkFlowStarted(flow.Key) : null;
+        Action onCanceled = flow.PlayOnce ? () => pendingKeys.Remove(flow.Key) : null;
+        if (flow.PlayOnce)
+            pendingKeys.Add(flow.Key);
+
+        bool accepted = flow.QueueIfRunnerBusy
+            ? targetRunner.Queue(sequence, onStarted, onFinished, onCanceled)
+            : targetRunner.PlayNow(sequence, onStarted, onFinished, onCanceled);
+
+        if (!accepted && flow.PlayOnce)
+            pendingKeys.Remove(flow.Key);
 
         return accepted;
     }
 
-    public bool TryPlayNow(string key)
+    public bool TryPlayNow(string key, Action onFinished = null)
     {
         if (!TryResolveFlow(key, out DialogueFlowEntry flow))
             return false;
 
-        if (flow.PlayOnce && playedKeys.Contains(flow.Key))
+        if (flow.PlayOnce && (playedKeys.Contains(flow.Key) || pendingKeys.Contains(flow.Key)))
             return false;
 
         DialogueSequence sequence = flow.ResolveSequence();
@@ -211,9 +220,15 @@ public class DialogueFlowController : MonoBehaviour
         if (sequence == null || sequence.Count == 0 || targetRunner == null)
             return false;
 
-        bool accepted = targetRunner.PlayNow(sequence);
-        if (accepted && flow.PlayOnce)
-            playedKeys.Add(flow.Key);
+        Action onStarted = flow.PlayOnce ? () => MarkFlowStarted(flow.Key) : null;
+        Action onCanceled = flow.PlayOnce ? () => pendingKeys.Remove(flow.Key) : null;
+        if (flow.PlayOnce)
+            pendingKeys.Add(flow.Key);
+
+        bool accepted = targetRunner.PlayNow(sequence, onStarted, onFinished, onCanceled);
+
+        if (!accepted && flow.PlayOnce)
+            pendingKeys.Remove(flow.Key);
 
         return accepted;
     }
@@ -267,12 +282,22 @@ public class DialogueFlowController : MonoBehaviour
     public void ResetPlayedKey(string key)
     {
         if (!string.IsNullOrWhiteSpace(key))
+        {
             playedKeys.Remove(key);
+            pendingKeys.Remove(key);
+        }
     }
 
     public void ResetAllPlayedKeys()
     {
         playedKeys.Clear();
+        pendingKeys.Clear();
+    }
+
+    private void MarkFlowStarted(string key)
+    {
+        pendingKeys.Remove(key);
+        playedKeys.Add(key);
     }
 
     private bool TryResolveFlow(string key, out DialogueFlowEntry flow)
@@ -314,10 +339,8 @@ public class DialogueFlowController : MonoBehaviour
 
     private DialogueRunner ResolveRunner()
     {
-        if (runner != null)
-            return runner;
-
-        runner = FindAnyObjectByType<DialogueRunner>(FindObjectsInactive.Include);
+        if (runner == null)
+            runner = FindAnyObjectByType<DialogueRunner>(FindObjectsInactive.Include);
 
         if (runner == null && createRunnerIfMissing)
             runner = gameObject.AddComponent<DialogueRunner>();

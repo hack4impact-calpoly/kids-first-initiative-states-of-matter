@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
@@ -28,7 +29,6 @@ public class JuicePouringGameManager : MonoBehaviour
     [Header("Dialogue Flow")]
     [SerializeField] private bool createDialogueAdapterIfMissing = true;
     [SerializeField] private KitchenGameDialogueAdapter dialogueAdapter;
-    [SerializeField] private float dialogueCompletionSceneLoadDelay = 1.4f;
 
     public event Action<IngredientSO> IngredientAddedToFreezer;
     public event Action ColdEnoughReached;
@@ -38,6 +38,7 @@ public class JuicePouringGameManager : MonoBehaviour
     private bool isCompletingStep;
     private bool coldEnoughPublished;
     private bool freezingCompletedPublished;
+    private Coroutine sceneLoadRoutine;
 
     private void Awake()
     {
@@ -143,7 +144,7 @@ public class JuicePouringGameManager : MonoBehaviour
         PublishFreezingCompleted();
 
         if (!string.IsNullOrWhiteSpace(nextSceneName))
-            Invoke(nameof(LoadNextScene), ResolveSceneLoadDelay());
+            QueueLoadNextScene();
     }
 
     private bool IsColdEnough()
@@ -234,11 +235,23 @@ public class JuicePouringGameManager : MonoBehaviour
         ColdEnoughReached?.Invoke();
     }
 
-    private float ResolveSceneLoadDelay()
+    private void QueueLoadNextScene()
     {
-        return dialogueAdapter != null
-            ? Mathf.Max(sceneLoadDelay, dialogueCompletionSceneLoadDelay)
-            : sceneLoadDelay;
+        if (sceneLoadRoutine != null)
+            StopCoroutine(sceneLoadRoutine);
+
+        sceneLoadRoutine = StartCoroutine(LoadNextSceneWhenDialogueIdle());
+    }
+
+    private IEnumerator LoadNextSceneWhenDialogueIdle()
+    {
+        if (sceneLoadDelay > 0f)
+            yield return new WaitForSecondsRealtime(sceneLoadDelay);
+
+        yield return DialogueWaitUtility.WaitUntilIdle();
+
+        sceneLoadRoutine = null;
+        LoadNextScene();
     }
 
     private void PublishFreezingCompleted()
