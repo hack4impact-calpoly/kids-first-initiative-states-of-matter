@@ -102,7 +102,13 @@ public class WireGameUIManager : MonoBehaviour
         }
 
         if (dialoguePromptPresenter != null)
+        {
+            DialogueRunner activeRunner = FindAnyObjectByType<DialogueRunner>(FindObjectsInactive.Include);
+            if (activeRunner != null && activeRunner.IsPlaying)
+                return;
+
             dialoguePromptPresenter.ShowPrompt(text, isWarning);
+        }
     }
 
     private void ResolveDialoguePromptPresenter()

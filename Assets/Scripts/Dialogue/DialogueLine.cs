@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 [Serializable]
@@ -14,6 +15,34 @@ public class DialogueLine
     [SerializeField] private bool waitForVoiceClipBeforeAdvance = true;
     [SerializeField] private bool requiresContinue = true;
     [SerializeField] private float autoAdvanceDelay = -1f;
+
+    public DialogueLine()
+    {
+    }
+
+    public DialogueLine(
+        string lineId,
+        string text,
+        DialogueSpeaker speaker = null,
+        string speakerName = null,
+        Sprite portrait = null,
+        AudioClip voiceClip = null,
+        IEnumerable<string> tags = null,
+        bool waitForVoiceClipBeforeAdvance = true,
+        bool requiresContinue = true,
+        float autoAdvanceDelay = -1f)
+    {
+        this.lineId = lineId;
+        this.text = text;
+        this.speaker = speaker;
+        this.speakerName = speakerName;
+        this.portrait = portrait;
+        this.voiceClip = voiceClip;
+        this.tags = CopyTags(tags);
+        this.waitForVoiceClipBeforeAdvance = waitForVoiceClipBeforeAdvance;
+        this.requiresContinue = requiresContinue;
+        this.autoAdvanceDelay = autoAdvanceDelay;
+    }
 
     public string LineId => lineId;
     public string[] Tags => tags;
@@ -39,5 +68,20 @@ public class DialogueLine
         }
 
         return false;
+    }
+
+    private static string[] CopyTags(IEnumerable<string> sourceTags)
+    {
+        if (sourceTags == null)
+            return Array.Empty<string>();
+
+        List<string> copiedTags = new List<string>();
+        foreach (string sourceTag in sourceTags)
+        {
+            if (!string.IsNullOrWhiteSpace(sourceTag))
+                copiedTags.Add(sourceTag);
+        }
+
+        return copiedTags.ToArray();
     }
 }

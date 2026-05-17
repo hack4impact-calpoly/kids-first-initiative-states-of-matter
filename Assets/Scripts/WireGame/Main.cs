@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -34,6 +35,10 @@ public class Main : MonoBehaviour
     [Header("Dialogue Conditions")]
     [SerializeField] private bool publishDialogueConditions = true;
 
+    [Header("Dialogue Flow")]
+    [SerializeField] private bool createDialogueAdapterIfMissing = true;
+    [SerializeField] private WireGameDialogueAdapter dialogueAdapter;
+
     [HideInInspector] public bool isLocked = true;
     [HideInInspector] public DraggableDevice connectedDevice;
 
@@ -41,6 +46,18 @@ public class Main : MonoBehaviour
     private Renderer blockRenderer;
     private bool hasWon;
     private Coroutine pendingCircuitCutsceneRoutine;
+
+    public event Action<DraggableDevice> DeviceConnectedChanged;
+    public event Action DeviceDisconnectedChanged;
+    public event Action<int, int> WireConnectionCountChanged;
+    public event Action<bool> PowerStateChanged;
+    public event Action WireInteractionBlocked;
+    public event Action<DraggableDevice> CircuitCompleted;
+    public event Action WinPresentationShown;
+
+    public int ConnectedWireCount => count;
+    public bool HasWon => hasWon;
+    public bool IsPowerOn => IsPowerReady();
 
     private void Awake()
     {
@@ -54,12 +71,16 @@ public class Main : MonoBehaviour
     {
         ResolvePowerDial();
         ResolveGuidanceController();
+        ResolveDialogueAdapter();
 
         if (powerDial != null)
             powerDial.PowerStateChanged += OnPowerStateChanged;
 
         ClearGuidance();
         PublishDialogueConditions();
+
+        if (dialogueAdapter != null)
+            dialogueAdapter.PlayIntroIfNeeded();
     }
 
     private void OnDestroy()
@@ -101,6 +122,7 @@ public class Main : MonoBehaviour
         else
             ClearGuidance();
 
+        DeviceConnectedChanged?.Invoke(device);
         EvaluateWinCondition();
     }
 
@@ -117,6 +139,7 @@ public class Main : MonoBehaviour
             WireGameUIManager.Instance.ResetPrompt();
 
         ClearGuidance();
+        DeviceDisconnectedChanged?.Invoke();
     }
 
     public void LightOn(int points)
@@ -126,7 +149,16 @@ public class Main : MonoBehaviour
 
         count += points;  // Simpler than: count = count + points
         PublishDialogueConditions();
+        WireConnectionCountChanged?.Invoke(count, wiresCount);
         EvaluateWinCondition();
+    }
+
+    public void ReportWireInteractionBlocked()
+    {
+        if (hasWon)
+            return;
+
+        WireInteractionBlocked?.Invoke();
     }
 
     private void OnPowerStateChanged(bool isPoweredOn)
@@ -151,6 +183,7 @@ public class Main : MonoBehaviour
             }
         }
 
+        PowerStateChanged?.Invoke(isPoweredOn);
         EvaluateWinCondition();
     }
 
@@ -202,6 +235,8 @@ public class Main : MonoBehaviour
                 effect.Activate();
             }
         }
+
+        CircuitCompleted?.Invoke(connectedDevice);
 
         if (playCircuitCutsceneOnWin)
         {
@@ -272,6 +307,21 @@ public class Main : MonoBehaviour
 
         if (guidanceController == null && createGuidanceControllerIfMissing)
             guidanceController = gameObject.AddComponent<WireGameGuidanceController>();
+    }
+
+    private void ResolveDialogueAdapter()
+    {
+        if (dialogueAdapter == null)
+            dialogueAdapter = FindAnyObjectByType<WireGameDialogueAdapter>(FindObjectsInactive.Include);
+
+        if (dialogueAdapter == null && createDialogueAdapterIfMissing)
+            dialogueAdapter = gameObject.AddComponent<WireGameDialogueAdapter>();
+
+        if (dialogueAdapter != null)
+            dialogueAdapter.Initialize(this);
+
+        if (guidanceController != null)
+            guidanceController.RefreshDialogueRunner();
     }
 
     private void ClearGuidance()
@@ -349,6 +399,8 @@ public class Main : MonoBehaviour
         
         if (youDidItText != null)
             youDidItText.SetActive(true);
+
+        WinPresentationShown?.Invoke();
     }
 
     private void LockOutputInteractions()
