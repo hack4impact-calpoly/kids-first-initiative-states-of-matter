@@ -31,7 +31,10 @@ public class DialoguePromptPresenter : MonoBehaviour
 
         DialogueView targetView = ResolveView();
         if (targetView == null)
+        {
+            Debug.LogError("DialoguePromptPresenter could not resolve a DialogueView for prompts.", this);
             return;
+        }
 
         targetView.SetPlacement(ResolvedPlacement);
         targetView.ShowPrompt(
