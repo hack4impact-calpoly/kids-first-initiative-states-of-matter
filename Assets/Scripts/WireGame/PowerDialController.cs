@@ -22,6 +22,8 @@ public class PowerDialController : MonoBehaviour
     private Image handleImage;
     private TextMeshProUGUI statusLabel;
     private AttentionHighlight guidanceHighlight;
+    private Func<bool> canPowerOn;
+    private Action powerOnBlocked;
     private bool wasPoweredOn;
     private bool isListening;
 
@@ -57,6 +59,18 @@ public class PowerDialController : MonoBehaviour
         SyncFromSlider();
     }
 
+    public void ConfigurePowerOnGate(Func<bool> canPowerOn, Action onPowerOnBlocked)
+    {
+        this.canPowerOn = canPowerOn;
+        powerOnBlocked = onPowerOnBlocked;
+        SyncFromSlider();
+    }
+
+    public void ForceOff()
+    {
+        ResetToOff(notifyPowerStateChanged: true);
+    }
+
     public void HandleDialReleased()
     {
         if (!snapToOnOnRelease || powerSlider == null)
@@ -64,6 +78,12 @@ public class PowerDialController : MonoBehaviour
 
         if (GetNormalizedSliderValue() < releaseSnapThreshold)
             return;
+
+        if (!CanPowerOn())
+        {
+            RejectPowerOnAttempt();
+            return;
+        }
 
         powerSlider.value = powerSlider.maxValue;
     }
@@ -115,6 +135,12 @@ public class PowerDialController : MonoBehaviour
     private void SyncFromSlider()
     {
         bool isPoweredOn = IsPoweredOn;
+        if (isPoweredOn && !CanPowerOn())
+        {
+            RejectPowerOnAttempt();
+            return;
+        }
+
         UpdateVisuals(isPoweredOn);
 
         if (isPoweredOn == wasPoweredOn)
@@ -122,6 +148,34 @@ public class PowerDialController : MonoBehaviour
 
         wasPoweredOn = isPoweredOn;
         PowerStateChanged?.Invoke(isPoweredOn);
+    }
+
+    private bool CanPowerOn()
+    {
+        return canPowerOn == null || canPowerOn();
+    }
+
+    private void RejectPowerOnAttempt()
+    {
+        powerOnBlocked?.Invoke();
+        ResetToOff(notifyPowerStateChanged: wasPoweredOn);
+    }
+
+    private void ResetToOff(bool notifyPowerStateChanged)
+    {
+        if (powerSlider == null)
+            return;
+
+        powerSlider.SetValueWithoutNotify(powerSlider.minValue);
+        UpdateVisuals(false);
+
+        if (!wasPoweredOn)
+            return;
+
+        wasPoweredOn = false;
+
+        if (notifyPowerStateChanged)
+            PowerStateChanged?.Invoke(false);
     }
 
     private void UpdateVisuals(bool isPoweredOn)

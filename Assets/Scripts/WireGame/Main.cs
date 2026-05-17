@@ -52,10 +52,13 @@ public class Main : MonoBehaviour
     public event Action<int, int> WireConnectionCountChanged;
     public event Action<bool> PowerStateChanged;
     public event Action WireInteractionBlocked;
+    public event Action PowerDialInteractionBlocked;
     public event Action<DraggableDevice> CircuitCompleted;
     public event Action WinPresentationShown;
 
     public int ConnectedWireCount => count;
+    public bool HasOutputConnected => connectedDevice != null;
+    public bool AreAllWiresConnected => wiresCount <= 0 || count >= wiresCount;
     public bool HasWon => hasWon;
     public bool IsPowerOn => IsPowerReady();
 
@@ -74,7 +77,10 @@ public class Main : MonoBehaviour
         ResolveDialogueAdapter();
 
         if (powerDial != null)
+        {
+            powerDial.ConfigurePowerOnGate(CanTurnPowerOn, ReportPowerDialInteractionBlocked);
             powerDial.PowerStateChanged += OnPowerStateChanged;
+        }
 
         ClearGuidance();
         PublishDialogueConditions();
@@ -103,13 +109,13 @@ public class Main : MonoBehaviour
         
         if (WireGameUIManager.Instance != null)
         {
-            if (count >= wiresCount && IsPowerReady())
+            if (AreAllWiresConnected && IsPowerReady())
             {
                 WireGameUIManager.Instance.ClearPrompt();
             }
-            else if (IsPowerReady())
+            else if (AreAllWiresConnected)
             {
-                WireGameUIManager.Instance.SetPersistentPrompt("Power dial is on. Complete the wire connections.", isWarning: false);
+                WireGameUIManager.Instance.SetPersistentPrompt("Turn on the power dial to power the circuit.", isWarning: false);
             }
             else
             {
@@ -117,7 +123,9 @@ public class Main : MonoBehaviour
             }
         }
 
-        if (IsPowerReady() && count < wiresCount && guidanceController != null)
+        if (AreAllWiresConnected && !IsPowerReady() && guidanceController != null)
+            guidanceController.ShowPowerDialGuidance();
+        else if (!AreAllWiresConnected && guidanceController != null)
             guidanceController.ShowWireBoardGuidance();
         else
             ClearGuidance();
@@ -161,10 +169,43 @@ public class Main : MonoBehaviour
         WireInteractionBlocked?.Invoke();
     }
 
+    public void ReportPowerDialInteractionBlocked()
+    {
+        if (hasWon)
+            return;
+
+        if (WireGameUIManager.Instance != null)
+        {
+            if (!HasOutputConnected)
+                WireGameUIManager.Instance.ShowMessage("Place an output device before turning on the power.", isWarning: true);
+            else if (!AreAllWiresConnected)
+                WireGameUIManager.Instance.ShowMessage("Connect every wire before turning on the power.", isWarning: true);
+        }
+
+        if (guidanceController != null)
+        {
+            if (!HasOutputConnected)
+                guidanceController.ShowConnectOutputGuidance();
+            else if (!AreAllWiresConnected)
+                guidanceController.ShowWireBoardGuidance();
+        }
+
+        PowerDialInteractionBlocked?.Invoke();
+    }
+
     private void OnPowerStateChanged(bool isPoweredOn)
     {
         if (hasWon)
             return;
+
+        if (isPoweredOn && !CanTurnPowerOn())
+        {
+            if (powerDial != null)
+                powerDial.ForceOff();
+
+            ReportPowerDialInteractionBlocked();
+            return;
+        }
 
         PublishDialogueConditions();
 
@@ -172,14 +213,20 @@ public class Main : MonoBehaviour
         {
             if (isPoweredOn)
             {
-                WireGameUIManager.Instance.SetPersistentPrompt("Power dial is on. Complete the wire connections.", isWarning: false);
-                if (count < wiresCount && guidanceController != null)
-                    guidanceController.ShowWireBoardGuidance();
+                WireGameUIManager.Instance.ClearPrompt();
+                ClearGuidance();
+            }
+            else if (AreAllWiresConnected)
+            {
+                WireGameUIManager.Instance.SetPersistentPrompt("Turn on the power dial to power the circuit.", isWarning: false);
+                if (guidanceController != null)
+                    guidanceController.ShowPowerDialGuidance();
             }
             else
             {
                 WireGameUIManager.Instance.SetPersistentPrompt("Connect the wires, then turn on the power dial.", isWarning: false);
-                ClearGuidance();
+                if (guidanceController != null)
+                    guidanceController.ShowWireBoardGuidance();
             }
         }
 
@@ -189,7 +236,7 @@ public class Main : MonoBehaviour
 
     private void EvaluateWinCondition()
     {
-        if (hasWon || count < wiresCount)
+        if (hasWon || !AreAllWiresConnected)
         {
             if (hasWon)
                 ClearGuidance();
@@ -213,6 +260,11 @@ public class Main : MonoBehaviour
     private bool IsPowerReady()
     {
         return !requirePowerDial || powerDial == null || powerDial.IsPoweredOn;
+    }
+
+    private bool CanTurnPowerOn()
+    {
+        return !requirePowerDial || (HasOutputConnected && AreAllWiresConnected);
     }
 
     private void WinGame()

@@ -4,12 +4,14 @@ public class WireGameDialogueAdapter : DialogueFlowAdapterBase
 {
     private const string OutputGuidanceTag = "wire.guidance.output";
     private const string WireGuidanceTag = "wire.guidance.wires";
+    private const string PowerDialGuidanceTag = "wire.guidance.power";
     private const string ClearGuidanceTag = "wire.guidance.clear";
 
     public const string DragDeviceIntroKey = "wire.drag_device.intro";
     public const string DragDeviceHintKey = "wire.drag_device.hint";
     public const string ConnectWiresIntroKey = "wire.connect_wires.intro";
     public const string ConnectWiresHintKey = "wire.connect_wires.hint";
+    public const string TurnOnPowerKey = "wire.power.turn_on";
     public const string HotPlateSuccessKey = "wire.success.hot_plate";
     public const string IceFlaskSuccessKey = "wire.success.ice_flask";
     public const string CandleSuccessKey = "wire.success.candle";
@@ -77,7 +79,9 @@ public class WireGameDialogueAdapter : DialogueFlowAdapterBase
         Unsubscribe();
         gameManager.DeviceConnectedChanged += OnDeviceConnected;
         gameManager.WireConnectionCountChanged += OnWireConnectionCountChanged;
+        gameManager.PowerStateChanged += OnPowerStateChanged;
         gameManager.WireInteractionBlocked += OnWireInteractionBlocked;
+        gameManager.PowerDialInteractionBlocked += OnPowerDialInteractionBlocked;
         gameManager.CircuitCompleted += OnCircuitCompleted;
         gameManager.WinPresentationShown += OnWinPresentationShown;
         subscribedGameManager = gameManager;
@@ -90,7 +94,9 @@ public class WireGameDialogueAdapter : DialogueFlowAdapterBase
 
         subscribedGameManager.DeviceConnectedChanged -= OnDeviceConnected;
         subscribedGameManager.WireConnectionCountChanged -= OnWireConnectionCountChanged;
+        subscribedGameManager.PowerStateChanged -= OnPowerStateChanged;
         subscribedGameManager.WireInteractionBlocked -= OnWireInteractionBlocked;
+        subscribedGameManager.PowerDialInteractionBlocked -= OnPowerDialInteractionBlocked;
         subscribedGameManager.CircuitCompleted -= OnCircuitCompleted;
         subscribedGameManager.WinPresentationShown -= OnWinPresentationShown;
         subscribedGameManager = null;
@@ -98,18 +104,50 @@ public class WireGameDialogueAdapter : DialogueFlowAdapterBase
 
     private void OnDeviceConnected(DraggableDevice device)
     {
-        TryPlay(ConnectWiresIntroKey);
+        if (!TryPlayPowerPromptIfReady())
+            TryPlay(ConnectWiresIntroKey);
     }
 
     private void OnWireConnectionCountChanged(int connectedCount, int requiredCount)
     {
+        if (connectedCount >= requiredCount && requiredCount > 0)
+        {
+            TryPlayPowerPromptIfReady();
+            return;
+        }
+
         if (connectedCount >= wireHintConnectedThreshold && connectedCount < requiredCount)
             TryPlay(ConnectWiresHintKey);
+    }
+
+    private void OnPowerStateChanged(bool isPoweredOn)
+    {
+        if (!isPoweredOn)
+            TryPlayPowerPromptIfReady();
     }
 
     private void OnWireInteractionBlocked()
     {
         TryPlay(DragDeviceHintKey);
+    }
+
+    private void OnPowerDialInteractionBlocked()
+    {
+        ResolveGameManager();
+
+        if (gameManager == null || !gameManager.HasOutputConnected)
+        {
+            TryPlay(DragDeviceHintKey);
+            return;
+        }
+
+        if (!gameManager.AreAllWiresConnected)
+        {
+            TryPlay(RetryIncompleteKey);
+            return;
+        }
+
+        TryPlayPowerPromptIfReady();
     }
 
     private void OnCircuitCompleted(DraggableDevice device)
@@ -164,6 +202,7 @@ public class WireGameDialogueAdapter : DialogueFlowAdapterBase
         RegisterWireLine(DragDeviceHintKey, "wire.drag_device.hint.1", patrice, "HotPlate heats things. IceFlask freezes. Candle melts wax. Plasma - that's me.", OutputGuidanceTag);
         RegisterWireLine(ConnectWiresIntroKey, "wire.connect_wires.intro.1", patrice, "Wires carry electricity. Connect every wire end-to-end so energy can flow.", WireGuidanceTag);
         RegisterWireLine(ConnectWiresHintKey, "wire.connect_wires.hint.1", patrice, "Drag a wire endpoint to connect it. Each device needs ALL its wires plugged in.", WireGuidanceTag);
+        RegisterWireLine(TurnOnPowerKey, "wire.power.turn_on.1", patrice, "All wires are connected. Now turn on the power switch so energy can flow!", PowerDialGuidanceTag);
         RegisterWireLine(HotPlateSuccessKey, "wire.success.hot_plate.1", gary, "HotPlate boiled the water! Heat to steam means gas. That's evaporation!", ClearGuidanceTag);
         RegisterWireLine(IceFlaskSuccessKey, "wire.success.ice_flask.1", sam, "IceFlask made ice! Cold to solid. That's freezing!", ClearGuidanceTag);
         RegisterWireLine(CandleSuccessKey, "wire.success.candle.1", sam, "Candle wax melted! Solid wax to liquid wax. That's melting!", ClearGuidanceTag);
@@ -196,6 +235,19 @@ public class WireGameDialogueAdapter : DialogueFlowAdapterBase
     {
         if (gameManager == null)
             gameManager = Main.Instance != null ? Main.Instance : FindAnyObjectByType<Main>();
+    }
+
+    private bool TryPlayPowerPromptIfReady()
+    {
+        ResolveGameManager();
+
+        if (gameManager == null || gameManager.HasWon || gameManager.IsPowerOn)
+            return false;
+
+        if (!gameManager.HasOutputConnected || !gameManager.AreAllWiresConnected)
+            return false;
+
+        return TryPlay(TurnOnPowerKey);
     }
 
 }
