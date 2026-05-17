@@ -1,9 +1,7 @@
-using System.Collections.Generic;
 using UnityEngine;
 
-public class WireGameDialogueAdapter : MonoBehaviour
+public class WireGameDialogueAdapter : DialogueFlowAdapterBase
 {
-    private const string SpeakerCatalogResourcePath = "Dialogue/DialogueSpeakerCatalog";
     private const string OutputGuidanceTag = "wire.guidance.output";
     private const string WireGuidanceTag = "wire.guidance.wires";
     private const string ClearGuidanceTag = "wire.guidance.clear";
@@ -21,13 +19,8 @@ public class WireGameDialogueAdapter : MonoBehaviour
     public const string RetryIncompleteKey = "wire.retry.incomplete";
 
     [SerializeField] private Main gameManager;
-    [SerializeField] private DialogueFlowController flowController;
-    [SerializeField] private bool createFlowControllerIfMissing = true;
-    [SerializeField] private bool registerDefaultFlows = true;
     [SerializeField] private bool playIntroOnStart = true;
     [SerializeField] private int wireHintConnectedThreshold = 2;
-    [SerializeField] private float promptAutoAdvanceDelay = 4f;
-    [SerializeField] private DialogueSpeakerCatalog speakerCatalog;
 
     private Main subscribedGameManager;
     private bool defaultsRegistered;
@@ -36,7 +29,7 @@ public class WireGameDialogueAdapter : MonoBehaviour
     private void Awake()
     {
         ResolveGameManager();
-        ResolveFlowController();
+        EnsureFlowController();
         RegisterDefaultFlowsIfNeeded();
     }
 
@@ -58,7 +51,7 @@ public class WireGameDialogueAdapter : MonoBehaviour
     public void Initialize(Main manager)
     {
         gameManager = manager;
-        ResolveFlowController();
+        EnsureFlowController();
         RegisterDefaultFlowsIfNeeded();
         Subscribe();
     }
@@ -68,7 +61,7 @@ public class WireGameDialogueAdapter : MonoBehaviour
         if (!playIntroOnStart || introPlayed)
             return;
 
-        ResolveFlowController();
+        EnsureFlowController();
 
         if (flowController != null && flowController.TryPlay(DragDeviceIntroKey))
             introPlayed = true;
@@ -131,8 +124,7 @@ public class WireGameDialogueAdapter : MonoBehaviour
 
     private bool TryPlay(string key)
     {
-        ResolveFlowController();
-        return flowController != null && flowController.TryPlay(key);
+        return TryPlayFlow(key);
     }
 
     private string ResolveDeviceSuccessKey(DraggableDevice device)
@@ -160,7 +152,7 @@ public class WireGameDialogueAdapter : MonoBehaviour
         if (!registerDefaultFlows || defaultsRegistered)
             return;
 
-        ResolveFlowController();
+        EnsureFlowController();
         if (flowController == null)
             return;
 
@@ -168,22 +160,22 @@ public class WireGameDialogueAdapter : MonoBehaviour
         DialogueSpeaker gary = ResolveSpeaker("Gary");
         DialogueSpeaker sam = ResolveSpeaker("Sam");
 
-        RegisterLine(DragDeviceIntroKey, "wire.drag_device.intro.1", patrice, "Each device shows a different state change. Drag one in to see what energy can do!", OutputGuidanceTag);
-        RegisterLine(DragDeviceHintKey, "wire.drag_device.hint.1", patrice, "HotPlate heats things. IceFlask freezes. Candle melts wax. Plasma - that's me.", OutputGuidanceTag);
-        RegisterLine(ConnectWiresIntroKey, "wire.connect_wires.intro.1", patrice, "Wires carry electricity. Connect every wire end-to-end so energy can flow.", WireGuidanceTag);
-        RegisterLine(ConnectWiresHintKey, "wire.connect_wires.hint.1", patrice, "Drag a wire endpoint to connect it. Each device needs ALL its wires plugged in.", WireGuidanceTag);
-        RegisterLine(HotPlateSuccessKey, "wire.success.hot_plate.1", gary, "HotPlate boiled the water! Heat to steam means gas. That's evaporation!", ClearGuidanceTag);
-        RegisterLine(IceFlaskSuccessKey, "wire.success.ice_flask.1", sam, "IceFlask made ice! Cold to solid. That's freezing!", ClearGuidanceTag);
-        RegisterLine(CandleSuccessKey, "wire.success.candle.1", sam, "Candle wax melted! Solid wax to liquid wax. That's melting!", ClearGuidanceTag);
-        RegisterLine(PlasmaSuccessKey, "wire.success.plasma.1", patrice, "I'm GLOWING! Plasma is super-heated gas where molecules break apart and shine. The Sun is plasma!", ClearGuidanceTag);
-        RegisterLine(GenericSuccessKey, "wire.success.generic.1", patrice, "The device is active! Electricity powered a change in matter.", ClearGuidanceTag);
-        RegisterLine(FinalWinKey, "wire.win.final.1", patrice, "Energy flows! You powered up a state change. That's how electricity transforms matter.", ClearGuidanceTag);
-        RegisterLine(RetryIncompleteKey, "wire.retry.incomplete.1", patrice, "Some wires aren't connected yet. Each device needs ALL of them.", WireGuidanceTag, playOnce: false);
+        RegisterWireLine(DragDeviceIntroKey, "wire.drag_device.intro.1", patrice, "Each device shows a different state change. Drag one in to see what energy can do!", OutputGuidanceTag);
+        RegisterWireLine(DragDeviceHintKey, "wire.drag_device.hint.1", patrice, "HotPlate heats things. IceFlask freezes. Candle melts wax. Plasma - that's me.", OutputGuidanceTag);
+        RegisterWireLine(ConnectWiresIntroKey, "wire.connect_wires.intro.1", patrice, "Wires carry electricity. Connect every wire end-to-end so energy can flow.", WireGuidanceTag);
+        RegisterWireLine(ConnectWiresHintKey, "wire.connect_wires.hint.1", patrice, "Drag a wire endpoint to connect it. Each device needs ALL its wires plugged in.", WireGuidanceTag);
+        RegisterWireLine(HotPlateSuccessKey, "wire.success.hot_plate.1", gary, "HotPlate boiled the water! Heat to steam means gas. That's evaporation!", ClearGuidanceTag);
+        RegisterWireLine(IceFlaskSuccessKey, "wire.success.ice_flask.1", sam, "IceFlask made ice! Cold to solid. That's freezing!", ClearGuidanceTag);
+        RegisterWireLine(CandleSuccessKey, "wire.success.candle.1", sam, "Candle wax melted! Solid wax to liquid wax. That's melting!", ClearGuidanceTag);
+        RegisterWireLine(PlasmaSuccessKey, "wire.success.plasma.1", patrice, "I'm GLOWING! Plasma is super-heated gas where molecules break apart and shine. The Sun is plasma!", ClearGuidanceTag);
+        RegisterWireLine(GenericSuccessKey, "wire.success.generic.1", patrice, "The device is active! Electricity powered a change in matter.", ClearGuidanceTag);
+        RegisterWireLine(FinalWinKey, "wire.win.final.1", patrice, "Energy flows! You powered up a state change. That's how electricity transforms matter.", ClearGuidanceTag);
+        RegisterWireLine(RetryIncompleteKey, "wire.retry.incomplete.1", patrice, "Some wires aren't connected yet. Each device needs ALL of them.", WireGuidanceTag, playOnce: false);
 
         defaultsRegistered = true;
     }
 
-    private void RegisterLine(
+    private void RegisterWireLine(
         string key,
         string lineId,
         DialogueSpeaker speaker,
@@ -191,20 +183,13 @@ public class WireGameDialogueAdapter : MonoBehaviour
         string guidanceTag,
         bool playOnce = true)
     {
-        flowController.RegisterLines(
+        RegisterLine(
             key,
-            new[]
-            {
-                new DialogueFlowLineDefinition(
-                    lineId,
-                    text,
-                    speaker,
-                    tags: new[] { guidanceTag },
-                    requiresContinue: false,
-                    autoAdvanceDelay: promptAutoAdvanceDelay)
-            },
-            playOnce,
-            replaceExisting: false);
+            lineId,
+            speaker,
+            text,
+            new[] { guidanceTag },
+            playOnce);
     }
 
     private void ResolveGameManager()
@@ -213,22 +198,4 @@ public class WireGameDialogueAdapter : MonoBehaviour
             gameManager = Main.Instance != null ? Main.Instance : FindAnyObjectByType<Main>();
     }
 
-    private void ResolveFlowController()
-    {
-        if (flowController != null)
-            return;
-
-        flowController = FindAnyObjectByType<DialogueFlowController>(FindObjectsInactive.Include);
-
-        if (flowController == null && createFlowControllerIfMissing)
-            flowController = gameObject.AddComponent<DialogueFlowController>();
-    }
-
-    private DialogueSpeaker ResolveSpeaker(string displayName)
-    {
-        if (speakerCatalog == null)
-            speakerCatalog = Resources.Load<DialogueSpeakerCatalog>(SpeakerCatalogResourcePath);
-
-        return speakerCatalog != null ? speakerCatalog.FindByName(displayName) : null;
-    }
 }

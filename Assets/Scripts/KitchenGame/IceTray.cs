@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,6 +17,8 @@ public class IceTray : MonoBehaviour
     [SerializeField] private Color fullColor = new Color(1f, 0.55f, 0f, 1f);
 
     private readonly Vector3[] trayCorners = new Vector3[4];
+    public event Action<float> FillAmountChanged;
+    public float FillAmount => fillImage != null ? fillImage.fillAmount : 0f;
 
     void Start()
     {
@@ -39,6 +42,7 @@ public class IceTray : MonoBehaviour
         fillImage.fillAmount += fillPerDroplet;
         fillImage.fillAmount = Mathf.Clamp01(fillImage.fillAmount);
         ApplyFillVisual();
+        FillAmountChanged?.Invoke(fillImage.fillAmount);
 
         Debug.Log("Tray fill amount: " + fillImage.fillAmount);
     }

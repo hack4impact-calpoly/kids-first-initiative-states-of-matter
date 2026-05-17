@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
@@ -28,15 +29,40 @@ public class JuiceFreezingManager : MonoBehaviour
     [FormerlySerializedAs("freezingCutsceneTargetOverride")]
     [SerializeField] private Transform liquidFlowCutsceneTargetOverride;
 
+    [Header("Dialogue Flow")]
+    [SerializeField] private bool createDialogueAdapterIfMissing = true;
+    [SerializeField] private KitchenGameDialogueAdapter dialogueAdapter;
+    [SerializeField] private float dialogueCompletionSceneLoadDelay = 1.4f;
+
     public GameState State { get; private set; } = GameState.Playing;
+    public event Action TrayFillStarted;
+    public event Action PourStepCompleted;
+    public event Action WinPresentationShown;
 
     private bool trayFilled;
     private bool coldEnough;
+    private bool trayFillStartedPublished;
+    private bool pourStepCompletedPublished;
 
     private void Awake()
     {
         SetWin(false);
         State = GameState.Playing;
+        trayFillStartedPublished = false;
+        pourStepCompletedPublished = false;
+        ResolveDialogueAdapter();
+    }
+
+    private void OnEnable()
+    {
+        if (tray != null)
+            tray.FillAmountChanged += OnTrayFillAmountChanged;
+    }
+
+    private void OnDisable()
+    {
+        if (tray != null)
+            tray.FillAmountChanged -= OnTrayFillAmountChanged;
     }
 
     private void Update()
@@ -73,14 +99,15 @@ public class JuiceFreezingManager : MonoBehaviour
     {
         State = GameState.Won;
         SetWin(false);
+        PublishPourStepCompleted();
 
-        if (TryPlayLiquidFlowCutscene(LoadNextScene))
+        if (TryPlayLiquidFlowCutscene(QueueLoadNextScene))
         {
             Debug.Log("Pour Step Complete!");
             return;
         }
 
-        Invoke(nameof(LoadNextScene), sceneLoadDelay);
+        QueueLoadNextScene();
         Debug.Log("Pour Step Complete!");
     }
 
@@ -88,6 +115,8 @@ public class JuiceFreezingManager : MonoBehaviour
     {
         State = GameState.Won;
         SetWin(true);
+        PublishPourStepCompleted();
+        WinPresentationShown?.Invoke();
         Debug.Log("Freezing Level Complete!");
     }
 
@@ -143,5 +172,48 @@ public class JuiceFreezingManager : MonoBehaviour
     {
         if (!string.IsNullOrWhiteSpace(nextSceneName))
             SceneManager.LoadScene(nextSceneName);
+    }
+
+    private void QueueLoadNextScene()
+    {
+        if (!string.IsNullOrWhiteSpace(nextSceneName))
+            Invoke(nameof(LoadNextScene), ResolveSceneLoadDelay());
+    }
+
+    private float ResolveSceneLoadDelay()
+    {
+        return dialogueAdapter != null
+            ? Mathf.Max(sceneLoadDelay, dialogueCompletionSceneLoadDelay)
+            : sceneLoadDelay;
+    }
+
+    private void OnTrayFillAmountChanged(float fillAmount)
+    {
+        if (State != GameState.Playing || trayFillStartedPublished || fillAmount <= 0f)
+            return;
+
+        trayFillStartedPublished = true;
+        TrayFillStarted?.Invoke();
+    }
+
+    private void PublishPourStepCompleted()
+    {
+        if (pourStepCompletedPublished)
+            return;
+
+        pourStepCompletedPublished = true;
+        PourStepCompleted?.Invoke();
+    }
+
+    private void ResolveDialogueAdapter()
+    {
+        if (dialogueAdapter == null)
+            dialogueAdapter = FindAnyObjectByType<KitchenGameDialogueAdapter>(FindObjectsInactive.Include);
+
+        if (dialogueAdapter == null && createDialogueAdapterIfMissing)
+            dialogueAdapter = gameObject.AddComponent<KitchenGameDialogueAdapter>();
+
+        if (dialogueAdapter != null)
+            dialogueAdapter.Initialize(this);
     }
 }

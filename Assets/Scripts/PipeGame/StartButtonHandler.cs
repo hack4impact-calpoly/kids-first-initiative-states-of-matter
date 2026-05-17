@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -13,12 +14,27 @@ public class StartButtonHandler : MonoBehaviour
     [SerializeField] private StateChangeCutsceneAnimation successCutscene;
     [SerializeField] private Transform cutsceneTargetOverride;
 
+    [Header("Dialogue Flow")]
+    [SerializeField] private bool createDialogueAdapterIfMissing = true;
+    [SerializeField] private PipeGameDialogueAdapter dialogueAdapter;
+
+    public event Action StartPressed;
+    public event Action<MatterCutsceneKind> ValidationSucceeded;
+    public event Action ValidationFailed;
+
     private PipeObject lastEndPipe;
+
+    private void Awake()
+    {
+        ResolveDialogueAdapter();
+    }
 
     public void OnStartPressed()
     {
         if (startButton != null)
             startButton.SetActive(false);
+
+        StartPressed?.Invoke();
 
         if (ui == null)
         {
@@ -30,13 +46,17 @@ public class StartButtonHandler : MonoBehaviour
 
         if (success)
         {
-            if (TryPlaySuccessCutscene())
+            MatterCutsceneKind cutsceneKind = ResolveCutsceneKind();
+            ValidationSucceeded?.Invoke(cutsceneKind);
+
+            if (TryPlaySuccessCutscene(cutsceneKind))
                 return;
 
             ui.ShowSuccess();
         }
         else
         {
+            ValidationFailed?.Invoke();
             ui.ShowFailure();
         }
     }
@@ -68,7 +88,7 @@ public class StartButtonHandler : MonoBehaviour
         return false;
     }
 
-    private bool TryPlaySuccessCutscene()
+    private bool TryPlaySuccessCutscene(MatterCutsceneKind cutsceneKind)
     {
         if (!playSuccessCutscene)
             return false;
@@ -79,7 +99,7 @@ public class StartButtonHandler : MonoBehaviour
         if (manager == null || animation == null)
             return false;
 
-        animation.Configure(ResolveCutsceneKind());
+        animation.Configure(cutsceneKind);
         Transform target = ResolveCutsceneTarget();
 
         if (successCutsceneDefinition != null)
@@ -142,5 +162,17 @@ public class StartButtonHandler : MonoBehaviour
     {
         if (ui != null)
             ui.ShowSuccess();
+    }
+
+    private void ResolveDialogueAdapter()
+    {
+        if (dialogueAdapter == null)
+            dialogueAdapter = FindAnyObjectByType<PipeGameDialogueAdapter>(FindObjectsInactive.Include);
+
+        if (dialogueAdapter == null && createDialogueAdapterIfMissing)
+            dialogueAdapter = gameObject.AddComponent<PipeGameDialogueAdapter>();
+
+        if (dialogueAdapter != null)
+            dialogueAdapter.Initialize(this);
     }
 }
