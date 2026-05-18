@@ -16,6 +16,9 @@ public class PipeObject : MonoBehaviour
     public bool isFreezable = true;
     public bool isFrozen;
 
+    [Header("Steam")]
+    public bool isSteamPipe = false;
+
     [Header("Frozen level only")]
     public bool isSink;
 
@@ -32,13 +35,15 @@ public class PipeObject : MonoBehaviour
 
     [Header("State")]
     public bool water;
+    public bool steam;
     public bool isSource;
     public bool isEnd;
 
     [Header("Sprites")]
     public Sprite drySprite;
     public Sprite waterSprite;
-    
+    public Sprite steamSprite;
+
     [Header("Tint")]
     public Color normalColor = Color.white;
     public Color frozenColor = Color.cyan;
@@ -55,8 +60,9 @@ public class PipeObject : MonoBehaviour
     {
         isEnd = (xPos == 8 && yPos == 1);
     }
+
     public virtual void updateConnections()
-    {  
+    {
     }
 
     protected int getRotation()
@@ -93,7 +99,7 @@ public class PipeObject : MonoBehaviour
 
         if (spriteRenderer != null)
             spriteRenderer.color = isFrozen ? frozenColor : normalColor;
-        
+
         recalculateWater();
     }
 
@@ -106,72 +112,148 @@ public class PipeObject : MonoBehaviour
         foreach (var p in pipes)
         {
             p.water = false;
+            p.steam = false;
             map[new Vector2Int(p.xPos, p.yPos)] = p;
             if (p.isSource) source = p;
         }
 
-        if (source == null) return;
+        if (source != null)
+        {
+            var dist = new Dictionary<PipeObject, int>();
+            var q = new Queue<PipeObject>();
 
-        var dist = new Dictionary<PipeObject, int>();
+            dist[source] = 0;
+            q.Enqueue(source);
+
+            int sinkDist = int.MaxValue;
+
+            while (q.Count > 0)
+            {
+                var cur = q.Dequeue();
+                int d = dist[cur];
+
+                if (d >= sinkDist) continue;
+
+                if (cur.isSink && !cur.isFrozen)
+                {
+                    sinkDist = d;
+                    continue;
+                }
+
+                foreach (var next in GetConnectedNeighbors(cur, map))
+                {
+                    if (!dist.ContainsKey(next))
+                    {
+                        dist[next] = d + 1;
+                        q.Enqueue(next);
+                    }
+                }
+            }
+
+            foreach (var kv in dist)
+            {
+                var p = kv.Key;
+                int d = kv.Value;
+
+                if (d <= sinkDist) p.water = true;
+            }
+        }
+
+        recalculateSteam(pipes, map);
+
+        foreach (var p in pipes) p.updateVisual();
+    }
+
+    void recalculateSteam(PipeObject[] pipes, Dictionary<Vector2Int, PipeObject> map)
+    {
+        var steamDist = new Dictionary<PipeObject, int>();
         var q = new Queue<PipeObject>();
 
-        dist[source] = 0;
-        q.Enqueue(source);
+        foreach (var p in pipes)
+        {
+            if (!p.isSteamPipe) continue;
 
-        int sinkDist = int.MaxValue;
+            bool touchesWater = false;
+            foreach (var neighbor in GetConnectedNeighbors(p, map))
+            {
+                if (neighbor.water) { touchesWater = true; break; }
+            }
+
+            if (touchesWater && !steamDist.ContainsKey(p))
+            {
+                steamDist[p] = 0;
+                q.Enqueue(p);
+            }
+        }
 
         while (q.Count > 0)
         {
             var cur = q.Dequeue();
-            int d = dist[cur];
+            int d = steamDist[cur];
 
-            if (d >= sinkDist) continue;
-
-            if (cur.isSink && !cur.isFrozen)
+            foreach (var next in GetSteamNeighbors(cur, map))
             {
-                sinkDist = d;
-                continue;
-            }
-
-            foreach (var next in GetConnectedNeighbors(cur, map))
-            {
-
-                if (!dist.ContainsKey(next))
+                if (!steamDist.ContainsKey(next))
                 {
-                    dist[next] = d + 1;
+                    steamDist[next] = d + 1;
                     q.Enqueue(next);
                 }
             }
         }
 
-        foreach (var kv in dist)
+        foreach (var kv in steamDist)
         {
             var p = kv.Key;
-            int d = kv.Value;
-
-            if (d <= sinkDist) p.water = true;
+            p.steam = true;
+            p.water = false;
         }
-
-        foreach (var p in pipes) p.updateVisual();
     }
 
-        IEnumerable<PipeObject> GetConnectedNeighbors(PipeObject p, Dictionary<Vector2Int, PipeObject> map)
+    IEnumerable<PipeObject> GetConnectedNeighbors(PipeObject p, Dictionary<Vector2Int, PipeObject> map)
     {
-        // north (y+1)
         if (p.northConnection && map.TryGetValue(new Vector2Int(p.xPos, p.yPos + 1), out var n) && n.southConnection)
             yield return n;
 
-        // south (y-1)
         if (p.southConnection && map.TryGetValue(new Vector2Int(p.xPos, p.yPos - 1), out var s) && s.northConnection)
             yield return s;
 
-        // east (x+1)
         if (p.eastConnection && map.TryGetValue(new Vector2Int(p.xPos + 1, p.yPos), out var e) && e.westConnection)
             yield return e;
 
-        // west (x-1)
         if (p.westConnection && map.TryGetValue(new Vector2Int(p.xPos - 1, p.yPos), out var w) && w.eastConnection)
             yield return w;
+    }
+
+    IEnumerable<PipeObject> GetSteamNeighbors(PipeObject p, Dictionary<Vector2Int, PipeObject> map)
+    {
+        if (p.eastConnection && map.TryGetValue(new Vector2Int(p.xPos + 1, p.yPos), out var e) && e.westConnection)
+            yield return e;
+
+        if (p.westConnection && map.TryGetValue(new Vector2Int(p.xPos - 1, p.yPos), out var w) && w.eastConnection)
+            yield return w;
+
+        if (p.southConnection && map.TryGetValue(new Vector2Int(p.xPos, p.yPos - 1), out var s) && s.northConnection)
+            yield return s;
+
+        // find nearest, northern pipe and return only if its a SteamPipe with an open southConnection
+        if (p.northConnection)
+        {
+            PipeObject nearest = null;
+            int nearestY = int.MaxValue;
+
+            foreach (var kv in map)
+            {
+                var candidate = kv.Value;
+                if (candidate.xPos == p.xPos && candidate.yPos > p.yPos && candidate.yPos < nearestY)
+                {
+                    nearest = candidate;
+                    nearestY = candidate.yPos;
+                }
+            }
+
+            if (nearest != null && nearest.isSteamPipe && nearest.southConnection)
+                yield return nearest;
+        }
     }
 
     public void checkForWater(PipeObject[] pipes)
@@ -213,7 +295,9 @@ public class PipeObject : MonoBehaviour
 
     public void updateVisual()
     {
-        if (water)
+        if (steam && steamSprite != null)
+            spriteRenderer.sprite = steamSprite;
+        else if (water)
             spriteRenderer.sprite = waterSprite;
         else
             spriteRenderer.sprite = drySprite;
@@ -223,6 +307,7 @@ public class PipeObject : MonoBehaviour
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
+
     void Start()
     {
         updateConnections();
@@ -238,4 +323,3 @@ public class PipeObject : MonoBehaviour
         recalculateWater();
     }*/
 }
-    
