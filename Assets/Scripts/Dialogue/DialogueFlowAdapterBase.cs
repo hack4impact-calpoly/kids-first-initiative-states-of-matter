@@ -10,6 +10,7 @@ public abstract class DialogueFlowAdapterBase : MonoBehaviour
     [SerializeField] protected bool registerDefaultFlows = true;
     [SerializeField] protected float promptAutoAdvanceDelay = 4f;
     [SerializeField] protected DialogueSpeakerCatalog speakerCatalog;
+    [SerializeField] protected DialogueVoiceClipCatalog voiceClipCatalog;
 
     protected void EnsureFlowController()
     {
@@ -68,10 +69,19 @@ public abstract class DialogueFlowAdapterBase : MonoBehaviour
                     speakerName,
                     tags,
                     requiresContinue: false,
-                    autoAdvanceDelay: promptAutoAdvanceDelay)
+                    autoAdvanceDelay: promptAutoAdvanceDelay,
+                    voiceClip: ResolveVoiceClip(lineId))
             },
             playOnce,
             queueIfRunnerBusy,
             replaceExisting: false);
+    }
+
+    protected AudioClip ResolveVoiceClip(string lineId)
+    {
+        if (voiceClipCatalog == null)
+            return DialogueVoiceClipCatalog.ResolveDefault(lineId);
+
+        return voiceClipCatalog.Resolve(lineId);
     }
 }
