@@ -56,7 +56,7 @@ public class DialogueRunner : MonoBehaviour
         if (voiceAudioSource == null)
             voiceAudioSource = gameObject.AddComponent<AudioSource>();
 
-        voiceAudioSource.playOnAwake = false;
+        ConfigureVoiceAudioSource();
     }
 
     private void OnEnable()
@@ -205,12 +205,25 @@ public class DialogueRunner : MonoBehaviour
 
         voiceAudioSource.Stop();
         voiceAudioSource.clip = null;
+        ConfigureVoiceAudioSource();
 
         if (line == null || line.VoiceClip == null)
             return;
 
         voiceAudioSource.clip = line.VoiceClip;
         voiceAudioSource.Play();
+    }
+
+    private void ConfigureVoiceAudioSource()
+    {
+        if (voiceAudioSource == null)
+            return;
+
+        voiceAudioSource.playOnAwake = false;
+        voiceAudioSource.loop = false;
+        voiceAudioSource.pitch = 1f;
+        voiceAudioSource.spatialBlend = 0f;
+        voiceAudioSource.dopplerLevel = 0f;
     }
 
     private IEnumerator WaitForVoiceThenUnlock(int lineVersion, DialogueLine line)

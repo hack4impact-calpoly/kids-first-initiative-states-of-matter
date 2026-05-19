@@ -12,6 +12,15 @@ public class DialogueVoiceClipCatalog : ScriptableObject
     private static DialogueVoiceClipCatalog defaultCatalog;
     private Dictionary<string, AudioClip> clipLookup;
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetRuntimeState()
+    {
+        if (defaultCatalog != null)
+            defaultCatalog.clipLookup = null;
+
+        defaultCatalog = null;
+    }
+
     public static AudioClip ResolveDefault(string lineId)
     {
         if (defaultCatalog == null)
