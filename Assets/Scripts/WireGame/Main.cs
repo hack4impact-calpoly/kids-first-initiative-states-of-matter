@@ -6,7 +6,7 @@ public class Main : MonoBehaviour
     static public Main Instance;
 
     public int wiresCount; // wires total
-    public GameObject block;
+    //public GameObject block;
     public GameObject youDidItText;
     [Header("Win Cutscene")]
     [SerializeField] private bool playCircuitCutsceneOnWin = true;
@@ -19,13 +19,14 @@ public class Main : MonoBehaviour
     [HideInInspector] public DraggableDevice connectedDevice;
 
     private int count = 0; // number of wires connected
-    private Renderer blockRenderer;
+    
+    //private Renderer blockRenderer;
     private bool hasWon;
 
     private void Awake()
     {
         Instance = this;
-        blockRenderer = block.GetComponent<Renderer>();
+        //blockRenderer = block.GetComponent<Renderer>();
         hasWon = false;
         
         // Check which scene we're in
@@ -46,8 +47,7 @@ public class Main : MonoBehaviour
     {
         isLocked = false;
         connectedDevice = device;
-        
-        // Clear the prompt when device is connected
+
         if (WireGameUIManager.Instance != null)
         {
             WireGameUIManager.Instance.ClearPrompt();
@@ -58,6 +58,22 @@ public class Main : MonoBehaviour
     {
         isLocked = true;
         connectedDevice = null;
+    }
+
+    public bool HasWon()
+    {
+        return hasWon;
+    }
+
+    public void Undo()
+    {
+        if (hasWon)
+        return;
+
+        if (connectedDevice != null)
+        {
+            connectedDevice.ReturnToStart();
+        }
     }
 
     public void LightOn(int points)
@@ -76,8 +92,8 @@ public class Main : MonoBehaviour
     void WinGame()
     {
         hasWon = true;
-        block.SetActive(true);
-        blockRenderer.material.color = Color.green;
+        //block.SetActive(true);
+        //blockRenderer.material.color = Color.green;
 
         if (connectedDevice != null)
         {
@@ -127,7 +143,9 @@ public class Main : MonoBehaviour
         if (connectedDevice != null)
             return connectedDevice.transform;
 
-        return block != null ? block.transform : transform;
+        return transform;
+
+        //return block != null ? block.transform : transform;
     }
 
     private CutsceneManager ResolveCutsceneManager()
