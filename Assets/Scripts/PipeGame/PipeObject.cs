@@ -43,6 +43,9 @@ public class PipeObject : MonoBehaviour
     public Sprite waterOverlaySprite;
     public Color waterOverlayColor = Color.white;
     public int waterOverlaySortingOrderOffset = 1;
+    public float waterOverlayAlpha = 0.45f;
+    public float waterOverlayScalePadding = 1.18f;
+    public float waterOverlayScrollSpeed = 0.55f;
     
     [Header("Tint")]
     public Color normalColor = Color.white;
@@ -51,8 +54,11 @@ public class PipeObject : MonoBehaviour
 
     private SpriteRenderer spriteRenderer;
     private SpriteRenderer waterOverlayRenderer;
+    private SpriteMask waterOverlayMask;
     private const string WaterOverlayName = "Water Overlay";
+    private const string WaterOverlayMaskName = "Water Overlay Mask";
     private const float WaterOverlayRotationDegrees = 90f;
+    private float waterOverlayScrollRange;
     private Sprite ActiveWaterOverlaySprite => waterOverlaySprite != null ? waterOverlaySprite : waterSprite;
 
     public void setIsSource()
@@ -222,13 +228,20 @@ public class PipeObject : MonoBehaviour
 
     public void updateVisual()
     {
-        if (spriteRenderer != null && drySprite != null)
-            spriteRenderer.sprite = drySprite;
+        if (spriteRenderer != null)
+        {
+            Sprite targetSprite = water && waterSprite != null ? waterSprite : drySprite;
+            if (targetSprite != null)
+                spriteRenderer.sprite = targetSprite;
+        }
 
         EnsureWaterOverlay();
 
         if (waterOverlayRenderer != null)
             waterOverlayRenderer.enabled = water && ActiveWaterOverlaySprite != null;
+
+        if (waterOverlayMask != null)
+            waterOverlayMask.enabled = water && waterSprite != null;
     }
 
     void EnsureWaterOverlay()
@@ -252,13 +265,53 @@ public class PipeObject : MonoBehaviour
             }
         }
 
+        EnsureWaterOverlayMask();
+
         waterOverlayRenderer.sprite = overlaySprite;
-        waterOverlayRenderer.color = waterOverlayColor;
+        Color overlayColor = waterOverlayColor;
+        overlayColor.a *= waterOverlayAlpha;
+        waterOverlayRenderer.color = overlayColor;
         waterOverlayRenderer.sortingLayerID = spriteRenderer.sortingLayerID;
         waterOverlayRenderer.sortingOrder = spriteRenderer.sortingOrder + waterOverlaySortingOrderOffset;
+        waterOverlayRenderer.maskInteraction = waterOverlayMask != null
+            ? SpriteMaskInteraction.VisibleInsideMask
+            : SpriteMaskInteraction.None;
 
         FitWaterOverlayToPipe(overlaySprite);
         waterOverlayRenderer.enabled = water;
+    }
+
+    void EnsureWaterOverlayMask()
+    {
+        if (waterSprite == null || spriteRenderer == null)
+            return;
+
+        if (waterOverlayMask == null)
+        {
+            Transform existingMask = transform.Find(WaterOverlayMaskName);
+            if (existingMask != null)
+                waterOverlayMask = existingMask.GetComponent<SpriteMask>();
+
+            if (waterOverlayMask == null)
+            {
+                GameObject maskObject = new GameObject(WaterOverlayMaskName);
+                maskObject.transform.SetParent(transform, false);
+                waterOverlayMask = maskObject.AddComponent<SpriteMask>();
+            }
+        }
+
+        int overlaySortingOrder = spriteRenderer.sortingOrder + waterOverlaySortingOrderOffset;
+        waterOverlayMask.sprite = waterSprite;
+        waterOverlayMask.alphaCutoff = 0.08f;
+        waterOverlayMask.isCustomRangeActive = true;
+        waterOverlayMask.backSortingLayerID = spriteRenderer.sortingLayerID;
+        waterOverlayMask.backSortingOrder = overlaySortingOrder - 1;
+        waterOverlayMask.frontSortingLayerID = spriteRenderer.sortingLayerID;
+        waterOverlayMask.frontSortingOrder = overlaySortingOrder + 1;
+        waterOverlayMask.transform.localPosition = Vector3.zero;
+        waterOverlayMask.transform.localRotation = Quaternion.identity;
+        waterOverlayMask.transform.localScale = GetRendererSizeScale(waterSprite);
+        waterOverlayMask.enabled = water;
     }
 
     void FitWaterOverlayToPipe(Sprite overlaySprite)
@@ -266,16 +319,47 @@ public class PipeObject : MonoBehaviour
         if (waterOverlayRenderer == null || overlaySprite == null || spriteRenderer == null || spriteRenderer.sprite == null)
             return;
 
-        Vector2 pipeSize = spriteRenderer.sprite.bounds.size;
+        Vector2 pipeSize = GetRendererLocalSize(spriteRenderer.sprite);
         Vector2 overlaySize = overlaySprite.bounds.size;
 
         if (overlaySize.x <= 0f || overlaySize.y <= 0f)
             return;
 
-        float scale = Mathf.Min(pipeSize.x / overlaySize.y, pipeSize.y / overlaySize.x);
-        waterOverlayRenderer.transform.localPosition = Vector3.zero;
+        float scale = Mathf.Max(pipeSize.x / overlaySize.y, pipeSize.y / overlaySize.x) * Mathf.Max(1f, waterOverlayScalePadding);
+        waterOverlayScrollRange = Mathf.Max(pipeSize.y * 0.35f, overlaySize.x * scale - pipeSize.y);
+        AnimateWaterOverlay();
         waterOverlayRenderer.transform.localRotation = Quaternion.Euler(0f, 0f, WaterOverlayRotationDegrees);
         waterOverlayRenderer.transform.localScale = new Vector3(scale, scale, 1f);
+    }
+
+    Vector2 GetRendererLocalSize(Sprite sprite)
+    {
+        if (sprite == null)
+            return Vector2.one;
+
+        if (spriteRenderer.drawMode != SpriteDrawMode.Simple)
+            return spriteRenderer.size;
+
+        return sprite.bounds.size;
+    }
+
+    Vector3 GetRendererSizeScale(Sprite sprite)
+    {
+        if (sprite == null || sprite.bounds.size.x <= 0f || sprite.bounds.size.y <= 0f)
+            return Vector3.one;
+
+        Vector2 rendererSize = GetRendererLocalSize(sprite);
+        return new Vector3(rendererSize.x / sprite.bounds.size.x, rendererSize.y / sprite.bounds.size.y, 1f);
+    }
+
+    void AnimateWaterOverlay()
+    {
+        if (waterOverlayRenderer == null || !waterOverlayRenderer.enabled || waterOverlayScrollRange <= 0f)
+            return;
+
+        float pathCoordinate = Vector2.Dot(transform.position, transform.up);
+        float scroll = Mathf.Repeat(Time.time * waterOverlayScrollSpeed + pathCoordinate, waterOverlayScrollRange);
+        waterOverlayRenderer.transform.localPosition = Vector3.up * (scroll - waterOverlayScrollRange * 0.5f);
     }
 
     void Awake()
@@ -287,6 +371,11 @@ public class PipeObject : MonoBehaviour
     {
         updateConnections();
         recalculateWater();
+    }
+
+    void Update()
+    {
+        AnimateWaterOverlay();
     }
 
     /*void OnMouseDown()
