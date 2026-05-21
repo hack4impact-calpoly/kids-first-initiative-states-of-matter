@@ -51,9 +51,9 @@ public class PipeObject : MonoBehaviour
     
     [Header("Visual")]
     public Color normalColor = Color.white;
-    public int frozenSnowflakeCount = 4;
+    public int frozenSnowflakeCount = 8;
     public float frozenSnowflakeScale = 0.16f;
-    public float frozenSnowflakeDriftDistance = 0.48f;
+    public float frozenSnowflakeDriftDistance = 0.32f;
     public float frozenSnowflakeDriftSpeed = 0.42f;
     public int frozenDecorSortingOrderOffset = 2;
 
@@ -457,10 +457,10 @@ public class PipeObject : MonoBehaviour
 
         float length = Mathf.Abs(flowDirection.x) * pipeSize.x + Mathf.Abs(flowDirection.y) * pipeSize.y;
         float width = Mathf.Abs(outwardNormal.x) * pipeSize.x + Mathf.Abs(outwardNormal.y) * pipeSize.y;
-        float minAlong = length * 0.02f;
-        float maxAlong = length * 0.24f;
+        float minAlong = length * 0.01f;
+        float maxAlong = length * 0.14f;
         along = Mathf.Lerp(minAlong, maxAlong, FrozenDecorSeed(index, 2));
-        edge = width * 0.24f;
+        edge = width * 0.18f;
     }
 
     void FillFrozenDecorDirections()

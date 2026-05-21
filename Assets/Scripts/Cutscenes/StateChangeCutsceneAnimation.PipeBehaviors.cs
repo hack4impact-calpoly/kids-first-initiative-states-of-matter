@@ -17,9 +17,9 @@ public partial class StateChangeCutsceneAnimation
         {
             if (freezes)
             {
-                return stage == 0 ? "Water particles move through open pipe paths." :
-                    stage == 1 ? "Freezing removes energy and stops unwanted flow." :
-                    "Frozen water holds its shape as a solid barrier.";
+                return stage == 0 ? "Water reaches the T-junction and leaks out the bottom." :
+                    stage == 1 ? "Freezing blocks the bottom branch." :
+                    "With the bottom sealed, water flows straight through.";
             }
 
             return stage == 0 ? "Liquid particles stay close together." :
@@ -36,24 +36,73 @@ public partial class StateChangeCutsceneAnimation
 
         public override void Tick(CutsceneView view, int stage, float progress, float elapsed, float deltaTime)
         {
-            float freezeAmount = freezes ? (stage == 0 ? 0f : stage == 1 ? Mathf.SmoothStep(0f, 1f, progress) : 1f) : 0f;
-            float speed = Mathf.Lerp(180f, 12f, freezeAmount);
-            float halfWidth = Context.ParticleAreaSize.x * 0.45f;
+            if (!freezes)
+            {
+                TickStraightPipe(view, elapsed);
+                return;
+            }
+
+            float freezeAmount = stage == 0 ? 0f : stage == 1 ? Mathf.SmoothStep(0f, 1f, progress) : 1f;
+            float speed = Mathf.Lerp(190f, 230f, freezeAmount);
+            float pipeY = Context.ParticleAreaSize.y * 0.1f;
+            float halfWidth = Context.ParticleAreaSize.x * 0.42f;
+            float dropLength = Context.ParticleAreaSize.y * 0.52f;
+            float leakPathLength = halfWidth + dropLength;
+            float straightPathLength = halfWidth * 2f;
 
             for (int i = 0; i < view.Particles.Count; i++)
             {
                 ParticleView particle = view.Particles[i];
-                float lane = -120f + (i % 5) * 60f;
-                float x = Mathf.Repeat(particle.LiquidPosition.x + elapsed * speed + i * 43f, halfWidth * 2f) - halfWidth;
-                Vector2 flowing = new Vector2(x, lane + Mathf.Sin(elapsed * 6f + particle.Phase) * Mathf.Lerp(13f, 1.5f, freezeAmount));
-                Vector2 frozen = particle.SolidPosition;
-                particle.Position = Vector2.Lerp(flowing, frozen, freezeAmount);
+                float lane = -Context.ParticleSize * 1.2f + (i % 5) * Context.ParticleSize * 0.6f;
+                float offset = i * 47f;
+                float leakDistance = Mathf.Repeat(elapsed * speed + offset, leakPathLength);
+                float straightDistance = Mathf.Repeat(elapsed * speed + offset, straightPathLength);
+                Vector2 leaking = SampleLeakingPath(leakDistance, lane, halfWidth, dropLength, pipeY, elapsed, particle.Phase);
+                Vector2 straight = SampleStraightPath(straightDistance, lane, halfWidth, pipeY, elapsed, particle.Phase);
+                particle.Position = Vector2.Lerp(leaking, straight, freezeAmount);
                 particle.Rect.anchoredPosition = particle.Position;
             }
 
-            Context.UpdateBonds(view.Bonds, freezeAmount);
-            Context.SetFlowLineAlpha(view.FlowLines, Mathf.Lerp(0.38f, 0.08f, freezeAmount));
+            Context.UpdateBonds(view.Bonds, 0f);
+            Context.SetFlowLineAlpha(view.FlowLines, Mathf.Lerp(0.26f, 0.18f, freezeAmount));
             Context.SetPipeBackground(view.PipeBackground, 1f, freezeAmount, elapsed);
+        }
+
+        private void TickStraightPipe(CutsceneView view, float elapsed)
+        {
+            float speed = 180f;
+            float pipeY = Context.ParticleAreaSize.y * 0.1f;
+            float halfWidth = Context.ParticleAreaSize.x * 0.42f;
+            float pathLength = halfWidth * 2f;
+
+            for (int i = 0; i < view.Particles.Count; i++)
+            {
+                ParticleView particle = view.Particles[i];
+                float lane = -Context.ParticleSize * 1.2f + (i % 5) * Context.ParticleSize * 0.6f;
+                float distance = Mathf.Repeat(elapsed * speed + i * 47f, pathLength);
+                particle.Position = SampleStraightPath(distance, lane, halfWidth, pipeY, elapsed, particle.Phase);
+                particle.Rect.anchoredPosition = particle.Position;
+            }
+
+            Context.UpdateBonds(view.Bonds, 0f);
+            Context.SetFlowLineAlpha(view.FlowLines, 0.32f);
+            Context.SetPipeBackground(view.PipeBackground, 1f, 0f, elapsed);
+        }
+
+        private static Vector2 SampleLeakingPath(float distance, float lane, float halfWidth, float dropLength, float pipeY, float elapsed, float phase)
+        {
+            float wobble = Mathf.Sin(elapsed * 6f + phase) * 7f;
+            if (distance < halfWidth)
+                return new Vector2(-halfWidth + distance, pipeY + lane + wobble);
+
+            float drop = Mathf.Min(dropLength, distance - halfWidth);
+            return new Vector2(lane * 0.68f + wobble * 0.15f, pipeY - drop);
+        }
+
+        private static Vector2 SampleStraightPath(float distance, float lane, float halfWidth, float pipeY, float elapsed, float phase)
+        {
+            float wobble = Mathf.Sin(elapsed * 6f + phase) * 6f;
+            return new Vector2(distance - halfWidth, pipeY + lane + wobble);
         }
     }
 }
