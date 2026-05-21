@@ -53,6 +53,7 @@ public partial class StateChangeCutsceneAnimation
 
             Context.UpdateBonds(view.Bonds, freezeAmount);
             Context.SetFlowLineAlpha(view.FlowLines, Mathf.Lerp(0.38f, 0.08f, freezeAmount));
+            Context.SetPipeBackground(view.PipeBackground, 1f, freezeAmount, elapsed);
         }
     }
 }
