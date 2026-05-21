@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa6a4935f9a145888cab821d06f871e9, type: 3}
+  m_Name: DialogueVoiceClipCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueVoiceClipCatalog
+  clips:
+  - lineId: menu.states.intro.1
+    clip: {fileID: 8300000, guid: ee399d18a89754353ad4d2bd5f42be40, type: 3}
+  - lineId: kitchen.solid.intro.1
+    clip: {fileID: 8300000, guid: c5378ce03ec07485ebe6af1a908020c7, type: 3}
+  - lineId: kitchen.solid.ingredient_added.1
+    clip: {fileID: 8300000, guid: a8bafd08f3b6941389e4e84472886c4a, type: 3}
+  - lineId: kitchen.solid.heat_active.1
+    clip: {fileID: 8300000, guid: 103139c46a9cc47c2b7cd4f93c542881, type: 3}
+  - lineId: kitchen.solid.win.1
+    clip: {fileID: 8300000, guid: 949dcb4cbb4034b04aa956f6e2a83909, type: 3}
+  - lineId: kitchen.solid.fail.1
+    clip: {fileID: 8300000, guid: 334cb09077a684af993bfb04fae8bb36, type: 3}
+  - lineId: kitchen.freezing_pour.intro.1
+    clip: {fileID: 8300000, guid: 6b62f9cdc69864e188d3618d8340b58d, type: 3}
+  - lineId: kitchen.freezing_pour.active.1
+    clip: {fileID: 8300000, guid: 13ec9ac22887946f9af07258e726496b, type: 3}
+  - lineId: kitchen.freezing_pour.win.1
+    clip: {fileID: 8300000, guid: c0c74f4ac7e5343278e165deabf42d08, type: 3}
+  - lineId: kitchen.freezing_station.intro.1
+    clip: {fileID: 8300000, guid: 98b91425212f74a5bb7633a43520c393, type: 3}
+  - lineId: kitchen.freezing_station.active.1
+    clip: {fileID: 8300000, guid: 7d4d07970fdea4d4d91c4b72e6001ed7, type: 3}
+  - lineId: kitchen.freezing_station.win.1
+    clip: {fileID: 8300000, guid: 170b80bc7b24a43dc8d25d3f60441af8, type: 3}
+  - lineId: pipe.water_flow.intro.1
+    clip: {fileID: 8300000, guid: 4663b047f1f1b424faccf3cdd8c211f7, type: 3}
+  - lineId: pipe.water_flow.hint.1
+    clip: {fileID: 8300000, guid: 40d219f03fedb403983095e426dcbf20, type: 3}
+  - lineId: pipe.water_flow.active.1
+    clip: {fileID: 8300000, guid: ac8e06781abd748c28b73feae2210869, type: 3}
+  - lineId: pipe.water_flow.win.1
+    clip: {fileID: 8300000, guid: c0343b8f9c801418aa09607f6eb6295a, type: 3}
+  - lineId: pipe.frozen_flow.intro.1
+    clip: {fileID: 8300000, guid: f5cc4a327658f4b0cb7a1512955a3430, type: 3}
+  - lineId: pipe.frozen_flow.solid_hint.1
+    clip: {fileID: 8300000, guid: 72cf559cc5f914a06bcf9bb48bc18c9b, type: 3}
+  - lineId: pipe.frozen_flow.win.1
+    clip: {fileID: 8300000, guid: 4683b4df669c149f6b79193613d83bdc, type: 3}
+  - lineId: pipe.flow.failure.1
+    clip: {fileID: 8300000, guid: db54a93734d2c42668d5726660349869, type: 3}
+  - lineId: wire.drag_device.intro.1
+    clip: {fileID: 8300000, guid: c500ed75c17f5446fafb09cf28460be2, type: 3}
+  - lineId: wire.drag_device.hint.1
+    clip: {fileID: 8300000, guid: 175ad3388bd0e4603a5d3bbde5dfdd62, type: 3}
+  - lineId: wire.connect_wires.intro.1
+    clip: {fileID: 8300000, guid: 84157d1f349694f2c98e6d2c876549a7, type: 3}
+  - lineId: wire.connect_wires.hint.1
+    clip: {fileID: 8300000, guid: 95aa882e3a3cb456f834f6f14d65292b, type: 3}
+  - lineId: wire.power.turn_on.1
+    clip: {fileID: 8300000, guid: 3ec1a97a0e8b842d4891874a4aab6a05, type: 3}
+  - lineId: wire.success.hot_plate.1
+    clip: {fileID: 8300000, guid: 76a2cc1914f02455b96209ee9f68e914, type: 3}
+  - lineId: wire.success.ice_flask.1
+    clip: {fileID: 8300000, guid: 9dfc6ab6dda8c4b60ae906baa2646ec3, type: 3}
+  - lineId: wire.success.candle.1
+    clip: {fileID: 8300000, guid: 35d45eda3c12042ec8da2883733e9b38, type: 3}
+  - lineId: wire.success.plasma.1
+    clip: {fileID: 8300000, guid: 420c63083fae640f7893f2994ec0f77e, type: 3}
+  - lineId: wire.success.generic.1
+    clip: {fileID: 8300000, guid: 76ff5931c114a4a3990c238d4d9d0f7c, type: 3}
+  - lineId: wire.win.final.1
+    clip: {fileID: 8300000, guid: 1052e24264326408aabdbc9065b83171, type: 3}
+  - lineId: wire.retry.incomplete.1
+    clip: {fileID: 8300000, guid: 3760e924d15bb418da2353282e715327, type: 3}

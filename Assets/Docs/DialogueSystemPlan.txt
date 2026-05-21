@@ -1,0 +1,44 @@
+Dialogue System Plan
+
+Goal
+- Use one queue-aware dialogue runner for prompts, tutorials, success/fail messages, and narrated lines.
+- Let gameplay code trigger dialogue directly, through UnityEvents, or through condition state changes.
+- Keep scene-specific integrations separate so this branch does not conflict with the active cutscene refactor.
+
+Current repo shape
+- There is not yet a unified condition system in code.
+- Wire game prompt text and highlights are driven directly by Main, Wire, WireGameUIManager, and WireGameGuidanceController.
+- Pipe and kitchen success/fail conditions are also local to their own scripts.
+
+Low-conflict foundation in this branch
+- DialogueSequence stores ordered DialogueLine entries as assets.
+- DialogueSpeaker stores one character's display name, portrait image, and optional default voice clip.
+- The four provided character images should become four DialogueSpeaker assets, then each line can reference one.
+- DialogueView can render a bottom bubble with the speaker portrait on the left, speaker name above the text, and click-to-continue behavior.
+- DialogueRunner queues sequences and plays only one active sequence at a time.
+- DialogueLine can include an AudioClip. By default, advancement waits until the clip is finished.
+- DialogueLine also has lineId/tags so adapters can switch highlights or other scene behavior on LineChanged.
+- DialogueRunner also waits for any still-playing line audio before starting the next queued sequence.
+- DialogueTrigger queues a sequence from collision, Start, or UnityEvent calls.
+- DialogueConditionState is a small shared runtime key/value store for bool, number, and text conditions.
+- DialogueConditionSet gates triggers/watchers with All or Any rules.
+- DialogueConditionWatcher can queue dialogue when configured conditions become true.
+- DialogueConditionSetter gives buttons, triggers, or other UnityEvents a no-code way to set condition keys.
+
+Suggested condition keys
+- wire.output_connected
+- wire.power_on
+- wire.connected_wire_count
+- wire.required_wire_count
+- wire.circuit_complete
+- pipe.flow_valid
+- pipe.flow_failed
+- kitchen.ingredient_added
+- kitchen.heat_level
+- kitchen.level_complete
+
+Future integration points
+- Replace direct WireGameUIManager prompt text changes with DialogueRunner.Queue calls or condition-state setters.
+- Let WireGameGuidanceController listen to DialogueRunner.LineChanged and line tags.
+- Route existing success/fail panel text through a shared DialogueView or a thin adapter.
+- Add a small scene prefab containing DialogueRunner, DialogueView, AudioSource, and DialogueAdvanceInput.
