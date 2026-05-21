@@ -38,6 +38,11 @@ public class PipeObject : MonoBehaviour
     [Header("Sprites")]
     public Sprite drySprite;
     public Sprite waterSprite;
+
+    [Header("Water Overlay")]
+    public Sprite waterOverlaySprite;
+    public Color waterOverlayColor = Color.white;
+    public int waterOverlaySortingOrderOffset = 1;
     
     [Header("Tint")]
     public Color normalColor = Color.white;
@@ -45,6 +50,9 @@ public class PipeObject : MonoBehaviour
 
 
     private SpriteRenderer spriteRenderer;
+    private SpriteRenderer waterOverlayRenderer;
+    private const string WaterOverlayName = "Water Overlay";
+    private Sprite ActiveWaterOverlaySprite => waterOverlaySprite != null ? waterOverlaySprite : waterSprite;
 
     public void setIsSource()
     {
@@ -213,15 +221,66 @@ public class PipeObject : MonoBehaviour
 
     public void updateVisual()
     {
-        if (water)
-            spriteRenderer.sprite = waterSprite;
-        else
+        if (spriteRenderer != null && drySprite != null)
             spriteRenderer.sprite = drySprite;
+
+        EnsureWaterOverlay();
+
+        if (waterOverlayRenderer != null)
+            waterOverlayRenderer.enabled = water && ActiveWaterOverlaySprite != null;
+    }
+
+    void EnsureWaterOverlay()
+    {
+        Sprite overlaySprite = ActiveWaterOverlaySprite;
+
+        if (overlaySprite == null || spriteRenderer == null)
+            return;
+
+        if (waterOverlayRenderer == null)
+        {
+            Transform existingOverlay = transform.Find(WaterOverlayName);
+            if (existingOverlay != null)
+                waterOverlayRenderer = existingOverlay.GetComponent<SpriteRenderer>();
+
+            if (waterOverlayRenderer == null)
+            {
+                GameObject overlayObject = new GameObject(WaterOverlayName);
+                overlayObject.transform.SetParent(transform, false);
+                waterOverlayRenderer = overlayObject.AddComponent<SpriteRenderer>();
+            }
+        }
+
+        waterOverlayRenderer.sprite = overlaySprite;
+        waterOverlayRenderer.color = waterOverlayColor;
+        waterOverlayRenderer.sortingLayerID = spriteRenderer.sortingLayerID;
+        waterOverlayRenderer.sortingOrder = spriteRenderer.sortingOrder + waterOverlaySortingOrderOffset;
+
+        FitWaterOverlayToPipe(overlaySprite);
+        waterOverlayRenderer.enabled = water;
+    }
+
+    void FitWaterOverlayToPipe(Sprite overlaySprite)
+    {
+        if (waterOverlayRenderer == null || overlaySprite == null || spriteRenderer == null || spriteRenderer.sprite == null)
+            return;
+
+        Vector2 pipeSize = spriteRenderer.sprite.bounds.size;
+        Vector2 overlaySize = overlaySprite.bounds.size;
+
+        if (overlaySize.x <= 0f)
+            return;
+
+        float scale = pipeSize.x / overlaySize.x;
+        waterOverlayRenderer.transform.localPosition = Vector3.zero;
+        waterOverlayRenderer.transform.localRotation = Quaternion.identity;
+        waterOverlayRenderer.transform.localScale = new Vector3(scale, scale, 1f);
     }
 
     void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
+        EnsureWaterOverlay();
     }
     void Start()
     {
