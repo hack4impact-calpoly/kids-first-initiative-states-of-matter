@@ -106,3 +106,6 @@ MonoBehaviour:
   isEnd: 0
   drySprite: {fileID: 5499049081484896610, guid: 14eca02c0bbb34e928c224857a9c8a64, type: 3}
   waterSprite: {fileID: 2482553107058419936, guid: 828b877fd416e4256b5cb95cb947dcd1, type: 3}
+  waterOverlaySprite: {fileID: 21300000, guid: e37b6251eb18cfdefe1c24b04b05e5ce, type: 3}
+  waterOverlayColor: {r: 1, g: 1, b: 1, a: 1}
+  waterOverlaySortingOrderOffset: 1
