@@ -12,6 +12,9 @@ EditorBuildSettings:
     path: Assets/Scenes/States of Matter Menu.unity
     guid: 25de1d17ca95b447f85fc4cfd5a4d7eb
   - enabled: 1
+    path: Assets/Scenes/GameSelector.unity
+    guid: bdd117b59d2a2475fbda4149496c7893
+  - enabled: 1
     path: Assets/Scenes/Kitchen Game - Solid.unity
     guid: 3166ed73ce5c1af4ea78cb9d4a613fe9
   - enabled: 1
