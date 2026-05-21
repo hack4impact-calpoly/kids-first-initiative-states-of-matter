@@ -167,7 +167,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e6e1e3cd2f004a1cbc9e13471aab037, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpawnAndDragIngredient2D
   worldPrefab: {fileID: 8590451511247566294, guid: 63650139b5f2847b2bdd6f20d92d65ad, type: 3}
   worldCamera: {fileID: 1643071941}
@@ -349,13 +349,15 @@ MonoBehaviour:
   fridge: {fileID: 959296357}
   juiceCoolingController: {fileID: 2106392881}
   requireColdEnough: 1
-  nextSceneName: States of Matter Menu
+  nextSceneName: GameSelector
   sceneLoadDelay: 0
   playFreezingCutscene: 1
   freezingCutsceneDefinition: {fileID: 0}
   cutsceneManager: {fileID: 0}
   freezingCutscene: {fileID: 0}
   freezingCutsceneTargetOverride: {fileID: 0}
+  createDialogueAdapterIfMissing: 1
+  dialogueAdapter: {fileID: 0}
 --- !u!1 &1089687371
 GameObject:
   m_ObjectHideFlags: 0
@@ -391,7 +393,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 160, y: 0}
+  m_AnchoredPosition: {x: 98, y: 97.41}
   m_SizeDelta: {x: 180, y: -320}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1089687373
@@ -404,10 +406,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -853,11 +855,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7665049191203955182, guid: a418c39ef254846bb98834ef43452a46, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 700
+      value: 836
       objectReference: {fileID: 0}
     - target: {fileID: 7665049191203955182, guid: a418c39ef254846bb98834ef43452a46, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -145
+      value: -40.59
       objectReference: {fileID: 0}
     - target: {fileID: 7665049191203955182, guid: a418c39ef254846bb98834ef43452a46, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -894,7 +896,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4ce2105f4283b4f7c97c43a3b3131211, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JuiceCoolingController
 --- !u!1001 &6587501963178789583
 PrefabInstance:
@@ -1026,15 +1028,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8123739754782350630, guid: 0d7f2314e656f9e4f94a87a6663de650, type: 3}
       propertyPath: containerRenderer
-      value:
+      value: 
       objectReference: {fileID: 1953932546}
     - target: {fileID: 8123739754782350630, guid: 0d7f2314e656f9e4f94a87a6663de650, type: 3}
       propertyPath: openContainerSprite
-      value:
+      value: 
       objectReference: {fileID: 21300000, guid: c0f0a9e252b64647b6c74f2d25b852e5, type: 3}
     - target: {fileID: 8123739754782350630, guid: 0d7f2314e656f9e4f94a87a6663de650, type: 3}
       propertyPath: closedContainerSprite
-      value:
+      value: 
       objectReference: {fileID: 21300000, guid: 91f6c2e2d8af42ea934f6d605c7e164f, type: 3}
     - target: {fileID: 8123739754782350630, guid: 0d7f2314e656f9e4f94a87a6663de650, type: 3}
       propertyPath: closeWhenIngredientAdded
