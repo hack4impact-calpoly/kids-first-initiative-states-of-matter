@@ -39,7 +39,6 @@ public class PipeObject : MonoBehaviour
     public Sprite drySprite;
     public Sprite waterSprite;
     public Sprite frozenSprite;
-    public Sprite[] frozenCrystalSprites;
     public Sprite[] frozenSnowflakeSprites;
 
     [Header("Water Overlay")]
@@ -52,9 +51,7 @@ public class PipeObject : MonoBehaviour
     
     [Header("Visual")]
     public Color normalColor = Color.white;
-    public int frozenCrystalCount = 2;
     public int frozenSnowflakeCount = 4;
-    public float frozenCrystalScale = 0.32f;
     public float frozenSnowflakeScale = 0.16f;
     public float frozenSnowflakeDriftDistance = 0.48f;
     public float frozenSnowflakeDriftSpeed = 0.42f;
@@ -66,7 +63,6 @@ public class PipeObject : MonoBehaviour
     private readonly List<SpriteRenderer> waterBubbleRenderers = new List<SpriteRenderer>();
     private SpriteMask waterOverlayMask;
     private Transform frozenDecorRoot;
-    private readonly List<SpriteRenderer> frozenCrystalRenderers = new List<SpriteRenderer>();
     private readonly List<SpriteRenderer> frozenSnowflakeRenderers = new List<SpriteRenderer>();
     private readonly List<Vector2> frozenDecorDirections = new List<Vector2>(4);
     private const string WaterOverlayName = "Water Overlay";
@@ -352,38 +348,8 @@ public class PipeObject : MonoBehaviour
         }
 
         EnsureFrozenDecorRoot();
-        EnsureFrozenCrystals();
         EnsureFrozenSnowflakes();
         AnimateFrozenDecor();
-    }
-
-    void EnsureFrozenCrystals()
-    {
-        int targetCount = HasSprites(frozenCrystalSprites) ? Mathf.Max(0, frozenCrystalCount) : 0;
-
-        while (frozenCrystalRenderers.Count < targetCount)
-        {
-            GameObject decorObject = new GameObject($"Frozen Crystal {frozenCrystalRenderers.Count + 1}");
-            decorObject.transform.SetParent(frozenDecorRoot, false);
-            frozenCrystalRenderers.Add(decorObject.AddComponent<SpriteRenderer>());
-        }
-
-        Vector2 pipeSize = GetRendererLocalSize(spriteRenderer.sprite);
-        for (int i = 0; i < frozenCrystalRenderers.Count; i++)
-        {
-            SpriteRenderer decor = frozenCrystalRenderers[i];
-            bool active = i < targetCount;
-            Sprite decorSprite = active ? frozenCrystalSprites[PickFrozenDecorSpriteIndex(frozenCrystalSprites, i)] : null;
-
-            decor.sprite = decorSprite;
-            decor.sortingLayerID = spriteRenderer.sortingLayerID;
-            decor.sortingOrder = spriteRenderer.sortingOrder + frozenDecorSortingOrderOffset;
-            decor.color = Color.white;
-            decor.enabled = active && isFrozen && decorSprite != null;
-
-            if (decorSprite != null)
-                PositionFrozenCrystal(decor, decorSprite, pipeSize, i);
-        }
     }
 
     void EnsureFrozenSnowflakes()
@@ -431,21 +397,6 @@ public class PipeObject : MonoBehaviour
         frozenDecorRoot.localScale = Vector3.one;
     }
 
-    void PositionFrozenCrystal(SpriteRenderer decor, Sprite decorSprite, Vector2 pipeSize, int index)
-    {
-        GetFrozenDecorAnchor(pipeSize, index, out Vector2 flowDirection, out Vector2 outwardNormal, out float along, out float edge);
-
-        float targetHeight = Mathf.Min(pipeSize.x, pipeSize.y) * frozenCrystalScale * Mathf.Lerp(0.85f, 1.2f, FrozenDecorSeed(index, 5));
-        float spriteHeight = decorSprite.bounds.size.y;
-        float scale = spriteHeight > 0f ? targetHeight / spriteHeight : 1f;
-        Vector2 localPosition = flowDirection * along + outwardNormal * (edge + targetHeight * 0.35f);
-        float angle = Vector2.SignedAngle(Vector2.up, outwardNormal) + Mathf.Lerp(-12f, 12f, FrozenDecorSeed(index, 6));
-
-        decor.transform.localPosition = new Vector3(localPosition.x, localPosition.y, 0f);
-        decor.transform.localRotation = Quaternion.Euler(0f, 0f, angle);
-        decor.transform.localScale = new Vector3(scale, scale, 1f);
-    }
-
     void AnimateFrozenDecor()
     {
         if (!isFrozen || !HasSprites(frozenSnowflakeSprites) || spriteRenderer == null)
@@ -474,7 +425,7 @@ public class PipeObject : MonoBehaviour
         float spriteSize = Mathf.Max(snowflakeSprite.bounds.size.x, snowflakeSprite.bounds.size.y);
         float scale = spriteSize > 0f ? targetSize / spriteSize : 1f;
         float tangentDrift = Mathf.Sin(progress * Mathf.PI * 2f + FrozenDecorSeed(index, 10) * Mathf.PI * 2f) * targetSize * 0.35f;
-        Vector2 start = flowDirection * along + outwardNormal * (edge + targetSize * 0.2f);
+        Vector2 start = flowDirection * along + outwardNormal * edge;
         Vector2 localPosition = start + outwardNormal * (progress * frozenSnowflakeDriftDistance) + flowDirection * tangentDrift;
         float alpha = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(progress / 0.18f)) *
             (1f - Mathf.SmoothStep(0.38f, 1f, progress));
@@ -506,10 +457,10 @@ public class PipeObject : MonoBehaviour
 
         float length = Mathf.Abs(flowDirection.x) * pipeSize.x + Mathf.Abs(flowDirection.y) * pipeSize.y;
         float width = Mathf.Abs(outwardNormal.x) * pipeSize.x + Mathf.Abs(outwardNormal.y) * pipeSize.y;
-        float minAlong = Mathf.Min(length * 0.14f, length * 0.36f);
-        float maxAlong = Mathf.Max(length * 0.2f, length * 0.42f);
+        float minAlong = length * 0.02f;
+        float maxAlong = length * 0.24f;
         along = Mathf.Lerp(minAlong, maxAlong, FrozenDecorSeed(index, 2));
-        edge = width * 0.34f;
+        edge = width * 0.24f;
     }
 
     void FillFrozenDecorDirections()
@@ -566,12 +517,6 @@ public class PipeObject : MonoBehaviour
 
     void SetFrozenDecorEnabled(bool enabled)
     {
-        for (int i = 0; i < frozenCrystalRenderers.Count; i++)
-        {
-            if (frozenCrystalRenderers[i] != null)
-                frozenCrystalRenderers[i].enabled = enabled && i < frozenCrystalCount && frozenCrystalRenderers[i].sprite != null;
-        }
-
         for (int i = 0; i < frozenSnowflakeRenderers.Count; i++)
         {
             if (frozenSnowflakeRenderers[i] != null)
@@ -581,7 +526,7 @@ public class PipeObject : MonoBehaviour
 
     bool HasFrozenDecorSprites()
     {
-        return HasSprites(frozenCrystalSprites) || HasSprites(frozenSnowflakeSprites);
+        return HasSprites(frozenSnowflakeSprites);
     }
 
     bool HasSprites(Sprite[] sprites)
