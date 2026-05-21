@@ -38,6 +38,7 @@ public class PipeObject : MonoBehaviour
     [Header("Sprites")]
     public Sprite drySprite;
     public Sprite waterSprite;
+    public Sprite frozenSprite;
 
     [Header("Water Overlay")]
     public Color waterOverlayColor = Color.white;
@@ -47,9 +48,8 @@ public class PipeObject : MonoBehaviour
     public int waterOverlayBubbleCount = 7;
     public float waterOverlayBubbleSize = 0.22f;
     
-    [Header("Tint")]
+    [Header("Visual")]
     public Color normalColor = Color.white;
-    public Color frozenColor = Color.cyan;
 
 
     private SpriteRenderer spriteRenderer;
@@ -110,9 +110,6 @@ public class PipeObject : MonoBehaviour
         updateConnections();
         ApplyFrozenOverrides();
 
-        if (spriteRenderer != null)
-            spriteRenderer.color = isFrozen ? frozenColor : normalColor;
-        
         recalculateWater();
     }
 
@@ -302,17 +299,31 @@ public class PipeObject : MonoBehaviour
     {
         if (spriteRenderer != null)
         {
-            Sprite targetSprite = water && waterSprite != null ? waterSprite : drySprite;
+            Sprite targetSprite = ResolveVisualSprite();
             if (targetSprite != null)
                 spriteRenderer.sprite = targetSprite;
+
+            spriteRenderer.color = normalColor;
         }
 
         EnsureWaterOverlay();
 
-        SetWaterOverlayEnabled(water && waterSprite != null);
+        bool showWaterOverlay = water && !isFrozen && waterSprite != null;
+        SetWaterOverlayEnabled(showWaterOverlay);
 
         if (waterOverlayMask != null)
-            waterOverlayMask.enabled = water && waterSprite != null;
+            waterOverlayMask.enabled = showWaterOverlay;
+    }
+
+    Sprite ResolveVisualSprite()
+    {
+        if (isFrozen && frozenSprite != null)
+            return frozenSprite;
+
+        if (water && waterSprite != null)
+            return waterSprite;
+
+        return drySprite;
     }
 
     void EnsureWaterOverlay()
@@ -325,7 +336,7 @@ public class PipeObject : MonoBehaviour
         EnsureWaterBubbleSprite();
         EnsureWaterBubbles();
         FitWaterOverlayToPipe();
-        SetWaterOverlayEnabled(water);
+        SetWaterOverlayEnabled(water && !isFrozen);
     }
 
     void EnsureWaterOverlayRoot()
@@ -379,7 +390,7 @@ public class PipeObject : MonoBehaviour
         waterOverlayMask.transform.localPosition = Vector3.zero;
         waterOverlayMask.transform.localRotation = Quaternion.identity;
         waterOverlayMask.transform.localScale = GetRendererSizeScale(waterSprite);
-        waterOverlayMask.enabled = water;
+        waterOverlayMask.enabled = water && !isFrozen;
     }
 
     void EnsureWaterBubbles()
@@ -407,7 +418,7 @@ public class PipeObject : MonoBehaviour
             Color bubbleColor = waterOverlayColor;
             bubbleColor.a *= Mathf.Lerp(0.5f, 1f, BubbleSeed(i, 3)) * waterOverlayAlpha;
             bubble.color = bubbleColor;
-            bubble.enabled = active && water;
+            bubble.enabled = active && water && !isFrozen;
         }
     }
 
