@@ -29,6 +29,10 @@ public class Wire : MonoBehaviour
             {
                 WireGameUIManager.Instance.ShowMessage("Connect an output (candle or plasma) to use wires!", isWarning: true);
             }
+
+            if (WireGameGuidanceController.Instance != null)
+                WireGameGuidanceController.Instance.ShowConnectOutputGuidance();
+
             return;
         }
 
