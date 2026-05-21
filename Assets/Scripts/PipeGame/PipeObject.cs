@@ -52,6 +52,7 @@ public class PipeObject : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private SpriteRenderer waterOverlayRenderer;
     private const string WaterOverlayName = "Water Overlay";
+    private const float WaterOverlayRotationDegrees = 90f;
     private Sprite ActiveWaterOverlaySprite => waterOverlaySprite != null ? waterOverlaySprite : waterSprite;
 
     public void setIsSource()
@@ -268,12 +269,12 @@ public class PipeObject : MonoBehaviour
         Vector2 pipeSize = spriteRenderer.sprite.bounds.size;
         Vector2 overlaySize = overlaySprite.bounds.size;
 
-        if (overlaySize.x <= 0f)
+        if (overlaySize.x <= 0f || overlaySize.y <= 0f)
             return;
 
-        float scale = pipeSize.x / overlaySize.x;
+        float scale = Mathf.Min(pipeSize.x / overlaySize.y, pipeSize.y / overlaySize.x);
         waterOverlayRenderer.transform.localPosition = Vector3.zero;
-        waterOverlayRenderer.transform.localRotation = Quaternion.identity;
+        waterOverlayRenderer.transform.localRotation = Quaternion.Euler(0f, 0f, WaterOverlayRotationDegrees);
         waterOverlayRenderer.transform.localScale = new Vector3(scale, scale, 1f);
     }
 
