@@ -272,9 +272,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 2254008844501014601}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 633d1b5a2db854e8385adb6865179099, type: 3}
+  m_Script: {fileID: 11500000, guid: e2e5d7359afcd4dc3a9aa234a169140a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: '::'
+  m_EditorClassIdentifier: Assembly-CSharp::Wire
   wireEnd: {fileID: 8245486613390864989}
   lightOn: {fileID: 3520829002422213160}
 --- !u!1 &2721651498437975934

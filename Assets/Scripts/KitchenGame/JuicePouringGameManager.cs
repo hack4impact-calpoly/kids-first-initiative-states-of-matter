@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
@@ -24,8 +26,26 @@ public class JuicePouringGameManager : MonoBehaviour
     [FormerlySerializedAs("coolingStationCutsceneTargetOverride")]
     [SerializeField] private Transform freezingCutsceneTargetOverride;
 
+    [Header("Dialogue Flow")]
+    [SerializeField] private bool createDialogueAdapterIfMissing = true;
+    [SerializeField] private KitchenGameDialogueAdapter dialogueAdapter;
+
+    public event Action<IngredientSO> IngredientAddedToFreezer;
+    public event Action ColdEnoughReached;
+    public event Action FreezingCompleted;
+
     private bool ingredientInFridge;
     private bool isCompletingStep;
+    private bool coldEnoughPublished;
+    private bool freezingCompletedPublished;
+    private Coroutine sceneLoadRoutine;
+
+    private void Awake()
+    {
+        coldEnoughPublished = false;
+        freezingCompletedPublished = false;
+        ResolveDialogueAdapter();
+    }
 
     private void OnEnable()
     {
@@ -41,6 +61,10 @@ public class JuicePouringGameManager : MonoBehaviour
         {
             Debug.Log("fridge is NULL");
         }
+
+        JuiceCoolingController controller = ResolveJuiceCoolingController();
+        if (controller != null)
+            controller.TemperatureChanged += OnTemperatureChanged;
     }
 
     private void OnDisable()
@@ -50,6 +74,9 @@ public class JuicePouringGameManager : MonoBehaviour
             fridge.IngredientAdded -= OnIngredientAdded;
             fridge.IngredientRemoved -= OnIngredientRemoved;
         }
+
+        if (juiceCoolingController != null)
+            juiceCoolingController.TemperatureChanged -= OnTemperatureChanged;
     }
 
     private void OnIngredientAdded(IngredientSO ing)
@@ -61,6 +88,7 @@ public class JuicePouringGameManager : MonoBehaviour
         if (isCompletingStep) return;
 
         ingredientInFridge = true;
+        IngredientAddedToFreezer?.Invoke(ing);
         EvaluateCompletion();
     }
 
@@ -113,9 +141,10 @@ public class JuicePouringGameManager : MonoBehaviour
     private void CompleteFreezingStep()
     {
         Debug.Log("Freezing Station Complete!");
+        PublishFreezingCompleted();
 
         if (!string.IsNullOrWhiteSpace(nextSceneName))
-            Invoke(nameof(LoadNextScene), sceneLoadDelay);
+            QueueLoadNextScene();
     }
 
     private bool IsColdEnough()
@@ -195,5 +224,54 @@ public class JuicePouringGameManager : MonoBehaviour
             freezingCutscene = gameObject.AddComponent<StateChangeCutsceneAnimation>();
 
         return freezingCutscene;
+    }
+
+    private void OnTemperatureChanged(float temperature)
+    {
+        if (coldEnoughPublished || !IsColdEnough())
+            return;
+
+        coldEnoughPublished = true;
+        ColdEnoughReached?.Invoke();
+    }
+
+    private void QueueLoadNextScene()
+    {
+        if (sceneLoadRoutine != null)
+            StopCoroutine(sceneLoadRoutine);
+
+        sceneLoadRoutine = StartCoroutine(LoadNextSceneWhenDialogueIdle());
+    }
+
+    private IEnumerator LoadNextSceneWhenDialogueIdle()
+    {
+        if (sceneLoadDelay > 0f)
+            yield return new WaitForSecondsRealtime(sceneLoadDelay);
+
+        yield return DialogueWaitUtility.WaitUntilIdle();
+
+        sceneLoadRoutine = null;
+        LoadNextScene();
+    }
+
+    private void PublishFreezingCompleted()
+    {
+        if (freezingCompletedPublished)
+            return;
+
+        freezingCompletedPublished = true;
+        FreezingCompleted?.Invoke();
+    }
+
+    private void ResolveDialogueAdapter()
+    {
+        if (dialogueAdapter == null)
+            dialogueAdapter = FindAnyObjectByType<KitchenGameDialogueAdapter>(FindObjectsInactive.Include);
+
+        if (dialogueAdapter == null && createDialogueAdapterIfMissing)
+            dialogueAdapter = gameObject.AddComponent<KitchenGameDialogueAdapter>();
+
+        if (dialogueAdapter != null)
+            dialogueAdapter.Initialize(this);
     }
 }

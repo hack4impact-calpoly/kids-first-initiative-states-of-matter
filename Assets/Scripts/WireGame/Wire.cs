@@ -25,6 +25,8 @@ public class Wire : MonoBehaviour
         // Check if an output device is connected before allowing wire usage
         if (Main.Instance != null && Main.Instance.isLocked)
         {
+            Main.Instance.ReportWireInteractionBlocked();
+
             if (WireGameUIManager.Instance != null)
             {
                 WireGameUIManager.Instance.ShowMessage("Connect an output (candle or plasma) to use wires!", isWarning: true);

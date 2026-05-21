@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class KitchenGameManager : MonoBehaviour
@@ -20,7 +21,16 @@ public class KitchenGameManager : MonoBehaviour
     [SerializeField] private StateChangeCutsceneAnimation chocolateMeltCutscene;
     [SerializeField] private Transform chocolateCutsceneTargetOverride;
 
+    [Header("Dialogue Flow")]
+    [SerializeField] private bool createDialogueAdapterIfMissing = true;
+    [SerializeField] private KitchenGameDialogueAdapter dialogueAdapter;
+
     public GameState State { get; private set; } = GameState.Playing;
+    public event Action<IngredientSO> RequiredIngredientAdded;
+    public event Action<float> MaxHeatReached;
+    public event Action Won;
+    public event Action Failed;
+    public event Action WinPresentationShown;
 
     private bool ingredientAdded;
     private bool maxHeatReached;
@@ -35,6 +45,8 @@ public class KitchenGameManager : MonoBehaviour
         ingredientAdded = false;
         maxHeatReached = false;
         requiredIngredientTransform = null;
+
+        ResolveDialogueAdapter();
     }
 
     private void OnEnable()
@@ -56,8 +68,12 @@ public class KitchenGameManager : MonoBehaviour
         // Only care about the required ingredient for this level
         if (ing != null && ing == levelConfig.requiredIngredient)
         {
+            bool wasIngredientAdded = ingredientAdded;
             ingredientAdded = true;
             requiredIngredientTransform = pot != null ? pot.LastAddedIngredientTransform : null;
+
+            if (!wasIngredientAdded)
+                RequiredIngredientAdded?.Invoke(ing);
         }
 
         Evaluate();
@@ -67,8 +83,11 @@ public class KitchenGameManager : MonoBehaviour
     {
         if (State != GameState.Playing || levelConfig == null) return;
 
-        if (heatSource != null && heatSource.IsMaxHeat)
+        if (heatSource != null && heatSource.IsMaxHeat && !maxHeatReached)
+        {
             maxHeatReached = true;
+            MaxHeatReached?.Invoke(heatSource.CurrentHeat);
+        }
 
         Evaluate();
     }
@@ -93,6 +112,7 @@ public class KitchenGameManager : MonoBehaviour
     {
         State = GameState.Won;
         SetFail(false);
+        Won?.Invoke();
 
         if (TryPlayChocolateMeltCutscene())
         {
@@ -101,6 +121,7 @@ public class KitchenGameManager : MonoBehaviour
         }
 
         SetWin(true);
+        WinPresentationShown?.Invoke();
     }
 
     private void Fail()
@@ -108,6 +129,7 @@ public class KitchenGameManager : MonoBehaviour
         State = GameState.Failed;
         SetFail(true);
         SetWin(false);
+        Failed?.Invoke();
     }
 
     private void SetWin(bool on) { if (winText != null) winText.SetActive(on); }
@@ -172,5 +194,18 @@ public class KitchenGameManager : MonoBehaviour
     private void OnChocolateMeltCutsceneFinished()
     {
         SetWin(true);
+        WinPresentationShown?.Invoke();
+    }
+
+    private void ResolveDialogueAdapter()
+    {
+        if (dialogueAdapter == null)
+            dialogueAdapter = FindAnyObjectByType<KitchenGameDialogueAdapter>(FindObjectsInactive.Include);
+
+        if (dialogueAdapter == null && createDialogueAdapterIfMissing)
+            dialogueAdapter = gameObject.AddComponent<KitchenGameDialogueAdapter>();
+
+        if (dialogueAdapter != null)
+            dialogueAdapter.Initialize(this);
     }
 }

@@ -46,7 +46,7 @@ MODIFIED: Assets/Scripts/Wire.cs
 
 WHAT YOU NEED TO DO IN UNITY EDITOR
 -------------------------------------
-IMPORTANT: Work in the Wires.unity scene (not Wire.unity).
+IMPORTANT: Work in the Wires.unity scene.
 
 Step 1: Create the ConnectionWire (visual only)
   - In the Wires scene, create an empty GameObject named "ConnectionWire"
