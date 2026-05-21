@@ -40,11 +40,9 @@ public class PipeObject : MonoBehaviour
     public Sprite waterSprite;
 
     [Header("Water Overlay")]
-    public Sprite waterOverlaySprite;
     public Color waterOverlayColor = Color.white;
     public int waterOverlaySortingOrderOffset = 1;
     public float waterOverlayAlpha = 0.45f;
-    public float waterOverlayScalePadding = 1.18f;
     public float waterOverlayScrollSpeed = 0.55f;
     public int waterOverlayBubbleCount = 7;
     public float waterOverlayBubbleSize = 0.22f;
