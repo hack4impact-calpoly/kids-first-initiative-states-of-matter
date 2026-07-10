@@ -106,3 +106,11 @@ MonoBehaviour:
   isEnd: 0
   drySprite: {fileID: 5499049081484896610, guid: 14eca02c0bbb34e928c224857a9c8a64, type: 3}
   waterSprite: {fileID: 2482553107058419936, guid: 828b877fd416e4256b5cb95cb947dcd1, type: 3}
+  frozenSprite: {fileID: 4473519827503539666, guid: f88b5c5ff940e4ee0881b3fefe2ca9e4, type: 3}
+  frozenSnowflakeSprites:
+  - {fileID: 21300000, guid: 3669b9eb21b24be2b90935fd5f8f92ed, type: 3}
+  - {fileID: 21300000, guid: 0b6cea88a70c4c7492bb805cd30b9fbd, type: 3}
+  - {fileID: 21300000, guid: 949073cc32b1432f9ed4096c49530c19, type: 3}
+  - {fileID: 21300000, guid: 0bf809cf666a4c31a5db13249e49cbe3, type: 3}
+  waterOverlayColor: {r: 1, g: 1, b: 1, a: 1}
+  waterOverlaySortingOrderOffset: 1

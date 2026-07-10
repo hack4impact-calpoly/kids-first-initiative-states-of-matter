@@ -47,8 +47,9 @@ public partial class StateChangeCutsceneAnimation
         ContainerView container = behavior.UsesPlasmaTubeContainer
             ? CreatePlasmaTube(particleArea)
             : CreateContainer(particleArea);
+        PipeBackgroundView pipeBackground = CreatePipeBackground(particleArea);
 
-        return new CutsceneView(root, group, title, stageLabel, particleArea, particles, bonds, flowLines, iceCube, container);
+        return new CutsceneView(root, group, title, stageLabel, particleArea, particles, bonds, flowLines, iceCube, container, pipeBackground);
     }
 
     private List<ParticleView> CreateParticles(RectTransform parent)
@@ -128,6 +129,86 @@ public partial class StateChangeCutsceneAnimation
         }
 
         return lines;
+    }
+
+    private PipeBackgroundView CreatePipeBackground(RectTransform parent)
+    {
+        float pipeWidth = particleAreaSize.x * 0.92f;
+        float pipeHeight = particleAreaSize.y * 0.28f;
+        float branchHeight = particleAreaSize.y * 0.52f;
+        float pipeY = particleAreaSize.y * 0.1f;
+        float centerWidth = pipeWidth - pipeHeight;
+        float innerHeight = pipeHeight * 0.72f;
+        float innerCenterWidth = centerWidth + pipeHeight * 0.08f;
+        float branchInnerHeight = branchHeight + pipeHeight * 0.08f;
+        float branchY = pipeY - branchHeight * 0.5f;
+        float branchBottomY = pipeY - branchHeight;
+        float wallThickness = Mathf.Max(10f, pipeHeight * 0.055f);
+
+        var allImages = new List<Image>();
+        var shell = new List<Image>
+        {
+            CreatePipeImage(parent, "Pipe Shell Center", new Vector2(centerWidth, pipeHeight), new Vector2(0f, pipeY), null, allImages),
+            CreatePipeImage(parent, "Pipe Shell Left Cap", Vector2.one * pipeHeight, new Vector2(-centerWidth * 0.5f, pipeY), circleSprite, allImages),
+            CreatePipeImage(parent, "Pipe Shell Right Cap", Vector2.one * pipeHeight, new Vector2(centerWidth * 0.5f, pipeY), circleSprite, allImages),
+            CreatePipeImage(parent, "Pipe Shell Bottom Branch", new Vector2(pipeHeight, branchHeight), new Vector2(0f, branchY), null, allImages),
+            CreatePipeImage(parent, "Pipe Shell Bottom Cap", Vector2.one * pipeHeight, new Vector2(0f, branchBottomY), circleSprite, allImages)
+        };
+
+        var water = new List<Image>
+        {
+            CreatePipeImage(parent, "Pipe Water Center", new Vector2(innerCenterWidth, innerHeight), new Vector2(0f, pipeY), null, allImages),
+            CreatePipeImage(parent, "Pipe Water Left Cap", Vector2.one * innerHeight, new Vector2(-innerCenterWidth * 0.5f, pipeY), circleSprite, allImages),
+            CreatePipeImage(parent, "Pipe Water Right Cap", Vector2.one * innerHeight, new Vector2(innerCenterWidth * 0.5f, pipeY), circleSprite, allImages)
+        };
+
+        var branchWater = new List<Image>
+        {
+            CreatePipeImage(parent, "Pipe Water Bottom Branch", new Vector2(innerHeight, branchInnerHeight), new Vector2(0f, branchY), null, allImages),
+            CreatePipeImage(parent, "Pipe Water Bottom Cap", Vector2.one * innerHeight, new Vector2(0f, branchBottomY), circleSprite, allImages)
+        };
+
+        var rim = new List<Image>
+        {
+            CreatePipeImage(parent, "Pipe Top Wall", new Vector2(centerWidth, wallThickness), new Vector2(0f, pipeY + pipeHeight * 0.5f - wallThickness * 0.5f), null, allImages),
+            CreatePipeImage(parent, "Pipe Bottom Wall Left", new Vector2(centerWidth * 0.5f - pipeHeight * 0.5f, wallThickness), new Vector2(-centerWidth * 0.25f - pipeHeight * 0.25f, pipeY - pipeHeight * 0.5f + wallThickness * 0.5f), null, allImages),
+            CreatePipeImage(parent, "Pipe Bottom Wall Right", new Vector2(centerWidth * 0.5f - pipeHeight * 0.5f, wallThickness), new Vector2(centerWidth * 0.25f + pipeHeight * 0.25f, pipeY - pipeHeight * 0.5f + wallThickness * 0.5f), null, allImages),
+            CreatePipeImage(parent, "Pipe Left Rim", new Vector2(wallThickness, pipeHeight * 0.74f), new Vector2(-centerWidth * 0.5f, pipeY), null, allImages),
+            CreatePipeImage(parent, "Pipe Right Rim", new Vector2(wallThickness, pipeHeight * 0.74f), new Vector2(centerWidth * 0.5f, pipeY), null, allImages),
+            CreatePipeImage(parent, "Pipe Branch Left Wall", new Vector2(wallThickness, branchHeight), new Vector2(-pipeHeight * 0.5f + wallThickness * 0.5f, branchY), null, allImages),
+            CreatePipeImage(parent, "Pipe Branch Right Wall", new Vector2(wallThickness, branchHeight), new Vector2(pipeHeight * 0.5f - wallThickness * 0.5f, branchY), null, allImages),
+            CreatePipeImage(parent, "Pipe Branch Bottom Rim", new Vector2(pipeHeight * 0.72f, wallThickness), new Vector2(0f, branchBottomY - pipeHeight * 0.36f), null, allImages)
+        };
+
+        var highlight = new List<Image>
+        {
+            CreatePipeImage(parent, "Pipe Interior Highlight", new Vector2(innerCenterWidth * 0.78f, wallThickness * 0.45f), new Vector2(0f, pipeY + innerHeight * 0.27f), null, allImages),
+            CreatePipeImage(parent, "Pipe Interior Shadow", new Vector2(innerCenterWidth * 0.82f, wallThickness * 0.55f), new Vector2(0f, pipeY - innerHeight * 0.31f), null, allImages),
+            CreatePipeImage(parent, "Pipe Branch Interior Shadow", new Vector2(wallThickness * 0.55f, branchHeight * 0.72f), new Vector2(pipeHeight * 0.25f, branchY), null, allImages)
+        };
+
+        var frost = new List<Image>
+        {
+            CreatePipeImage(parent, "Pipe Frozen Bottom Branch", new Vector2(innerHeight * 0.9f, branchHeight * 0.92f), new Vector2(0f, branchY - pipeHeight * 0.04f), null, allImages),
+            CreatePipeImage(parent, "Pipe Frozen Plug", new Vector2(innerHeight * 1.08f, wallThickness * 1.4f), new Vector2(0f, pipeY - pipeHeight * 0.36f), null, allImages),
+            CreatePipeImage(parent, "Pipe Frost Bottom Rim", new Vector2(innerHeight * 0.86f, wallThickness * 0.9f), new Vector2(0f, branchBottomY - pipeHeight * 0.22f), null, allImages)
+        };
+
+        for (int i = allImages.Count - 1; i >= 0; i--)
+            allImages[i].rectTransform.SetAsFirstSibling();
+
+        return new PipeBackgroundView(shell, water, branchWater, rim, highlight, frost);
+    }
+
+    private Image CreatePipeImage(RectTransform parent, string objectName, Vector2 size, Vector2 position, Sprite sprite, List<Image> allImages)
+    {
+        RectTransform rect = CreateRect(objectName, parent, size, position);
+        Image image = rect.gameObject.AddComponent<Image>();
+        image.sprite = sprite;
+        image.color = new Color(1f, 1f, 1f, 0f);
+        image.raycastTarget = false;
+        allImages.Add(image);
+        return image;
     }
 
     private IceCubeView CreateIceCube(RectTransform parent)
@@ -300,6 +381,41 @@ public partial class StateChangeCutsceneAnimation
         }
     }
 
+    private void SetPipeBackground(PipeBackgroundView pipeBackground, float amount, float freezeAmount, float elapsed)
+    {
+        if (pipeBackground == null)
+            return;
+
+        float alpha = Mathf.SmoothStep(0f, 1f, amount);
+        float freeze = Mathf.SmoothStep(0f, 1f, freezeAmount);
+        float flowPulse = (Mathf.Sin(elapsed * 4.6f) + 1f) * 0.5f;
+
+        Color shellColor = Color.Lerp(new Color(0.18f, 0.38f, 0.46f, 1f), new Color(0.64f, 0.87f, 0.95f, 1f), freeze);
+        SetImagesColor(pipeBackground.Shell, shellColor, 0.34f * alpha);
+
+        Color rimColor = Color.Lerp(new Color(0.64f, 0.88f, 0.94f, 1f), new Color(0.86f, 0.98f, 1f, 1f), freeze);
+        SetImagesColor(pipeBackground.Rim, rimColor, 0.46f * alpha);
+
+        Color waterColor = Color.Lerp(new Color(0.04f, 0.55f, 0.86f, 1f), new Color(0.58f, 0.92f, 1f, 1f), freeze);
+        SetImagesColor(pipeBackground.Water, waterColor, Mathf.Lerp(0.3f + flowPulse * 0.08f, 0.2f, freeze) * alpha);
+        SetImagesColor(pipeBackground.BranchWater, waterColor, Mathf.Lerp(0.32f + flowPulse * 0.08f, 0f, freeze) * alpha);
+
+        Color highlightColor = Color.Lerp(new Color(0.74f, 0.96f, 1f, 1f), new Color(0.94f, 1f, 1f, 1f), freeze);
+        SetImagesColor(pipeBackground.Highlight, highlightColor, Mathf.Lerp(0.2f + flowPulse * 0.05f, 0.34f, freeze) * alpha);
+
+        SetImagesColor(pipeBackground.Frost, new Color(0.82f, 0.98f, 1f, 1f), 0.5f * freeze * alpha);
+    }
+
+    private static void SetImagesColor(IReadOnlyList<Image> images, Color color, float alpha)
+    {
+        for (int i = 0; i < images.Count; i++)
+        {
+            Color imageColor = color;
+            imageColor.a = alpha;
+            images[i].color = imageColor;
+        }
+    }
+
     private Color GetParticleColor(int index)
     {
         return CurrentBehavior.GetParticleColor(index);
@@ -444,7 +560,7 @@ public partial class StateChangeCutsceneAnimation
 
     private sealed class CutsceneView
     {
-        public CutsceneView(RectTransform root, CanvasGroup group, TextMeshProUGUI title, TextMeshProUGUI stageLabel, RectTransform particleArea, List<ParticleView> particles, List<BondView> bonds, List<RectTransform> flowLines, IceCubeView iceCube, ContainerView container)
+        public CutsceneView(RectTransform root, CanvasGroup group, TextMeshProUGUI title, TextMeshProUGUI stageLabel, RectTransform particleArea, List<ParticleView> particles, List<BondView> bonds, List<RectTransform> flowLines, IceCubeView iceCube, ContainerView container, PipeBackgroundView pipeBackground)
         {
             Root = root;
             Group = group;
@@ -456,6 +572,7 @@ public partial class StateChangeCutsceneAnimation
             FlowLines = flowLines;
             IceCube = iceCube;
             Container = container;
+            PipeBackground = pipeBackground;
         }
 
         public RectTransform Root { get; }
@@ -468,6 +585,7 @@ public partial class StateChangeCutsceneAnimation
         public List<RectTransform> FlowLines { get; }
         public IceCubeView IceCube { get; }
         public ContainerView Container { get; }
+        public PipeBackgroundView PipeBackground { get; }
         public float ElapsedTime;
     }
 
@@ -491,6 +609,26 @@ public partial class StateChangeCutsceneAnimation
         }
 
         public List<Image> Edges { get; }
+    }
+
+    private sealed class PipeBackgroundView
+    {
+        public PipeBackgroundView(List<Image> shell, List<Image> water, List<Image> branchWater, List<Image> rim, List<Image> highlight, List<Image> frost)
+        {
+            Shell = shell;
+            Water = water;
+            BranchWater = branchWater;
+            Rim = rim;
+            Highlight = highlight;
+            Frost = frost;
+        }
+
+        public List<Image> Shell { get; }
+        public List<Image> Water { get; }
+        public List<Image> BranchWater { get; }
+        public List<Image> Rim { get; }
+        public List<Image> Highlight { get; }
+        public List<Image> Frost { get; }
     }
 
     private sealed class ParticleView

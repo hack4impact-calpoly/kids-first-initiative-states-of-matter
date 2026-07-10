@@ -54,7 +54,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4833124303655022323, guid: 599f99aea54ba449ab2b645da958273c, type: 3}
       propertyPath: m_FlipX
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4833124303655022323, guid: 599f99aea54ba449ab2b645da958273c, type: 3}
       propertyPath: m_FlipY
@@ -114,3 +114,11 @@ MonoBehaviour:
   isEnd: 0
   drySprite: {fileID: -4930073309866211860, guid: 58a83796764e64685934f68d69872acd, type: 3}
   waterSprite: {fileID: 6687720662725131103, guid: bc92c77faf77448ddac1c9432150cdde, type: 3}
+  frozenSprite: {fileID: 3880662006668172945, guid: 9e03b7cf2cd824cfa91d928915ba4161, type: 3}
+  frozenSnowflakeSprites:
+  - {fileID: 21300000, guid: 3669b9eb21b24be2b90935fd5f8f92ed, type: 3}
+  - {fileID: 21300000, guid: 0b6cea88a70c4c7492bb805cd30b9fbd, type: 3}
+  - {fileID: 21300000, guid: 949073cc32b1432f9ed4096c49530c19, type: 3}
+  - {fileID: 21300000, guid: 0bf809cf666a4c31a5db13249e49cbe3, type: 3}
+  waterOverlayColor: {r: 1, g: 1, b: 1, a: 1}
+  waterOverlaySortingOrderOffset: 1

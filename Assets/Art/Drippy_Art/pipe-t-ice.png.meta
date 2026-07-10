@@ -119,11 +119,11 @@ TextureImporter:
         x: 0
         y: 0
         width: 256
-        height: 168
+        height: 256
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
+      customData:
       outline: []
       physicsShape: []
       tessellationDetail: -1
@@ -131,17 +131,17 @@ TextureImporter:
       spriteID: 33100d1afbf2f8d40800000000000000
       internalID: 5588738162690097459
       vertices: []
-      indices: 
+      indices:
       edges: []
       weights: []
     outline: []
-    customData: 
+    customData:
     physicsShape: []
     bones: []
     spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
-    indices: 
+    indices:
     edges: []
     weights: []
     secondaryTextures: []
@@ -149,8 +149,8 @@ TextureImporter:
       entries: []
     nameFileIdTable:
       pipe-t-ice_0: 5588738162690097459
-  mipmapLimitGroupName: 
+  mipmapLimitGroupName:
   pSDRemoveMatte: 0
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
+  userData:
+  assetBundleName:
+  assetBundleVariant:

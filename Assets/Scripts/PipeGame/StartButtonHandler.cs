@@ -4,7 +4,6 @@ using UnityEngine.SceneManagement;
 
 public class StartButtonHandler : MonoBehaviour
 {
-    public PipeUIController ui;
     public GameObject startButton;
 
     [Header("Success Cutscene")]
@@ -36,12 +35,6 @@ public class StartButtonHandler : MonoBehaviour
 
         StartPressed?.Invoke();
 
-        if (ui == null)
-        {
-            Debug.LogError("PipeUIController not assigned.");
-            return;
-        }
-
         bool success = CheckEndWater();
 
         if (success)
@@ -55,7 +48,6 @@ public class StartButtonHandler : MonoBehaviour
         else
         {
             ValidationFailed?.Invoke();
-            ui.ShowFailure();
         }
     }
 
@@ -158,9 +150,6 @@ public class StartButtonHandler : MonoBehaviour
 
     private void ShowSuccess(MatterCutsceneKind cutsceneKind)
     {
-        if (ui != null)
-            ui.ShowSuccess();
-
         ValidationSucceeded?.Invoke(cutsceneKind);
     }
 

@@ -17,7 +17,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Kitchen Game - Solid.unity
     guid: 3166ed73ce5c1af4ea78cb9d4a613fe9
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Pipes game.unity
     guid: 4b4286e67ac054f2bbcdc7161a22922d
   - enabled: 1
@@ -29,6 +29,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Kitchen Game - Freezing Station.unity
     guid: 24d84f7521765469b888f250f08057f2
+  - enabled: 1
+    path: Assets/Scenes/Pipes-Frozen-Level.unity
+    guid: 6e87fd446826e4e2ea403b9c9a488064
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

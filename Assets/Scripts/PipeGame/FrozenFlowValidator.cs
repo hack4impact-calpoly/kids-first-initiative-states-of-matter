@@ -1,10 +1,14 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class FrozenFlowValidator : MonoBehaviour
 {
     public int endX = 8;
     public int endY = 4;
+
+    [Header("Scene Load")]
+    public string successSceneName = "GameSelector";
 
     Dictionary<(int,int), PipeObject> map = new();
 
@@ -47,6 +51,7 @@ public class FrozenFlowValidator : MonoBehaviour
         }
 
         Debug.Log("SUCCESS");
+        SceneManager.LoadScene(successSceneName);
         return true;
     }
 

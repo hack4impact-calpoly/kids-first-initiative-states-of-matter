@@ -206,5 +206,10 @@ public partial class StateChangeCutsceneAnimation
         {
             animation.SetContainerAlpha(container, amount);
         }
+
+        public void SetPipeBackground(PipeBackgroundView pipeBackground, float amount, float freezeAmount, float elapsed)
+        {
+            animation.SetPipeBackground(pipeBackground, amount, freezeAmount, elapsed);
+        }
     }
 }
