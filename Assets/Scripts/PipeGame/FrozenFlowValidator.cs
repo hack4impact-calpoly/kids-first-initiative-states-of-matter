@@ -12,6 +12,11 @@ public class FrozenFlowValidator : MonoBehaviour
 
     Dictionary<(int,int), PipeObject> map = new();
 
+    private void Start()
+    {
+        StageProgressService.BeginStage(StageProgressIds.PipeRescue, StageProgressIds.FreezePipeLeak);
+    }
+
     public bool Validate()
     {
         var pipes = FindObjectsByType<PipeObject>(FindObjectsSortMode.None);
@@ -51,6 +56,7 @@ public class FrozenFlowValidator : MonoBehaviour
         }
 
         Debug.Log("SUCCESS");
+        StageProgressService.CompleteStage(StageProgressIds.PipeRescue, StageProgressIds.FreezePipeLeak);
         SceneManager.LoadScene(successSceneName);
         return true;
     }

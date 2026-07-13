@@ -38,6 +38,8 @@ public class KitchenGameManager : MonoBehaviour
 
     private void Awake()
     {
+        StageProgressService.BeginStage(StageProgressIds.MatterKitchen, StageProgressIds.MeltChocolate);
+
         SetWin(false);
         SetFail(false);
         State = GameState.Playing;
@@ -112,6 +114,7 @@ public class KitchenGameManager : MonoBehaviour
     {
         State = GameState.Won;
         SetFail(false);
+        StageProgressService.CompleteStage(StageProgressIds.MatterKitchen, StageProgressIds.MeltChocolate);
         Won?.Invoke();
 
         if (TryPlayChocolateMeltCutscene())

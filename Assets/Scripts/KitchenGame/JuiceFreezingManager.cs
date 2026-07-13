@@ -47,6 +47,8 @@ public class JuiceFreezingManager : MonoBehaviour
 
     private void Awake()
     {
+        StageProgressService.BeginStage(StageProgressIds.MatterKitchen, StageProgressIds.PourJuice);
+
         SetWin(false);
         State = GameState.Playing;
         trayFillStartedPublished = false;
@@ -212,6 +214,7 @@ public class JuiceFreezingManager : MonoBehaviour
             return;
 
         pourStepCompletedPublished = true;
+        StageProgressService.CompleteStage(StageProgressIds.MatterKitchen, StageProgressIds.PourJuice);
         PourStepCompleted?.Invoke();
     }
 

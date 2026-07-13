@@ -42,6 +42,8 @@ public class JuicePouringGameManager : MonoBehaviour
 
     private void Awake()
     {
+        StageProgressService.BeginStage(StageProgressIds.MatterKitchen, StageProgressIds.FreezeJuice);
+
         coldEnoughPublished = false;
         freezingCompletedPublished = false;
         ResolveDialogueAdapter();
@@ -260,6 +262,7 @@ public class JuicePouringGameManager : MonoBehaviour
             return;
 
         freezingCompletedPublished = true;
+        StageProgressService.CompleteStage(StageProgressIds.MatterKitchen, StageProgressIds.FreezeJuice);
         FreezingCompleted?.Invoke();
     }
 
