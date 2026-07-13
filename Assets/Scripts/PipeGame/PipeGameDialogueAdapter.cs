@@ -130,14 +130,14 @@ public class PipeGameDialogueAdapter : DialogueFlowAdapterBase
         DialogueSpeaker gary = ResolveSpeaker("Gary");
         DialogueSpeaker sam = ResolveSpeaker("Sam");
 
-        RegisterPipeLine(WaterIntroKey, "pipe.water_flow.intro.1", lucy, "I need to reach the end, but there's a wall! As a liquid, I can only flow through connected pipes.", "liquid");
-        RegisterPipeLine(WaterHintKey, "pipe.water_flow.hint.1", lucy, "Rotate pipe sections until every opening lines up. Liquid water needs a continuous path.", "liquid");
-        RegisterPipeLine(WaterActiveKey, "pipe.water_flow.active.1", gary, "Water flows through connected pipe openings. Keep the path continuous to reach the end.", "liquid");
-        RegisterPipeLine(WaterWinKey, "pipe.water_flow.win.1", lucy, "Liquid water reached the end because every pipe connection lined up. State changes everywhere!", "liquid", "state-change");
-        RegisterPipeLine(FrozenIntroKey, "pipe.frozen_flow.intro.1", sam, "This one needs cold water to make solid walls that redirect the flow.", "solid", "liquid", "freezing");
-        RegisterPipeLine(FrozenSolidHintKey, "pipe.frozen_flow.solid_hint.1", sam, "Frozen water is SOLID. Solids don't flow - they make a wall that redirects the water around them.", "solid", "freezing");
-        RegisterPipeLine(FrozenWinKey, "pipe.frozen_flow.win.1", sam, "You used solid ice and liquid water together. State changes can guide the path!", "solid", "liquid", "state-change");
-        RegisterPipeLine(FailureKey, "pipe.flow.failure.1", lucy, "Hmm - something's not connecting. Maybe try a different pipe turn or state change?", "state-change", playOnce: false);
+        RegisterPipeLine(WaterIntroKey, "pipe.water_flow.intro.1", lucy, "Liquid water flows through open, connected pipes.", "liquid");
+        RegisterPipeLine(WaterHintKey, "pipe.water_flow.hint.1", lucy, "Rotate pipes so openings connect into one path.", "liquid");
+        RegisterPipeLine(WaterActiveKey, "pipe.water_flow.active.1", gary, "Water flows only where pipe openings touch.", "liquid");
+        RegisterPipeLine(WaterWinKey, "pipe.water_flow.win.1", lucy, "Connected pipes let liquid water reach the end.", "liquid", "state-change");
+        RegisterPipeLine(FrozenIntroKey, "pipe.frozen_flow.intro.1", sam, "Freeze water into solid ice to guide the liquid.", "solid", "liquid", "freezing");
+        RegisterPipeLine(FrozenSolidHintKey, "pipe.frozen_flow.solid_hint.1", sam, "Solid ice does not flow, so it blocks leaks.", "solid", "freezing");
+        RegisterPipeLine(FrozenWinKey, "pipe.frozen_flow.win.1", sam, "Solid ice and liquid water worked together.", "solid", "liquid", "state-change");
+        RegisterPipeLine(FailureKey, "pipe.flow.failure.1", lucy, "The liquid path is broken. Turn or freeze a pipe.", "state-change", playOnce: false);
 
         defaultsRegistered = true;
     }

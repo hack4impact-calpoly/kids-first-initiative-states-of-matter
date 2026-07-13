@@ -43,7 +43,7 @@ public class StatesMenuDialogueAdapter : DialogueFlowAdapterBase
             IntroKey,
             "menu.states.intro.1",
             null,
-            "Pick a game! Each one shows water in a different state - solid, liquid, gas... and more.",
+            "Pick a game to see solids, liquids, gases, and plasma change.",
             new[] { "solid", "liquid", "gas", "state-change" });
 
         defaultsRegistered = true;

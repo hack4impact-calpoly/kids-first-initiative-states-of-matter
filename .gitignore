@@ -1,5 +1,6 @@
 # === Unity generated ===
 [Ll]ibrary/
+/[Ll]ibrary.bak-*/
 [Tt]emp/
 [Oo]bj/
 [Bb]uild/
@@ -28,6 +29,9 @@
 # === OS ===
 .DS_Store
 Thumbs.db
+
+# === Local tool config ===
+Tools/Audio/*.local.json
 
 # === Addressables cache (optional; keep if you use Addressables) ===
 /Assets/AddressableAssetsData/*/*.bin*

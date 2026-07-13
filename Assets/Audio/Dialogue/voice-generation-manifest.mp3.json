@@ -1,0 +1,322 @@
+[
+  {
+    "game": "menu",
+    "key": "menu.states.intro",
+    "lineId": "menu.states.intro.1",
+    "speaker": "Narrator",
+    "text": "Pick a game to see solids, liquids, gases, and plasma change.",
+    "voice": "narrator",
+    "path": "Assets/Audio/Dialogue/menu/menu.states.intro.1.mp3",
+    "bytes": 58140
+  },
+  {
+    "game": "kitchen",
+    "key": "kitchen.solid.intro",
+    "lineId": "kitchen.solid.intro.1",
+    "speaker": "Sam",
+    "text": "Chocolate is a solid: it keeps its shape. Drag it into the pot.",
+    "voice": "sam",
+    "path": "Assets/Audio/Dialogue/kitchen/kitchen.solid.intro.1.mp3",
+    "bytes": 58976
+  },
+  {
+    "game": "kitchen",
+    "key": "kitchen.solid.ingredient_added",
+    "lineId": "kitchen.solid.ingredient_added.1",
+    "speaker": "Sam",
+    "text": "Now add heat. Heat can melt a solid into liquid.",
+    "voice": "sam",
+    "path": "Assets/Audio/Dialogue/kitchen/kitchen.solid.ingredient_added.1.mp3",
+    "bytes": 48527
+  },
+  {
+    "game": "kitchen",
+    "key": "kitchen.solid.heat_active",
+    "lineId": "kitchen.solid.heat_active.1",
+    "speaker": "Sam",
+    "text": "Heat makes the molecules move faster.",
+    "voice": "sam",
+    "path": "Assets/Audio/Dialogue/kitchen/kitchen.solid.heat_active.1.mp3",
+    "bytes": 37660
+  },
+  {
+    "game": "kitchen",
+    "key": "kitchen.solid.win",
+    "lineId": "kitchen.solid.win.1",
+    "speaker": "Sam",
+    "text": "Melting changed solid chocolate into liquid chocolate.",
+    "voice": "sam",
+    "path": "Assets/Audio/Dialogue/kitchen/kitchen.solid.win.1.mp3",
+    "bytes": 47691
+  },
+  {
+    "game": "kitchen",
+    "key": "kitchen.solid.fail",
+    "lineId": "kitchen.solid.fail.1",
+    "speaker": "Sam",
+    "text": "Start with the solid chocolate, then add heat.",
+    "voice": "sam",
+    "path": "Assets/Audio/Dialogue/kitchen/kitchen.solid.fail.1.mp3",
+    "bytes": 41004
+  },
+  {
+    "game": "kitchen",
+    "key": "kitchen.freezing_pour.intro",
+    "lineId": "kitchen.freezing_pour.intro.1",
+    "speaker": "Lucy",
+    "text": "Juice is a liquid: it flows. Pour it into the tray.",
+    "voice": "lucy",
+    "path": "Assets/Audio/Dialogue/kitchen/kitchen.freezing_pour.intro.1.mp3",
+    "bytes": 57722
+  },
+  {
+    "game": "kitchen",
+    "key": "kitchen.freezing_pour.active",
+    "lineId": "kitchen.freezing_pour.active.1",
+    "speaker": "Lucy",
+    "text": "A liquid takes the shape of its container.",
+    "voice": "lucy",
+    "path": "Assets/Audio/Dialogue/kitchen/kitchen.freezing_pour.active.1.mp3",
+    "bytes": 38078
+  },
+  {
+    "game": "kitchen",
+    "key": "kitchen.freezing_pour.win",
+    "lineId": "kitchen.freezing_pour.win.1",
+    "speaker": "Lucy",
+    "text": "The tray is full of liquid. Next, cool it down.",
+    "voice": "lucy",
+    "path": "Assets/Audio/Dialogue/kitchen/kitchen.freezing_pour.win.1.mp3",
+    "bytes": 50199
+  },
+  {
+    "game": "kitchen",
+    "key": "kitchen.freezing_station.intro",
+    "lineId": "kitchen.freezing_station.intro.1",
+    "speaker": "Sam",
+    "text": "Cooling a liquid enough can freeze it solid.",
+    "voice": "sam",
+    "path": "Assets/Audio/Dialogue/kitchen/kitchen.freezing_station.intro.1.mp3",
+    "bytes": 38914
+  },
+  {
+    "game": "kitchen",
+    "key": "kitchen.freezing_station.active",
+    "lineId": "kitchen.freezing_station.active.1",
+    "speaker": "Sam",
+    "text": "Cold slows molecules until they lock into ice.",
+    "voice": "sam",
+    "path": "Assets/Audio/Dialogue/kitchen/kitchen.freezing_station.active.1.mp3",
+    "bytes": 45601
+  },
+  {
+    "game": "kitchen",
+    "key": "kitchen.freezing_station.win",
+    "lineId": "kitchen.freezing_station.win.1",
+    "speaker": "Sam",
+    "text": "Freezing changed liquid water into solid ice.",
+    "voice": "sam",
+    "path": "Assets/Audio/Dialogue/kitchen/kitchen.freezing_station.win.1.mp3",
+    "bytes": 43511
+  },
+  {
+    "game": "pipe",
+    "key": "pipe.water_flow.intro",
+    "lineId": "pipe.water_flow.intro.1",
+    "speaker": "Lucy",
+    "text": "Liquid water flows through open, connected pipes.",
+    "voice": "lucy",
+    "path": "Assets/Audio/Dialogue/pipe/pipe.water_flow.intro.1.mp3",
+    "bytes": 56050
+  },
+  {
+    "game": "pipe",
+    "key": "pipe.water_flow.hint",
+    "lineId": "pipe.water_flow.hint.1",
+    "speaker": "Lucy",
+    "text": "Rotate pipes so openings connect into one path.",
+    "voice": "lucy",
+    "path": "Assets/Audio/Dialogue/pipe/pipe.water_flow.hint.1.mp3",
+    "bytes": 49363
+  },
+  {
+    "game": "pipe",
+    "key": "pipe.water_flow.active",
+    "lineId": "pipe.water_flow.active.1",
+    "speaker": "Gary",
+    "text": "Water flows only where pipe openings touch.",
+    "voice": "gary",
+    "path": "Assets/Audio/Dialogue/pipe/pipe.water_flow.active.1.mp3",
+    "bytes": 45601
+  },
+  {
+    "game": "pipe",
+    "key": "pipe.water_flow.win",
+    "lineId": "pipe.water_flow.win.1",
+    "speaker": "Lucy",
+    "text": "Connected pipes let liquid water reach the end.",
+    "voice": "lucy",
+    "path": "Assets/Audio/Dialogue/pipe/pipe.water_flow.win.1.mp3",
+    "bytes": 51035
+  },
+  {
+    "game": "pipe",
+    "key": "pipe.frozen_flow.intro",
+    "lineId": "pipe.frozen_flow.intro.1",
+    "speaker": "Sam",
+    "text": "Freeze water into solid ice to guide the liquid.",
+    "voice": "sam",
+    "path": "Assets/Audio/Dialogue/pipe/pipe.frozen_flow.intro.1.mp3",
+    "bytes": 44347
+  },
+  {
+    "game": "pipe",
+    "key": "pipe.frozen_flow.solid_hint",
+    "lineId": "pipe.frozen_flow.solid_hint.1",
+    "speaker": "Sam",
+    "text": "Solid ice does not flow, so it blocks leaks.",
+    "voice": "sam",
+    "path": "Assets/Audio/Dialogue/pipe/pipe.frozen_flow.solid_hint.1.mp3",
+    "bytes": 40586
+  },
+  {
+    "game": "pipe",
+    "key": "pipe.frozen_flow.win",
+    "lineId": "pipe.frozen_flow.win.1",
+    "speaker": "Sam",
+    "text": "Solid ice and liquid water worked together.",
+    "voice": "sam",
+    "path": "Assets/Audio/Dialogue/pipe/pipe.frozen_flow.win.1.mp3",
+    "bytes": 37660
+  },
+  {
+    "game": "pipe",
+    "key": "pipe.flow.failure",
+    "lineId": "pipe.flow.failure.1",
+    "speaker": "Lucy",
+    "text": "The liquid path is broken. Turn or freeze a pipe.",
+    "voice": "lucy",
+    "path": "Assets/Audio/Dialogue/pipe/pipe.flow.failure.1.mp3",
+    "bytes": 53960
+  },
+  {
+    "game": "wire",
+    "key": "wire.drag_device.intro",
+    "lineId": "wire.drag_device.intro.1",
+    "speaker": "Patrice",
+    "text": "Choose a device to show how energy changes matter.",
+    "voice": "patrice",
+    "path": "Assets/Audio/Dialogue/wire/wire.drag_device.intro.1.mp3",
+    "bytes": 41839
+  },
+  {
+    "game": "wire",
+    "key": "wire.drag_device.hint",
+    "lineId": "wire.drag_device.hint.1",
+    "speaker": "Patrice",
+    "text": "Heat melts or evaporates. Cold freezes. Energy makes plasma.",
+    "voice": "patrice",
+    "path": "Assets/Audio/Dialogue/wire/wire.drag_device.hint.1.mp3",
+    "bytes": 57722
+  },
+  {
+    "game": "wire",
+    "key": "wire.connect_wires.intro",
+    "lineId": "wire.connect_wires.intro.1",
+    "speaker": "Patrice",
+    "text": "Connect wire ends so electrical energy can flow.",
+    "voice": "patrice",
+    "path": "Assets/Audio/Dialogue/wire/wire.connect_wires.intro.1.mp3",
+    "bytes": 45601
+  },
+  {
+    "game": "wire",
+    "key": "wire.connect_wires.hint",
+    "lineId": "wire.connect_wires.hint.1",
+    "speaker": "Patrice",
+    "text": "Every wire needs a closed path before power works.",
+    "voice": "patrice",
+    "path": "Assets/Audio/Dialogue/wire/wire.connect_wires.hint.1.mp3",
+    "bytes": 44347
+  },
+  {
+    "game": "wire",
+    "key": "wire.power.turn_on",
+    "lineId": "wire.power.turn_on.1",
+    "speaker": "Patrice",
+    "text": "All wired. Turn on power to transfer energy.",
+    "voice": "patrice",
+    "path": "Assets/Audio/Dialogue/wire/wire.power.turn_on.1.mp3",
+    "bytes": 41839
+  },
+  {
+    "game": "wire",
+    "key": "wire.success.hot_plate",
+    "lineId": "wire.success.hot_plate.1",
+    "speaker": "Gary",
+    "text": "Heat evaporated liquid water into gas.",
+    "voice": "gary",
+    "path": "Assets/Audio/Dialogue/wire/wire.success.hot_plate.1.mp3",
+    "bytes": 42675
+  },
+  {
+    "game": "wire",
+    "key": "wire.success.ice_flask",
+    "lineId": "wire.success.ice_flask.1",
+    "speaker": "Sam",
+    "text": "Cooling froze liquid water into solid ice.",
+    "voice": "sam",
+    "path": "Assets/Audio/Dialogue/wire/wire.success.ice_flask.1.mp3",
+    "bytes": 41004
+  },
+  {
+    "game": "wire",
+    "key": "wire.success.candle",
+    "lineId": "wire.success.candle.1",
+    "speaker": "Sam",
+    "text": "Heat melted solid wax into liquid wax.",
+    "voice": "sam",
+    "path": "Assets/Audio/Dialogue/wire/wire.success.candle.1.mp3",
+    "bytes": 45601
+  },
+  {
+    "game": "wire",
+    "key": "wire.success.plasma",
+    "lineId": "wire.success.plasma.1",
+    "speaker": "Patrice",
+    "text": "Energy ionized gas into glowing plasma.",
+    "voice": "patrice",
+    "path": "Assets/Audio/Dialogue/wire/wire.success.plasma.1.mp3",
+    "bytes": 39750
+  },
+  {
+    "game": "wire",
+    "key": "wire.success.generic",
+    "lineId": "wire.success.generic.1",
+    "speaker": "Patrice",
+    "text": "Energy changed the matter into a new state.",
+    "voice": "patrice",
+    "path": "Assets/Audio/Dialogue/wire/wire.success.generic.1.mp3",
+    "bytes": 35988
+  },
+  {
+    "game": "wire",
+    "key": "wire.win.final",
+    "lineId": "wire.win.final.1",
+    "speaker": "Patrice",
+    "text": "Circuit complete. Energy drove a state change.",
+    "voice": "patrice",
+    "path": "Assets/Audio/Dialogue/wire/wire.win.final.1.mp3",
+    "bytes": 46437
+  },
+  {
+    "game": "wire",
+    "key": "wire.retry.incomplete",
+    "lineId": "wire.retry.incomplete.1",
+    "speaker": "Patrice",
+    "text": "The circuit is open. Connect every wire.",
+    "voice": "patrice",
+    "path": "Assets/Audio/Dialogue/wire/wire.retry.incomplete.1.mp3",
+    "bytes": 35988
+  }
+]
