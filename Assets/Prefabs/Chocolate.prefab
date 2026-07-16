@@ -176,7 +176,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6248369854053391186}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3954ee112d3514dcca63a34d4eb78183, type: 3}
+  m_Script: {fileID: 11500000, guid: fda9553f5225746b3b5e20c04d6ea927, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IngredientInstance
   data: {fileID: 0}
