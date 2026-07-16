@@ -150,6 +150,14 @@ public class Main : MonoBehaviour
         DeviceDisconnectedChanged?.Invoke();
     }
 
+    public void UndoSelectedOutput()
+    {
+        if (hasWon || connectedDevice == null)
+            return;
+
+        connectedDevice.ReturnToStart();
+    }
+
     public void LightOn(int points)
     {
         if (hasWon)
