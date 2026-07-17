@@ -68,15 +68,16 @@ public class DraggableDevice : MonoBehaviour
         if (IsInteractionLocked)
             return;
 
+        bool wasSnapped = isSnapped && snappedZone != null;
+        if (wasSnapped)
+            snappedZone.Unsnap();
+
         isSnapped = false;
         snappedZone = null;
         transform.position = startPosition;
-        
-        // Notify Main that the device has been disconnected
-        if (Main.Instance != null)
-        {
+
+        if (!wasSnapped && Main.Instance != null)
             Main.Instance.DeviceDisconnected();
-        }
     }
 
     public void LockInteraction()
