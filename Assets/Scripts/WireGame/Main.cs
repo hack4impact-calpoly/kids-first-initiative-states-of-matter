@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Main : MonoBehaviour
@@ -46,6 +47,7 @@ public class Main : MonoBehaviour
     private Renderer blockRenderer;
     private bool hasWon;
     private Coroutine pendingCircuitCutsceneRoutine;
+    private readonly HashSet<string> startedProgressStages = new HashSet<string>();
 
     public event Action<DraggableDevice> DeviceConnectedChanged;
     public event Action DeviceDisconnectedChanged;
@@ -105,6 +107,7 @@ public class Main : MonoBehaviour
 
         isLocked = false;
         connectedDevice = device;
+        BeginSelectedExperiment();
         PublishDialogueConditions();
         
         if (WireGameUIManager.Instance != null)
@@ -288,6 +291,12 @@ public class Main : MonoBehaviour
             }
         }
 
+        string progressStageId = ResolveSelectedExperimentStage();
+        if (!string.IsNullOrEmpty(progressStageId))
+            StageProgressService.CompleteStage(StageProgressIds.StateLab, progressStageId);
+        else
+            Debug.LogWarning("State Lab completed with an output that has no stable progress stage ID.");
+
         CircuitCompleted?.Invoke(connectedDevice);
 
         if (playCircuitCutsceneOnWin)
@@ -402,6 +411,32 @@ public class Main : MonoBehaviour
         }
 
         return false;
+    }
+
+    private void BeginSelectedExperiment()
+    {
+        string stageId = ResolveSelectedExperimentStage();
+        if (string.IsNullOrEmpty(stageId))
+            return;
+
+        if (!startedProgressStages.Add(stageId))
+            return;
+
+        StageProgressService.BeginStage(StageProgressIds.StateLab, stageId);
+    }
+
+    private string ResolveSelectedExperimentStage()
+    {
+        if (connectedDevice == null)
+            return null;
+
+        if (connectedDevice.GetComponentInChildren<CandleMeltEffect>() != null)
+            return StageProgressIds.MeltWax;
+
+        if (connectedDevice.GetComponentInChildren<PlasmaEffect>() != null)
+            return StageProgressIds.IonizeGas;
+
+        return null;
     }
 
     private Transform ResolveCutsceneTarget()
