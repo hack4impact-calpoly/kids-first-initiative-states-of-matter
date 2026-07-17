@@ -197,17 +197,17 @@ public class KitchenGameDialogueAdapter : DialogueFlowAdapterBase
         DialogueSpeaker sam = ResolveSpeaker("Sam");
         DialogueSpeaker lucy = ResolveSpeaker("Lucy");
 
-        RegisterKitchenLine(SolidIntroKey, "kitchen.solid.intro.1", sam, "Chocolate is a SOLID - see how it holds its shape? Drag a piece into the pot.", "solid");
-        RegisterKitchenLine(SolidIngredientAddedKey, "kitchen.solid.ingredient_added.1", sam, "Nice! Now the stove unlocks. Crank up the heat and watch what happens to my chocolate friend.", "solid", "melting");
-        RegisterKitchenLine(SolidHeatActiveKey, "kitchen.solid.heat_active.1", sam, "Heat makes the molecules wiggle faster and faster...", "molecules", "melting");
-        RegisterKitchenLine(SolidWinKey, "kitchen.solid.win.1", sam, "Melted! Solids turn to LIQUID when they get hot enough - that's called melting.", "solid", "liquid", "melting");
-        RegisterKitchenLine(SolidFailKey, "kitchen.solid.fail.1", sam, "Add the chocolate before turning the heat all the way up.", "solid", "melting", playOnce: false);
-        RegisterKitchenLine(PourIntroKey, "kitchen.freezing_pour.intro.1", lucy, "Hi, I'm Lucy! Juice is mostly water - and water is a LIQUID. Pour me into the freezer!", "liquid");
-        RegisterKitchenLine(PourActiveKey, "kitchen.freezing_pour.active.1", lucy, "Liquids take the shape of their container. Watch me fill up the freezer.", "liquid");
-        RegisterKitchenLine(PourWinKey, "kitchen.freezing_pour.win.1", lucy, "Brrr - I'm getting cold. Time to make ice cubes!", "liquid", "freezing");
-        RegisterKitchenLine(StationIntroKey, "kitchen.freezing_station.intro.1", sam, "Cold liquid turns into solid ice. Fill up the tray and watch!", "liquid", "solid", "freezing");
-        RegisterKitchenLine(StationActiveKey, "kitchen.freezing_station.active.1", sam, "When water gets really cold, the molecules slow down and lock together - that's how ice forms.", "molecules", "freezing", "solid");
-        RegisterKitchenLine(StationWinKey, "kitchen.freezing_station.win.1", sam, "We did it! Liquid to solid means freezing. The opposite of melting!", "liquid", "solid", "freezing", "melting");
+        RegisterKitchenLine(SolidIntroKey, "kitchen.solid.intro.1", sam, "Chocolate is a solid: it keeps its shape. Drag it into the pot.", "solid");
+        RegisterKitchenLine(SolidIngredientAddedKey, "kitchen.solid.ingredient_added.1", sam, "Now add heat. Heat can melt a solid into liquid.", "solid", "melting");
+        RegisterKitchenLine(SolidHeatActiveKey, "kitchen.solid.heat_active.1", sam, "Heat makes the molecules move faster.", "molecules", "melting");
+        RegisterKitchenLine(SolidWinKey, "kitchen.solid.win.1", sam, "Melting changed solid chocolate into liquid chocolate.", "solid", "liquid", "melting");
+        RegisterKitchenLine(SolidFailKey, "kitchen.solid.fail.1", sam, "Start with the solid chocolate, then add heat.", "solid", "melting", playOnce: false);
+        RegisterKitchenLine(PourIntroKey, "kitchen.freezing_pour.intro.1", lucy, "Juice is a liquid: it flows. Pour it into the tray.", "liquid");
+        RegisterKitchenLine(PourActiveKey, "kitchen.freezing_pour.active.1", lucy, "A liquid takes the shape of its container.", "liquid");
+        RegisterKitchenLine(PourWinKey, "kitchen.freezing_pour.win.1", lucy, "The tray is full of liquid. Next, cool it down.", "liquid", "freezing");
+        RegisterKitchenLine(StationIntroKey, "kitchen.freezing_station.intro.1", sam, "Cooling a liquid enough can freeze it solid.", "liquid", "solid", "freezing");
+        RegisterKitchenLine(StationActiveKey, "kitchen.freezing_station.active.1", sam, "Cold slows molecules until they lock into ice.", "molecules", "freezing", "solid");
+        RegisterKitchenLine(StationWinKey, "kitchen.freezing_station.win.1", sam, "Freezing changed liquid water into solid ice.", "liquid", "solid", "freezing", "melting");
 
         defaultsRegistered = true;
     }

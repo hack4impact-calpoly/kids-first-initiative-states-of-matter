@@ -198,18 +198,18 @@ public class WireGameDialogueAdapter : DialogueFlowAdapterBase
         DialogueSpeaker gary = ResolveSpeaker("Gary");
         DialogueSpeaker sam = ResolveSpeaker("Sam");
 
-        RegisterWireLine(DragDeviceIntroKey, "wire.drag_device.intro.1", patrice, "Each device shows a different state change. Drag one in to see what energy can do!", OutputGuidanceTag);
-        RegisterWireLine(DragDeviceHintKey, "wire.drag_device.hint.1", patrice, "HotPlate heats things. IceFlask freezes. Candle melts wax. Plasma - that's me.", OutputGuidanceTag);
-        RegisterWireLine(ConnectWiresIntroKey, "wire.connect_wires.intro.1", patrice, "Wires carry electricity. Connect every wire end-to-end so energy can flow.", WireGuidanceTag);
-        RegisterWireLine(ConnectWiresHintKey, "wire.connect_wires.hint.1", patrice, "Drag a wire endpoint to connect it. Each device needs ALL its wires plugged in.", WireGuidanceTag);
-        RegisterWireLine(TurnOnPowerKey, "wire.power.turn_on.1", patrice, "All wires are connected. Now turn on the power switch so energy can flow!", PowerDialGuidanceTag);
-        RegisterWireLine(HotPlateSuccessKey, "wire.success.hot_plate.1", gary, "HotPlate boiled the water! Heat to steam means gas. That's evaporation!", ClearGuidanceTag);
-        RegisterWireLine(IceFlaskSuccessKey, "wire.success.ice_flask.1", sam, "IceFlask made ice! Cold to solid. That's freezing!", ClearGuidanceTag);
-        RegisterWireLine(CandleSuccessKey, "wire.success.candle.1", sam, "Candle wax melted! Solid wax to liquid wax. That's melting!", ClearGuidanceTag);
-        RegisterWireLine(PlasmaSuccessKey, "wire.success.plasma.1", patrice, "I'm GLOWING! Plasma is super-heated gas where molecules break apart and shine. The Sun is plasma!", ClearGuidanceTag);
-        RegisterWireLine(GenericSuccessKey, "wire.success.generic.1", patrice, "The device is active! Electricity powered a change in matter.", ClearGuidanceTag);
-        RegisterWireLine(FinalWinKey, "wire.win.final.1", patrice, "Energy flows! You powered up a state change. That's how electricity transforms matter.", ClearGuidanceTag);
-        RegisterWireLine(RetryIncompleteKey, "wire.retry.incomplete.1", patrice, "Some wires aren't connected yet. Each device needs ALL of them.", WireGuidanceTag, playOnce: false);
+        RegisterWireLine(DragDeviceIntroKey, "wire.drag_device.intro.1", patrice, "Choose a device to show how energy changes matter.", OutputGuidanceTag);
+        RegisterWireLine(DragDeviceHintKey, "wire.drag_device.hint.1", patrice, "Heat melts or evaporates. Cold freezes. Energy makes plasma.", OutputGuidanceTag);
+        RegisterWireLine(ConnectWiresIntroKey, "wire.connect_wires.intro.1", patrice, "Connect wire ends so electrical energy can flow.", WireGuidanceTag);
+        RegisterWireLine(ConnectWiresHintKey, "wire.connect_wires.hint.1", patrice, "Every wire needs a closed path before power works.", WireGuidanceTag);
+        RegisterWireLine(TurnOnPowerKey, "wire.power.turn_on.1", patrice, "All wired. Turn on power to transfer energy.", PowerDialGuidanceTag);
+        RegisterWireLine(HotPlateSuccessKey, "wire.success.hot_plate.1", gary, "Heat evaporated liquid water into gas.", ClearGuidanceTag);
+        RegisterWireLine(IceFlaskSuccessKey, "wire.success.ice_flask.1", sam, "Cooling froze liquid water into solid ice.", ClearGuidanceTag);
+        RegisterWireLine(CandleSuccessKey, "wire.success.candle.1", sam, "Heat melted solid wax into liquid wax.", ClearGuidanceTag);
+        RegisterWireLine(PlasmaSuccessKey, "wire.success.plasma.1", patrice, "Energy ionized gas into glowing plasma.", ClearGuidanceTag);
+        RegisterWireLine(GenericSuccessKey, "wire.success.generic.1", patrice, "Energy changed the matter into a new state.", ClearGuidanceTag);
+        RegisterWireLine(FinalWinKey, "wire.win.final.1", patrice, "Circuit complete. Energy drove a state change.", ClearGuidanceTag);
+        RegisterWireLine(RetryIncompleteKey, "wire.retry.incomplete.1", patrice, "The circuit is open. Connect every wire.", WireGuidanceTag, playOnce: false);
 
         defaultsRegistered = true;
     }

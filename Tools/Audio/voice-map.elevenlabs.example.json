@@ -1,0 +1,17 @@
+{
+  "gary": {
+    "voice_id": "replace-with-elevenlabs-voice-id-for-gary"
+  },
+  "lucy": {
+    "voice_id": "replace-with-elevenlabs-voice-id-for-lucy"
+  },
+  "narrator": {
+    "voice_id": "replace-with-elevenlabs-voice-id-for-narrator"
+  },
+  "patrice": {
+    "voice_id": "replace-with-elevenlabs-voice-id-for-patrice"
+  },
+  "sam": {
+    "voice_id": "replace-with-elevenlabs-voice-id-for-sam"
+  }
+}
