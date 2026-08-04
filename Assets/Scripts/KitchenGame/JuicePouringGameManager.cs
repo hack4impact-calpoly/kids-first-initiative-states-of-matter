@@ -14,6 +14,7 @@ public class JuicePouringGameManager : MonoBehaviour
     [Header("Scene Transition")]
     [SerializeField] private string nextSceneName = "States of Matter Menu";
     [SerializeField] private float sceneLoadDelay = 0.5f;
+    [SerializeField] private bool requireContinueAfterCompletion = true;
 
     [Header("Freezing Cutscene")]
     [FormerlySerializedAs("playCoolingStationCutscene")]
@@ -145,7 +146,7 @@ public class JuicePouringGameManager : MonoBehaviour
         Debug.Log("Freezing Station Complete!");
         PublishFreezingCompleted();
 
-        if (!string.IsNullOrWhiteSpace(nextSceneName))
+        if (!requireContinueAfterCompletion && !string.IsNullOrWhiteSpace(nextSceneName))
             QueueLoadNextScene();
     }
 

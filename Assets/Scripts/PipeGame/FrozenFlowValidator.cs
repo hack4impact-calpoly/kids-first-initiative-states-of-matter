@@ -1,14 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class FrozenFlowValidator : MonoBehaviour
 {
     public int endX = 8;
     public int endY = 4;
-
-    [Header("Scene Load")]
-    public string successSceneName = "GameSelector";
 
     Dictionary<(int,int), PipeObject> map = new();
 
@@ -39,9 +35,10 @@ public class FrozenFlowValidator : MonoBehaviour
 
             int open = CountOpen(p);
             int wetNeighbors = CountConnectedWetNeighbors(p);
+            int frozenBlocks = CountAdjacentFrozenBlocks(p);
+            int externalOpenings = CountExternalOpenings(p);
 
-            // leak = open connection not connected to wet pipe
-            if (open != wetNeighbors)
+            if (open != wetNeighbors + frozenBlocks + externalOpenings)
             {
                 Debug.Log($"FAIL: leak at ({p.xPos},{p.yPos}).");
                 return false;
@@ -57,7 +54,6 @@ public class FrozenFlowValidator : MonoBehaviour
 
         Debug.Log("SUCCESS");
         StageProgressService.CompleteStage(StageProgressIds.PipeRescue, StageProgressIds.FreezePipeLeak);
-        SceneManager.LoadScene(successSceneName);
         return true;
     }
 
@@ -80,6 +76,26 @@ public class FrozenFlowValidator : MonoBehaviour
         if (p.eastConnection  && TryGet(p.xPos + 1, p.yPos, out var e) && e.water && e.westConnection)  c++;
         if (p.westConnection  && TryGet(p.xPos - 1, p.yPos, out var w) && w.water && w.eastConnection)  c++;
 
+        return c;
+    }
+
+    int CountAdjacentFrozenBlocks(PipeObject p)
+    {
+        int c = 0;
+        if (p.northConnection && TryGet(p.xPos, p.yPos + 1, out var n) && n.isFrozen) c++;
+        if (p.southConnection && TryGet(p.xPos, p.yPos - 1, out var s) && s.isFrozen) c++;
+        if (p.eastConnection && TryGet(p.xPos + 1, p.yPos, out var e) && e.isFrozen) c++;
+        if (p.westConnection && TryGet(p.xPos - 1, p.yPos, out var w) && w.isFrozen) c++;
+        return c;
+    }
+
+    int CountExternalOpenings(PipeObject p)
+    {
+        int c = 0;
+        if (p.northConnection && !map.ContainsKey((p.xPos, p.yPos + 1))) c++;
+        if (p.southConnection && !map.ContainsKey((p.xPos, p.yPos - 1))) c++;
+        if (p.eastConnection && !map.ContainsKey((p.xPos + 1, p.yPos))) c++;
+        if (p.westConnection && !map.ContainsKey((p.xPos - 1, p.yPos))) c++;
         return c;
     }
 

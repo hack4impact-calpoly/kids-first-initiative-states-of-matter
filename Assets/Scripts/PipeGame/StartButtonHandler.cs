@@ -30,12 +30,9 @@ public class StartButtonHandler : MonoBehaviour
 
     public void OnStartPressed()
     {
-        if (startButton != null)
-            startButton.SetActive(false);
-
         StartPressed?.Invoke();
 
-        bool success = CheckEndWater();
+        bool success = ValidateCurrentFlow();
 
         if (success)
         {
@@ -48,6 +45,31 @@ public class StartButtonHandler : MonoBehaviour
         else
         {
             ValidationFailed?.Invoke();
+        }
+    }
+
+    private bool ValidateCurrentFlow()
+    {
+        FrozenFlowValidator frozenValidator = FindAnyObjectByType<FrozenFlowValidator>();
+        if (frozenValidator != null)
+        {
+            ResolveEndPipe();
+            return frozenValidator.Validate();
+        }
+
+        return CheckEndWater();
+    }
+
+    private void ResolveEndPipe()
+    {
+        PipeObject[] pipes = FindObjectsByType<PipeObject>(FindObjectsSortMode.None);
+        for (int i = 0; i < pipes.Length; i++)
+        {
+            if (pipes[i].isEnd)
+            {
+                lastEndPipe = pipes[i];
+                return;
+            }
         }
     }
 

@@ -19,26 +19,37 @@ This is a Unity states-of-matter learning game. Read this file before changing s
 - Unity version: `6000.3.1f1`.
 - The pipe overhaul was merged into `main` by PR #26 at merge commit `56026f9`.
 - The intentional build configuration disables `Assets/Scenes/Pipes game.unity` and enables `Assets/Scenes/Pipes-Frozen-Level.unity`.
-- `Docs/game-experience-redesign-proposal.md` is a proposal only. The redesign and centralized progression described there are not implemented yet.
-- There are currently no meaningful automated Unity tests. EditMode and PlayMode can report success while each contains zero concrete test cases.
+- The shared flow layer from `Docs/game-experience-redesign-proposal.md` is implemented on top of the current scenes. The larger one-scene Kitchen and three-board Pipe Rescue rebuilds remain proposals.
+- `StageProgressServiceTests` contains six EditMode tests covering stage state, progress-aware routing, statuses, and replay completion events.
 
 ## Current Scene Routing
 
-The routing is more limited than the scene list suggests.
+Runtime routing is owned by the flow layer in `Assets/Scripts/Flow` and `ActivityFlowCatalog`, not by the selector's old serialized scene-name listeners.
 
-- `States of Matter Menu` opens `GameSelector`.
-- The Matter Kitchen card in `GameSelector` directly opens `Kitchen Game - Freezing Pour`.
-- The Pipes card directly opens `Pipes-Frozen-Level`.
-- The State Lab card opens `Wires`.
-- `Kitchen Game - Solid` is enabled in build settings but is not the selector's Matter Kitchen destination.
-- `Pipes game` is disabled and is not the selector's Pipes destination.
-- Selector routing is currently stored as serialized button calls with scene-name strings, not in a shared progress service.
+- `States of Matter Menu` opens `GameSelector` without an opening dialogue interruption.
+- Matter Kitchen opens its first incomplete phase: Solid, Pour, then Freezing Station.
+- Pipes opens `Pipes-Frozen-Level`; `Pipes game` remains disabled.
+- State Lab opens `Wires` and tracks its two supported experiments separately.
+- Complete cards open a Replay or Keep Exploring choice.
+- Stable activity/stage IDs are persisted through `StageProgressService`; scene names are routing details only.
 
-When testing the shipped child path, begin at `GameSelector`. Loading every scene directly tests content that may not be reachable through the current UI.
+The runtime controllers are created by `ActivityFlowBootstrap` and guarded by the persistent `ActivityFlowRuntimeHost`. Test the shipped child path from the title or selector, then also load each activity scene directly to verify bootstrap coverage.
+
+`ActivityFlowController` also creates a runtime `ChildVisualGuide`. It projects both UI `RectTransform` targets and world renderer/collider bounds into one overlay, then shows persistent rings, pointers, action labels, and animated drag paths. Update the guide target whenever a gameplay event changes the child's next action; do not rely on the four-second dialogue caption as the only instruction.
+
+`SceneVisualPolishController` is also created at runtime before the scene-specific flow controller. It:
+
+- expands orthographic gameplay cameras on narrow screens so world interactions remain visible;
+- scales world-sprite and `Canvas/Image` backdrops independently to cover the viewport;
+- gives the baked selector artwork a contained 4:3 presentation with a matching warm surround;
+- normalizes ingredient trays, heat controls, the Lab power dial, clear colors, and legacy controls;
+- removes the active Pipe scene's coordinate labels without changing its board geometry.
+
+Do not serialize these runtime overlays into scenes. The selector's three illustrated cards are one baked background image; the button objects are only interaction overlays. The Pour backdrop is a canvas `Image`, while Solid, Freezing Station, Pipes, and Wires use world sprite renderers.
 
 ## Matter Kitchen: Current Mechanics
 
-The intended educational arc spans three scenes even though the selector starts at the second one.
+The educational arc still spans three scenes, presented as sequential phases under one Matter Kitchen card.
 
 ### Solid Scene
 
@@ -50,7 +61,7 @@ Scene: `Assets/Scenes/Kitchen Game - Solid.unity`
 - Raise the `HeatSlider` to maximum.
 - `KitchenGameManager` wins when the required ingredient is present and maximum heat has been reached.
 - Heating before adding the ingredient can fail the stage.
-- The scene does not automatically continue to the pouring scene.
+- Completion shows an experiment-specific recap with Continue to the pouring phase or Activities.
 
 ### Freezing Pour Scene
 
@@ -60,7 +71,7 @@ Scene: `Assets/Scenes/Kitchen Game - Freezing Pour.unity`
 - `JuicePouring` rotates after pointer down and emits `JuiceDroplet` objects while dragging.
 - The bottle's spawn point, not its center, must be above the tray.
 - `IceTray` fills in droplet increments.
-- `JuiceFreezingManager` plays a liquid-flow result and then loads `Kitchen Game - Freezing Station` after dialogue is idle.
+- `JuiceFreezingManager` records completion and publishes its presentation event, but waits for the shared Continue action before loading the station.
 
 ### Freezing Station Scene
 
@@ -70,7 +81,7 @@ Scene: `Assets/Scenes/Kitchen Game - Freezing Station.unity`
 - `MockPotController` detects the placed ingredient.
 - Lower the temperature slider to its minimum/cold region.
 - `JuicePouringGameManager` completes when an ingredient is present and `JuiceCoolingController.IsColdEnough` is true.
-- Completion returns to `States of Matter Menu` after result dialogue is idle.
+- Completion shows `Juice Frozen!` with Next Activity or Activities. It does not leave automatically.
 
 ## Pipes: Current Mechanics and Risks
 
@@ -90,15 +101,13 @@ Do not assume this is a working first level merely because it exists.
 Scene: `Assets/Scenes/Pipes-Frozen-Level.unity`
 
 - Water begins at `(1, 4)` and the visual endpoint is `(8, 4)`.
-- Clicking a pipe invokes `FreezeOnClick`, toggles `PipeObject.isFrozen`, recalculates water, and calls `FrozenFlowValidator.Validate()`.
-- The obvious dead-end sink coordinates are `(2, 3)`, `(4, 4)`, `(4, 2)`, and `(8, 2)`.
-- The Start button uses `StartButtonHandler`, which only checks whether an `isEnd` pipe has water.
-- `FrozenFlowValidator` separately checks endpoint water and leak counts.
-- These two success definitions are currently inconsistent. The four visually obvious frozen blockers can deliver water to the endpoint while the leak validator still rejects the T-junction at `(3, 2)`.
-- Pressing Start on a failed arrangement hides the Start button, leaving no normal retry of that action.
-- The Start-button success path plays dialogue but does not itself record progress or leave the scene.
+- Clicking a pipe invokes `FreezeOnClick`, toggles `PipeObject.isFrozen`, and recalculates water. It does not validate success on every click.
+- The four marked sink coordinates are `(2, 3)`, `(4, 4)`, `(4, 2)`, and `(8, 2)`. Runtime guidance advances to the next unfrozen sink.
+- `StartButtonHandler` labels the action `TEST ROUTE` and delegates the active level to `FrozenFlowValidator`.
+- Validation accepts a wet path to `(8, 4)`, external board terminals, and openings sealed by adjacent frozen plugs while rejecting unmatched internal wet openings.
+- Failed tests keep Test Route available. Success records progress, emits one completion event, and shows `Water Delivered!` with explicit progression.
 
-Treat the frozen level as functionally incomplete until it has one validator, repeatable attempts, one completion event, and explicit progression. The proposed replacement design is in `Docs/game-experience-redesign-proposal.md`.
+The current large board is now completable, but the proposed replacement with three smaller teaching boards is still pending.
 
 ## State Lab / Wires: Current Mechanics
 
@@ -113,7 +122,9 @@ This is currently the most complete end-to-end activity.
 5. The power slider is gated until an output is placed and all required wires are connected.
 6. Raising power to the threshold triggers the selected device effect and win flow.
 
-The power gate correctly resets premature power attempts and provides guidance. Completion remains in the Wires scene with Menu and Retry available.
+The power gate correctly resets premature power attempts and provides guidance. The shared header provides Activities, Hint, Restart, progress dots, and Undo. Completion shows an experiment-specific recap and either Continue to another unfinished experiment or Activities.
+
+`PowerDialController` may parent its generated `Power Dial` under the first overlay canvas it finds, including the child-guide canvas. Find the active dial by object name or component, not by the old `Canvas/Power Dial` path.
 
 Dialogue references more possible experiments than are visibly polished in the current scene. Inspect actual scene objects before assuming HotPlate, IceFlask, Candle, and Plasma are all separately available.
 
@@ -121,10 +132,11 @@ Dialogue references more possible experiments than are visibly polished in the c
 
 - Gameplay adapters derive from `DialogueFlowAdapterBase`.
 - Runtime adapters can create or locate a shared `DialogueFlowController` and register default lines.
+- Hint replay must use `ReplayFlowNow()`. Default prompt flows are `playOnce`, so calling `TryPlayFlowNow()` directly after the first play silently rejects the replay.
 - Default gameplay prompts use `promptAutoAdvanceDelay = 4` seconds.
 - Voice lines may keep a line active until audio completes.
 - `DialogueWaitUtility.WaitUntilIdle()` waits for both active and queued dialogue.
-- Kitchen scene-transition coroutines already wait for dialogue to become idle before loading the next scene.
+- Shared completion panels wait for dialogue to become idle before appearing. Kitchen phase managers default to explicit Continue and do not auto-load the next scene.
 - A tool-driven play-mode transition can take several seconds. By the time a screenshot is requested, a four-second intro may already have completed. Inspect `DialogueRunner.IsPlaying`, `QueuedCount`, and `CurrentLine` before concluding that an opening prompt is missing.
 - State-change cutscenes use a runtime Screen Space Overlay canvas at a high sorting order and temporarily disable world mouse handlers.
 - Do not add another independent completion loader to a dialogue adapter. Gameplay should emit outcomes; only one owner should decide progression.
@@ -145,6 +157,7 @@ Important control details:
 
 - `manage_editor(action="pause")` toggles pause. It reports either `Game paused` or `Game resumed`.
 - If gameplay time appears frozen, read editor state. MCP screenshots can leave play mode paused.
+- When Unity is unfocused, set `Application.runInBackground = true` for multi-scene screenshot runs; otherwise captures can repeatedly return the last rendered frame even though runtime objects have changed.
 - Use `manage_scene(action="load")` for scenes and restore the user's starting scene after diagnostics.
 - Use `read_console` after scene loads, script refreshes, and gameplay completion.
 - `execute_code` can inspect runtime state and invoke public gameplay APIs. Prefer actual interaction methods such as `SnapZone.Snap`, slider value changes, and pointer handlers over editing private fields.
@@ -164,7 +177,7 @@ For reliable evidence:
 
 Do not change gameplay rendering solely because of one moving-frame MCP capture. Reproduce on a stable paused frame first.
 
-`manage_camera(action="screenshot")` writes PNG and `.meta` files. Use a temporary folder such as `Assets/Screenshots`, then delete that folder after diagnostics and verify it is absent from `git status`.
+`manage_camera(action="screenshot")` can write into `Temp/FlowCaptures` without creating tracked assets. If captures are written under `Assets`, delete both PNG and `.meta` files after diagnostics.
 
 ## Verification Practices
 
@@ -187,15 +200,23 @@ These conclusions were established on 2026-07-12 and should be rechecked against
 - `feature/kitchen-game-solid` is based on a stale tree and must not be merged wholesale.
 - Old cutscene branches may show unique commits while their behavior is already present through independently rewritten commits. Compare feature intent and current code, not only ancestry or ahead counts.
 
-## Proposed Direction, Not Yet Implemented
+## Implemented Flow and Pending Redesign
 
-The review proposal recommends:
+Implemented on the current scene architecture:
 
-- one continuous three-phase Matter Kitchen experience;
-- three small replacement Pipe Rescue boards with one graph validator;
-- two polished State Lab experiments first;
-- open card choice with sequential progress inside each card;
-- a central progress/stage controller;
-- explicit child-controlled Continue actions instead of automatic result transitions.
+- open card choice with sequential progress inside each activity;
+- progress-aware selector cards and replay choices;
+- a compact shared objective/control shell;
+- persistent child-facing tap, press, drag, matching, and slider guidance;
+- repeatable current-step Hint playback that also re-emphasizes the visual target;
+- experiment-specific result recaps and child-controlled progression;
+- explicit kitchen transitions, repeatable pipe testing, and one active pipe validator.
 
-Do not begin this redesign until the proposal decisions are approved. Small correctness fixes and validation work can proceed independently.
+Still pending from the larger proposal:
+
+- combining Matter Kitchen into one continuous scene;
+- replacing the large frozen pipe board with three smaller boards;
+- adding socket shape symbols and further State Lab content polish;
+- molecule cutaways and deeper per-phase visual transformations.
+
+Do not describe the structural redesign as complete merely because the shared flow layer is present. See the implementation-status note at the top of `Docs/game-experience-redesign-proposal.md`.

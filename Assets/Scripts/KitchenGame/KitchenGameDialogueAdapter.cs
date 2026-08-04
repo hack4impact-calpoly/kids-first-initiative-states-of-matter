@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class KitchenGameDialogueAdapter : DialogueFlowAdapterBase
+public class KitchenGameDialogueAdapter : DialogueFlowAdapterBase, IActivityHintProvider
 {
     public const string SolidIntroKey = "kitchen.solid.intro";
     public const string SolidIngredientAddedKey = "kitchen.solid.ingredient_added";
@@ -24,6 +24,7 @@ public class KitchenGameDialogueAdapter : DialogueFlowAdapterBase
     private JuicePouringGameManager subscribedFreezingStationManager;
     private bool defaultsRegistered;
     private bool introPlayed;
+    private string currentHintKey;
 
     private void Awake()
     {
@@ -86,8 +87,25 @@ public class KitchenGameDialogueAdapter : DialogueFlowAdapterBase
         else if (freezingStationManager != null)
             introKey = StationIntroKey;
 
+        currentHintKey = introKey;
         if (!string.IsNullOrWhiteSpace(introKey) && TryPlayFlow(introKey))
             introPlayed = true;
+    }
+
+    public void ReplayCurrentInstruction()
+    {
+        if (string.IsNullOrWhiteSpace(currentHintKey))
+        {
+            ResolveManagers();
+            currentHintKey = solidManager != null
+                ? SolidIntroKey
+                : freezingPourManager != null
+                    ? PourIntroKey
+                    : StationIntroKey;
+        }
+
+        if (!string.IsNullOrWhiteSpace(currentHintKey))
+            ReplayFlowNow(currentHintKey);
     }
 
     private void Subscribe()
@@ -147,41 +165,49 @@ public class KitchenGameDialogueAdapter : DialogueFlowAdapterBase
 
     private void OnSolidRequiredIngredientAdded(IngredientSO ingredient)
     {
+        currentHintKey = SolidIngredientAddedKey;
         TryPlayFlow(SolidIngredientAddedKey);
     }
 
     private void OnSolidMaxHeatReached(float heat)
     {
+        currentHintKey = SolidHeatActiveKey;
         TryPlayFlow(SolidHeatActiveKey);
     }
 
     private void OnSolidWinPresentationShown()
     {
+        currentHintKey = SolidWinKey;
         TryPlayFlow(SolidWinKey);
     }
 
     private void OnSolidFailed()
     {
+        currentHintKey = SolidFailKey;
         TryPlayFlow(SolidFailKey);
     }
 
     private void OnPourTrayFillStarted()
     {
+        currentHintKey = PourActiveKey;
         TryPlayFlow(PourActiveKey);
     }
 
     private void OnPourStepCompleted()
     {
+        currentHintKey = PourWinKey;
         TryPlayFlow(PourWinKey);
     }
 
     private void OnStationColdEnoughReached()
     {
+        currentHintKey = StationActiveKey;
         TryPlayFlow(StationActiveKey);
     }
 
     private void OnStationFreezingCompleted()
     {
+        currentHintKey = StationWinKey;
         TryPlayFlow(StationWinKey);
     }
 

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class WireGameDialogueAdapter : DialogueFlowAdapterBase
+public class WireGameDialogueAdapter : DialogueFlowAdapterBase, IActivityHintProvider
 {
     private const string OutputGuidanceTag = "wire.guidance.output";
     private const string WireGuidanceTag = "wire.guidance.wires";
@@ -27,6 +27,7 @@ public class WireGameDialogueAdapter : DialogueFlowAdapterBase
     private Main subscribedGameManager;
     private bool defaultsRegistered;
     private bool introPlayed;
+    private string currentHintKey = DragDeviceIntroKey;
 
     private void Awake()
     {
@@ -69,6 +70,11 @@ public class WireGameDialogueAdapter : DialogueFlowAdapterBase
             introPlayed = true;
     }
 
+    public void ReplayCurrentInstruction()
+    {
+        ReplayFlowNow(string.IsNullOrWhiteSpace(currentHintKey) ? DragDeviceIntroKey : currentHintKey);
+    }
+
     private void Subscribe()
     {
         ResolveGameManager();
@@ -104,6 +110,7 @@ public class WireGameDialogueAdapter : DialogueFlowAdapterBase
 
     private void OnDeviceConnected(DraggableDevice device)
     {
+        currentHintKey = ConnectWiresIntroKey;
         if (!TryPlayPowerPromptIfReady())
             TryPlay(ConnectWiresIntroKey);
     }
@@ -117,7 +124,10 @@ public class WireGameDialogueAdapter : DialogueFlowAdapterBase
         }
 
         if (connectedCount >= wireHintConnectedThreshold && connectedCount < requiredCount)
+        {
+            currentHintKey = ConnectWiresHintKey;
             TryPlay(ConnectWiresHintKey);
+        }
     }
 
     private void OnPowerStateChanged(bool isPoweredOn)
@@ -128,6 +138,7 @@ public class WireGameDialogueAdapter : DialogueFlowAdapterBase
 
     private void OnWireInteractionBlocked()
     {
+        currentHintKey = DragDeviceHintKey;
         TryPlay(DragDeviceHintKey);
     }
 
@@ -137,12 +148,14 @@ public class WireGameDialogueAdapter : DialogueFlowAdapterBase
 
         if (gameManager == null || !gameManager.HasOutputConnected)
         {
+            currentHintKey = DragDeviceHintKey;
             TryPlay(DragDeviceHintKey);
             return;
         }
 
         if (!gameManager.AreAllWiresConnected)
         {
+            currentHintKey = RetryIncompleteKey;
             TryPlay(RetryIncompleteKey);
             return;
         }
@@ -152,11 +165,13 @@ public class WireGameDialogueAdapter : DialogueFlowAdapterBase
 
     private void OnCircuitCompleted(DraggableDevice device)
     {
-        TryPlay(ResolveDeviceSuccessKey(device));
+        currentHintKey = ResolveDeviceSuccessKey(device);
+        TryPlay(currentHintKey);
     }
 
     private void OnWinPresentationShown()
     {
+        currentHintKey = FinalWinKey;
         TryPlay(FinalWinKey);
     }
 
@@ -247,6 +262,7 @@ public class WireGameDialogueAdapter : DialogueFlowAdapterBase
         if (!gameManager.HasOutputConnected || !gameManager.AreAllWiresConnected)
             return false;
 
+        currentHintKey = TurnOnPowerKey;
         return TryPlay(TurnOnPowerKey);
     }
 

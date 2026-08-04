@@ -1,5 +1,24 @@
 # States of Matter Game Experience Redesign
 
+## Implementation Status - 2026-07-24
+
+The shared experience flow is implemented on the current scene architecture:
+
+- stable activity and stage IDs with progress-aware selector routing;
+- New, In Progress, and Complete card states with progress dots;
+- Replay or Keep Exploring for completed cards;
+- a shared activity header with objective, Activities, Hint, Restart, and contextual Undo;
+- persistent visual action guides with target rings, pointers, short action labels, and animated drag paths;
+- repeatable Hint playback for the current step, including visual re-emphasis;
+- explicit result recaps and child-controlled progression for all active stages;
+- sequential Matter Kitchen routing across the existing three scenes;
+- repeatable Test Route validation and a completable frozen-pipe board;
+- experiment-specific State Lab result titles and progress;
+- responsive 16:9 and 4:3 framing without exposed Unity clear-color bars;
+- cohesive ingredient trays, heat and power controls, auto-sizing labels, title controls, and selector cards.
+
+The structural redesign remains proposed, not implemented: one-scene Matter Kitchen, three replacement Pipe Rescue boards, molecule cutaways, socket symbols, and remaining content-specific presentation polish. The implementation sequence below should be read as original design guidance plus this status note, not as a claim that all phases are complete.
+
 ## Purpose
 
 Turn the current collection of scenes into three short, coherent learning experiences that children can understand without adult explanation:

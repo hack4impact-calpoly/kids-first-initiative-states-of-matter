@@ -70,4 +70,63 @@ public sealed class StageProgressServiceTests
             StageProgressService.GetNextIncompleteStage(StageProgressIds.MatterKitchen),
             Is.EqualTo(StageProgressIds.PourJuice));
     }
+
+    [Test]
+    public void ActivityFlowCatalog_RoutesToFirstIncompleteKitchenStage()
+    {
+        Assert.That(
+            ActivityFlowCatalog.GetEntryScene(StageProgressIds.MatterKitchen),
+            Is.EqualTo(ActivityFlowCatalog.KitchenSolidScene));
+
+        StageProgressService.CompleteStage(StageProgressIds.MatterKitchen, StageProgressIds.MeltChocolate);
+
+        Assert.That(
+            ActivityFlowCatalog.GetEntryScene(StageProgressIds.MatterKitchen),
+            Is.EqualTo(ActivityFlowCatalog.KitchenPourScene));
+        Assert.That(
+            ActivityFlowCatalog.GetRecommendedActivity(),
+            Is.EqualTo(StageProgressIds.MatterKitchen));
+    }
+
+    [Test]
+    public void ActivityStatus_TracksAttemptsAndCompletion()
+    {
+        Assert.That(StageProgressService.HasAnyProgress(), Is.False);
+        Assert.That(
+            ActivityFlowCatalog.GetStatus(StageProgressIds.PipeRescue),
+            Is.EqualTo(ActivityProgressStatus.New));
+
+        StageProgressService.BeginStage(StageProgressIds.PipeRescue, StageProgressIds.FreezePipeLeak);
+
+        Assert.That(StageProgressService.HasAnyProgress(), Is.True);
+        Assert.That(
+            ActivityFlowCatalog.GetStatus(StageProgressIds.PipeRescue),
+            Is.EqualTo(ActivityProgressStatus.InProgress));
+
+        StageProgressService.CompleteStage(StageProgressIds.PipeRescue, StageProgressIds.FreezePipeLeak);
+
+        Assert.That(
+            ActivityFlowCatalog.GetStatus(StageProgressIds.PipeRescue),
+            Is.EqualTo(ActivityProgressStatus.Complete));
+    }
+
+    [Test]
+    public void StageFinished_FiresForNewAndReplayedCompletion()
+    {
+        int finishCount = 0;
+        System.Action<string, string> handler = (_, _) => finishCount++;
+        StageProgressService.StageFinished += handler;
+
+        try
+        {
+            StageProgressService.CompleteStage(StageProgressIds.PipeRescue, StageProgressIds.FreezePipeLeak);
+            StageProgressService.CompleteStage(StageProgressIds.PipeRescue, StageProgressIds.FreezePipeLeak);
+        }
+        finally
+        {
+            StageProgressService.StageFinished -= handler;
+        }
+
+        Assert.That(finishCount, Is.EqualTo(2));
+    }
 }

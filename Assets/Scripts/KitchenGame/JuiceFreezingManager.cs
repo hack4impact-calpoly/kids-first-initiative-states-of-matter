@@ -18,6 +18,7 @@ public class JuiceFreezingManager : MonoBehaviour
     [SerializeField] private string nextSceneName = "Kitchen Game - Freezing Station";
     [SerializeField] private float sceneLoadDelay = 0.5f;
     [SerializeField] private bool requireColdEnough = false;
+    [SerializeField] private bool requireContinueAfterTrayFull = true;
 
     [Header("Tray Full Cutscene")]
     [FormerlySerializedAs("playFreezingCutsceneOnWin")]
@@ -104,13 +105,13 @@ public class JuiceFreezingManager : MonoBehaviour
         SetWin(false);
         PublishPourStepCompleted();
 
-        if (TryPlayLiquidFlowCutscene(QueueLoadNextScene))
+        if (TryPlayLiquidFlowCutscene(OnLiquidFlowPresentationFinished))
         {
             Debug.Log("Pour Step Complete!");
             return;
         }
 
-        QueueLoadNextScene();
+        OnLiquidFlowPresentationFinished();
         Debug.Log("Pour Step Complete!");
     }
 
@@ -186,6 +187,14 @@ public class JuiceFreezingManager : MonoBehaviour
             StopCoroutine(sceneLoadRoutine);
 
         sceneLoadRoutine = StartCoroutine(LoadNextSceneWhenDialogueIdle());
+    }
+
+    private void OnLiquidFlowPresentationFinished()
+    {
+        WinPresentationShown?.Invoke();
+
+        if (!requireContinueAfterTrayFull)
+            QueueLoadNextScene();
     }
 
     private IEnumerator LoadNextSceneWhenDialogueIdle()

@@ -35,6 +35,16 @@ public abstract class DialogueFlowAdapterBase : MonoBehaviour
         return flowController != null && flowController.TryPlayNow(key);
     }
 
+    protected bool ReplayFlowNow(string key)
+    {
+        EnsureFlowController();
+        if (flowController == null || string.IsNullOrWhiteSpace(key))
+            return false;
+
+        flowController.ResetPlayedKey(key);
+        return flowController.TryPlayNow(key);
+    }
+
     protected DialogueSpeaker ResolveSpeaker(string displayName)
     {
         if (speakerCatalog == null)

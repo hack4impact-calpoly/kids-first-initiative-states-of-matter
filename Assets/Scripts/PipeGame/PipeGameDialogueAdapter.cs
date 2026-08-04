@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class PipeGameDialogueAdapter : DialogueFlowAdapterBase
+public class PipeGameDialogueAdapter : DialogueFlowAdapterBase, IActivityHintProvider
 {
     public const string WaterIntroKey = "pipe.water_flow.intro";
     public const string WaterHintKey = "pipe.water_flow.hint";
@@ -18,6 +18,7 @@ public class PipeGameDialogueAdapter : DialogueFlowAdapterBase
     private StartButtonHandler subscribedStartButtonHandler;
     private bool defaultsRegistered;
     private bool introPlayed;
+    private string currentHintKey;
 
     private void Awake()
     {
@@ -55,8 +56,17 @@ public class PipeGameDialogueAdapter : DialogueFlowAdapterBase
             return;
 
         string introKey = IsFrozenLevel() ? FrozenIntroKey : WaterIntroKey;
+        currentHintKey = introKey;
         if (TryPlayFlow(introKey))
             introPlayed = true;
+    }
+
+    public void ReplayCurrentInstruction()
+    {
+        if (string.IsNullOrWhiteSpace(currentHintKey))
+            currentHintKey = IsFrozenLevel() ? FrozenIntroKey : WaterIntroKey;
+
+        ReplayFlowNow(currentHintKey);
     }
 
     private void Subscribe()
@@ -92,29 +102,38 @@ public class PipeGameDialogueAdapter : DialogueFlowAdapterBase
 
     private void OnStartPressed()
     {
-        TryPlayFlow(IsFrozenLevel() ? FrozenSolidHintKey : WaterActiveKey);
+        currentHintKey = IsFrozenLevel() ? FrozenSolidHintKey : WaterActiveKey;
+        TryPlayFlow(currentHintKey);
     }
 
     private void OnValidationSucceeded(MatterCutsceneKind cutsceneKind)
     {
-        TryPlayFlow(cutsceneKind == MatterCutsceneKind.PipeFreezing ? FrozenWinKey : WaterWinKey);
+        currentHintKey = cutsceneKind == MatterCutsceneKind.PipeFreezing ? FrozenWinKey : WaterWinKey;
+        TryPlayFlow(currentHintKey);
     }
 
     private void OnValidationFailed()
     {
+        currentHintKey = FailureKey;
         TryPlayFlowNow(FailureKey);
     }
 
     private void OnPipeRotated(PipeObject pipe)
     {
         if (!IsFrozenLevel())
+        {
+            currentHintKey = WaterHintKey;
             TryPlayFlow(WaterHintKey);
+        }
     }
 
     private void OnPipeFreezeToggled(PipeObject pipe)
     {
         if (IsFrozenLevel())
+        {
+            currentHintKey = FrozenSolidHintKey;
             TryPlayFlow(FrozenSolidHintKey);
+        }
     }
 
     private void RegisterDefaultFlowsIfNeeded()

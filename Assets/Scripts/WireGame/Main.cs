@@ -63,6 +63,7 @@ public class Main : MonoBehaviour
     public bool AreAllWiresConnected => wiresCount <= 0 || count >= wiresCount;
     public bool HasWon => hasWon;
     public bool IsPowerOn => IsPowerReady();
+    public string CurrentProgressStageId => ResolveSelectedExperimentStage();
 
     private void Awake()
     {

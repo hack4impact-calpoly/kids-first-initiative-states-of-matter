@@ -9,6 +9,7 @@ public sealed class StageProgressService : MonoBehaviour
 
     public static StageProgressService Instance { get; private set; }
     public static event Action<string, string> StageCompleted;
+    public static event Action<string, string> StageFinished;
 
     private StageProgressSaveData saveData;
 
@@ -17,6 +18,7 @@ public sealed class StageProgressService : MonoBehaviour
     {
         Instance = null;
         StageCompleted = null;
+        StageFinished = null;
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -124,6 +126,19 @@ public sealed class StageProgressService : MonoBehaviour
         return EnsureInstance().BuildCompletedStageIds();
     }
 
+    public static bool HasAnyProgress()
+    {
+        return EnsureInstance().HasAnyProgressInternal();
+    }
+
+    public static bool HasActivityProgress(string activityId)
+    {
+        if (!StageProgressIds.IsValidSegment(activityId))
+            return false;
+
+        return EnsureInstance().HasActivityProgressInternal(activityId);
+    }
+
     public static void ResetAllProgress()
     {
         StageProgressService service = EnsureInstance();
@@ -173,6 +188,7 @@ public sealed class StageProgressService : MonoBehaviour
         StageProgressRecord record = FindOrCreateRecord(activityId, stageId);
         if (record.completed)
         {
+            StageFinished?.Invoke(activityId, stageId);
             PostProgress();
             return false;
         }
@@ -185,8 +201,41 @@ public sealed class StageProgressService : MonoBehaviour
         Save();
 
         StageCompleted?.Invoke(activityId, stageId);
+        StageFinished?.Invoke(activityId, stageId);
         PostProgress(record);
         return true;
+    }
+
+    private bool HasAnyProgressInternal()
+    {
+        EnsureSaveData();
+
+        for (int i = 0; i < saveData.stages.Count; i++)
+        {
+            StageProgressRecord record = saveData.stages[i];
+            if (record != null && (record.completed || record.attempts > 0))
+                return true;
+        }
+
+        return false;
+    }
+
+    private bool HasActivityProgressInternal(string activityId)
+    {
+        EnsureSaveData();
+
+        for (int i = 0; i < saveData.stages.Count; i++)
+        {
+            StageProgressRecord record = saveData.stages[i];
+            if (record != null
+                && record.activityId == activityId
+                && (record.completed || record.attempts > 0))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private StageProgressRecord FindOrCreateRecord(string activityId, string stageId)

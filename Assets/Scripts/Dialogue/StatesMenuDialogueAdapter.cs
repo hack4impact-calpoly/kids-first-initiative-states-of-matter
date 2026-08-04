@@ -5,7 +5,7 @@ public class StatesMenuDialogueAdapter : DialogueFlowAdapterBase
 {
     public const string IntroKey = "menu.states.intro";
 
-    [SerializeField] private bool playIntroOnStart = true;
+    [SerializeField] private bool playIntroOnStart = false;
 
     private bool defaultsRegistered;
     private bool introPlayed;
