@@ -18,14 +18,7 @@ public static class ActivityFlowCatalog
     public const string PipeScene = "Pipes-Frozen-Level";
     public const string LabScene = "Wires";
 
-    private static readonly string[] ActivityOrder =
-    {
-        StageProgressIds.MatterKitchen,
-        StageProgressIds.PipeRescue,
-        StageProgressIds.StateLab
-    };
-
-    public static IReadOnlyList<string> Activities => ActivityOrder;
+    public static IReadOnlyList<string> Activities => StageProgressIds.Activities;
 
     public static string GetDisplayName(string activityId)
     {
@@ -110,10 +103,10 @@ public static class ActivityFlowCatalog
 
     public static string GetRecommendedActivity()
     {
-        for (int i = 0; i < ActivityOrder.Length; i++)
+        for (int i = 0; i < Activities.Count; i++)
         {
-            if (!IsActivityComplete(ActivityOrder[i]))
-                return ActivityOrder[i];
+            if (!IsActivityComplete(Activities[i]))
+                return Activities[i];
         }
 
         return StageProgressIds.MatterKitchen;
@@ -121,10 +114,10 @@ public static class ActivityFlowCatalog
 
     public static string GetNextActivity(string activityId)
     {
-        for (int i = 0; i < ActivityOrder.Length - 1; i++)
+        for (int i = 0; i < Activities.Count - 1; i++)
         {
-            if (ActivityOrder[i] == activityId)
-                return ActivityOrder[i + 1];
+            if (Activities[i] == activityId)
+                return Activities[i + 1];
         }
 
         return null;

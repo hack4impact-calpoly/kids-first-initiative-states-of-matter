@@ -14,6 +14,7 @@ public sealed class ActivityFlowController : MonoBehaviour, IFlowSceneController
     private AttentionHighlight currentHighlight;
     private ChildVisualGuide visualGuide;
     private Button restartButton;
+    private Button resultPrimaryButton;
     private bool resultScheduled;
 
     private KitchenGameManager solidManager;
@@ -482,14 +483,27 @@ public sealed class ActivityFlowController : MonoBehaviour, IFlowSceneController
         recap.rectTransform.offsetMin = new Vector2(80f, 170f);
         recap.rectTransform.offsetMax = new Vector2(-80f, -165f);
 
-        ResolvePrimaryAction(completedActivityId, completedStageId, out string primaryLabel, out string primaryScene);
-        Button primary = FlowUiFactory.CreateButton(
-            panel.transform,
-            "Primary Action",
-            primaryLabel,
-            FlowUiFactory.Green,
-            () => SceneManager.LoadScene(primaryScene));
-        FlowUiFactory.SetRect(primary, new Vector2(0f, 0f), new Vector2(0.62f, 0f), new Vector2(55f, 44f), new Vector2(-12f, 130f));
+        if (StageProgressService.CanReportGameCompletion())
+        {
+            resultPrimaryButton = FlowUiFactory.CreateButton(
+                panel.transform,
+                "Primary Action",
+                "TAKE THE QUIZ",
+                FlowUiFactory.Green,
+                FinishGame);
+        }
+        else
+        {
+            ResolvePrimaryAction(completedActivityId, completedStageId, out string primaryLabel, out string primaryScene);
+            resultPrimaryButton = FlowUiFactory.CreateButton(
+                panel.transform,
+                "Primary Action",
+                primaryLabel,
+                FlowUiFactory.Green,
+                () => SceneManager.LoadScene(primaryScene));
+        }
+
+        FlowUiFactory.SetRect(resultPrimaryButton, new Vector2(0f, 0f), new Vector2(0.62f, 0f), new Vector2(55f, 44f), new Vector2(-12f, 130f));
 
         Button activities = FlowUiFactory.CreateButton(
             panel.transform,
@@ -500,12 +514,33 @@ public sealed class ActivityFlowController : MonoBehaviour, IFlowSceneController
         FlowUiFactory.SetRect(activities, new Vector2(0.62f, 0f), new Vector2(1f, 0f), new Vector2(12f, 44f), new Vector2(-55f, 130f));
     }
 
+    private void FinishGame()
+    {
+        if (!StageProgressService.ReportGameCompletion())
+            return;
+
+        if (resultPrimaryButton == null)
+            return;
+
+        resultPrimaryButton.interactable = false;
+        TextMeshProUGUI label = resultPrimaryButton.GetComponentInChildren<TextMeshProUGUI>();
+        if (label != null)
+            label.text = "OPENING QUIZ...";
+    }
+
     private static void ResolvePrimaryAction(
         string completedActivityId,
         string completedStageId,
         out string label,
         out string scene)
     {
+        if (StageProgressService.IsGameComplete())
+        {
+            label = "CONTINUE EXPLORING";
+            scene = ActivityFlowCatalog.SelectorScene;
+            return;
+        }
+
         string nextStageScene = ActivityFlowCatalog.GetNextStageScene(completedActivityId, completedStageId);
         if (!string.IsNullOrEmpty(nextStageScene))
         {

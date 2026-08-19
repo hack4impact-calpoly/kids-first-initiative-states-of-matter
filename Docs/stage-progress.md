@@ -30,6 +30,15 @@ completed stage additionally sends `stageCompleted`, including attempts and an
 UTC completion timestamp. Replaying an already completed stage re-sends the
 snapshot without producing another completion event.
 
+When every stage in `StageProgressIds.Activities` is complete, the final result
+screen offers `TAKE THE QUIZ`. That explicit action sends a full snapshot with
+`gameCompleted: true`, after the player has seen the final cutscene, narration,
+and recap. The signal is persisted as reported so replays and reloads cannot
+emit it twice. Ordinary progress snapshots never finish the game, including
+snapshots from completed saves created before this field existed.
+After the signal has been reported, replay result screens return to the
+activity selector instead of displaying an inactive quiz action.
+
 The website contract remains backward compatible with Penguin Run's numeric
 level payload. Its source documentation is `docs/game-progress-bridge.md` in
 the website repository.
