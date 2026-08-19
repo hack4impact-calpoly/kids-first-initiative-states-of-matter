@@ -33,11 +33,11 @@ snapshot without producing another completion event.
 When every stage in `StageProgressIds.Activities` is complete, the final result
 screen offers `TAKE THE QUIZ`. That explicit action sends a full snapshot with
 `gameCompleted: true`, after the player has seen the final cutscene, narration,
-and recap. The signal is persisted as reported so replays and reloads cannot
-emit it twice. Ordinary progress snapshots never finish the game, including
-snapshots from completed saves created before this field existed.
-After the signal has been reported, replay result screens return to the
-activity selector instead of displaying an inactive quiz action.
+and recap. Ordinary progress snapshots never finish the game. Completion
+reporting is deduplicated for the current Unity runtime, but it is not persisted,
+so a later player using the same browser can still finish into their own quiz.
+After the signal has been reported, replay result screens in that runtime return
+to the activity selector instead of displaying an inactive quiz action.
 
 The website contract remains backward compatible with Penguin Run's numeric
 level payload. Its source documentation is `docs/game-progress-bridge.md` in

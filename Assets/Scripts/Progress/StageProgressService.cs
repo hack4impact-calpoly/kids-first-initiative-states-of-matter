@@ -12,6 +12,7 @@ public sealed class StageProgressService : MonoBehaviour
     public static event Action<string, string> StageFinished;
 
     private StageProgressSaveData saveData;
+    private bool gameCompletionReported;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetStatics()
@@ -148,7 +149,7 @@ public sealed class StageProgressService : MonoBehaviour
     {
         StageProgressService service = EnsureInstance();
         service.EnsureSaveData();
-        return !service.saveData.gameCompletionReported && service.IsGameCompleteInternal();
+        return !service.gameCompletionReported && service.IsGameCompleteInternal();
     }
 
     public static bool ReportGameCompletion()
@@ -160,6 +161,7 @@ public sealed class StageProgressService : MonoBehaviour
     {
         StageProgressService service = EnsureInstance();
         service.saveData = new StageProgressSaveData();
+        service.gameCompletionReported = false;
         PlayerPrefs.DeleteKey(SaveKey);
         PlayerPrefs.Save();
     }
@@ -286,8 +288,7 @@ public sealed class StageProgressService : MonoBehaviour
         if (!CanReportGameCompletion())
             return false;
 
-        saveData.gameCompletionReported = true;
-        Save();
+        gameCompletionReported = true;
 
         var payload = new StageProgressSnapshotPayload
         {
@@ -424,7 +425,6 @@ public sealed class StageProgressSaveData
 {
     public int saveVersion = 1;
     public List<StageProgressRecord> stages = new List<StageProgressRecord>();
-    public bool gameCompletionReported;
 }
 
 [Serializable]

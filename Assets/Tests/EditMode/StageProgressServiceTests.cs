@@ -175,7 +175,7 @@ public sealed class StageProgressServiceTests
     }
 
     [Test]
-    public void GameCompletion_RepeatedStageCompletionDoesNotEmitAgain()
+    public void GameCompletion_DeduplicatesOnlyWithinTheCurrentRuntime()
     {
         CompleteAllRequiredStagesExcept(null, null);
 
@@ -183,13 +183,36 @@ public sealed class StageProgressServiceTests
         {
             Assert.That(StageProgressService.ReportGameCompletion(), Is.True);
             Assert.That(StageProgressService.ReportGameCompletion(), Is.False);
-
-            UnityEngine.Object.DestroyImmediate(StageProgressService.Instance.gameObject);
-            Assert.That(StageProgressService.ReportGameCompletion(), Is.False);
         });
 
         Assert.That(payloads.FindAll(payload => payload.gameCompleted), Has.Count.EqualTo(1));
         Assert.That(StageProgressService.CanReportGameCompletion(), Is.False);
+        Assert.That(PlayerPrefs.GetString(SaveKey), Does.Not.Contain("gameCompletionReported"));
+    }
+
+    [Test]
+    public void GameCompletion_IgnoresThePersistedLatchFromEarlierBuilds()
+    {
+        CompleteAllRequiredStagesExcept(null, null);
+
+        StageProgressSaveData currentData = JsonUtility.FromJson<StageProgressSaveData>(PlayerPrefs.GetString(SaveKey));
+        var earlierData = new EarlierStageProgressSaveData
+        {
+            saveVersion = currentData.saveVersion,
+            stages = currentData.stages,
+            gameCompletionReported = true
+        };
+        PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(earlierData));
+        PlayerPrefs.Save();
+
+        MethodInfo load = typeof(StageProgressService).GetMethod("Load", BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(load, Is.Not.Null);
+        load.Invoke(StageProgressService.Instance, null);
+
+        var payloads = CaptureProgressPayloads(() =>
+            Assert.That(StageProgressService.ReportGameCompletion(), Is.True));
+
+        Assert.That(payloads.FindAll(payload => payload.gameCompleted), Has.Count.EqualTo(1));
     }
 
     [Test]
@@ -278,5 +301,13 @@ public sealed class StageProgressServiceTests
     {
         public int saveVersion = 1;
         public List<StageProgressRecord> stages = new List<StageProgressRecord>();
+    }
+
+    [Serializable]
+    private sealed class EarlierStageProgressSaveData
+    {
+        public int saveVersion = 1;
+        public List<StageProgressRecord> stages = new List<StageProgressRecord>();
+        public bool gameCompletionReported;
     }
 }
