@@ -10,12 +10,14 @@ public class MockPotController : MonoBehaviour
     [SerializeField] private Sprite closedContainerSprite;
     [SerializeField] private bool startsOpen = false;
     [SerializeField] private bool closeWhenIngredientAdded = true;
+    [SerializeField] private Collider2D placementArea;
+    [SerializeField] private float placementInset = 0f;
 
     public List<IngredientSO> currentIngredients = new List<IngredientSO>();
     public event Action<IngredientSO> IngredientAdded;
     public event Action<IngredientSO> IngredientRemoved;
     public Transform LastAddedIngredientTransform { get; private set; }
-    public bool HasIngredients => activeIngredientContacts.Count > 0;
+    public bool HasIngredients => currentIngredients.Count > 0;
 
     private readonly Dictionary<IngredientInstance, int> activeIngredientContacts = new Dictionary<IngredientInstance, int>();
 
@@ -26,6 +28,14 @@ public class MockPotController : MonoBehaviour
         LastAddedIngredientTransform = null;
         SetContainerOpen(startsOpen);
         Debug.Log("Cleared currentIngredients");
+    }
+
+    private void Update()
+    {
+        // A dropped ingredient can settle fully inside the freezer after its first contact.
+        // Re-check active contacts so placement does not depend on a single physics callback.
+        foreach (IngredientInstance ingredient in new List<IngredientInstance>(activeIngredientContacts.Keys))
+            TryAddIngredient(ingredient);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -58,6 +68,11 @@ public class MockPotController : MonoBehaviour
             return;
 
         Debug.Log("Found IngredientInstance: " + (ingredient.Data != null ? ingredient.Data.name : "NULL"));
+        if (activeIngredientContacts.TryGetValue(ingredient, out int contactCount))
+            activeIngredientContacts[ingredient] = contactCount + 1;
+        else
+            activeIngredientContacts.Add(ingredient, 1);
+
         TryAddIngredient(ingredient);
     }
 
@@ -96,19 +111,14 @@ public class MockPotController : MonoBehaviour
             return;
         }
 
-        if (activeIngredientContacts.TryGetValue(ingredientInstance, out int contactCount))
-        {
-            activeIngredientContacts[ingredientInstance] = contactCount + 1;
-            return;
-        }
-
-        activeIngredientContacts.Add(ingredientInstance, 1);
-
         if (currentIngredients.Contains(ingredient))
         {
             Debug.Log("Ingredient already added: " + ingredient.name);
             return;
         }
+
+        if (!IsIngredientFullyInside(ingredientInstance))
+            return;
 
         currentIngredients.Add(ingredient);
         LastAddedIngredientTransform = ingredientInstance.transform;
@@ -142,6 +152,23 @@ public class MockPotController : MonoBehaviour
 
         Debug.Log("Invoking IngredientRemoved for " + ingredient.name);
         IngredientRemoved?.Invoke(ingredient);
+    }
+
+    private bool IsIngredientFullyInside(IngredientInstance ingredientInstance)
+    {
+        Collider2D area = placementArea != null ? placementArea : GetComponent<BoxCollider2D>();
+        if (area == null)
+            return true;
+
+        Collider2D[] ingredientColliders = ingredientInstance.GetComponentsInChildren<Collider2D>();
+        if (ingredientColliders.Length == 0)
+            return false;
+
+        Bounds ingredientBounds = ingredientColliders[0].bounds;
+        for (int i = 1; i < ingredientColliders.Length; i++)
+            ingredientBounds.Encapsulate(ingredientColliders[i].bounds);
+
+        return IngredientPlacementUtility.AreBoundsContained(area.bounds, ingredientBounds, placementInset);
     }
 
     private bool HasActiveIngredientWithData(IngredientSO ingredient)
