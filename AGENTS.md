@@ -20,7 +20,7 @@ This is a Unity states-of-matter learning game. Read this file before changing s
 - The pipe overhaul was merged into `main` by PR #26 at merge commit `56026f9`.
 - The intentional build configuration disables `Assets/Scenes/Pipes game.unity` and enables `Assets/Scenes/Pipes-Frozen-Level.unity`.
 - The shared flow layer from `Docs/game-experience-redesign-proposal.md` is implemented on top of the current scenes. The larger one-scene Kitchen and three-board Pipe Rescue rebuilds remain proposals.
-- `StageProgressServiceTests` contains six EditMode tests covering stage state, progress-aware routing, statuses, and replay completion events.
+- `StageProgressServiceTests` covers stage state, progress-aware routing, statuses, replay completion events, and one-shot full-game completion.
 
 ## Current Scene Routing
 

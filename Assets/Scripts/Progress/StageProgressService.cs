@@ -12,6 +12,7 @@ public sealed class StageProgressService : MonoBehaviour
     public static event Action<string, string> StageFinished;
 
     private StageProgressSaveData saveData;
+    private bool gameCompletionReported;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetStatics()
@@ -139,10 +140,28 @@ public sealed class StageProgressService : MonoBehaviour
         return EnsureInstance().HasActivityProgressInternal(activityId);
     }
 
+    public static bool IsGameComplete()
+    {
+        return EnsureInstance().IsGameCompleteInternal();
+    }
+
+    public static bool CanReportGameCompletion()
+    {
+        StageProgressService service = EnsureInstance();
+        service.EnsureSaveData();
+        return !service.gameCompletionReported && service.IsGameCompleteInternal();
+    }
+
+    public static bool ReportGameCompletion()
+    {
+        return EnsureInstance().ReportGameCompletionInternal();
+    }
+
     public static void ResetAllProgress()
     {
         StageProgressService service = EnsureInstance();
         service.saveData = new StageProgressSaveData();
+        service.gameCompletionReported = false;
         PlayerPrefs.DeleteKey(SaveKey);
         PlayerPrefs.Save();
     }
@@ -236,6 +255,50 @@ public sealed class StageProgressService : MonoBehaviour
         }
 
         return false;
+    }
+
+    private bool IsGameCompleteInternal()
+    {
+        IReadOnlyList<string> activities = StageProgressIds.Activities;
+        for (int activityIndex = 0; activityIndex < activities.Count; activityIndex++)
+        {
+            if (!StageProgressIds.TryGetStageSequence(
+                    activities[activityIndex],
+                    out IReadOnlyList<string> stages)
+                || stages.Count == 0)
+            {
+                return false;
+            }
+
+            for (int stageIndex = 0; stageIndex < stages.Count; stageIndex++)
+            {
+                StageProgressRecord record = FindRecord(activities[activityIndex], stages[stageIndex]);
+                if (record == null || !record.completed)
+                    return false;
+            }
+        }
+
+        return activities.Count > 0;
+    }
+
+    private bool ReportGameCompletionInternal()
+    {
+        EnsureSaveData();
+
+        if (!CanReportGameCompletion())
+            return false;
+
+        gameCompletionReported = true;
+
+        var payload = new StageProgressSnapshotPayload
+        {
+            saveVersion = SaveVersion,
+            completedStageIds = BuildCompletedStageIds(),
+            gameCompleted = true
+        };
+
+        StageProgressWebBridge.Post(JsonUtility.ToJson(payload));
+        return true;
     }
 
     private StageProgressRecord FindOrCreateRecord(string activityId, string stageId)
@@ -380,6 +443,7 @@ public sealed class StageProgressSnapshotPayload
 {
     public int saveVersion;
     public string[] completedStageIds;
+    public bool gameCompleted;
 }
 
 [Serializable]
@@ -387,6 +451,7 @@ public sealed class StageProgressCompletionPayload
 {
     public int saveVersion;
     public string[] completedStageIds;
+    public bool gameCompleted;
     public StageCompletionPayload stageCompleted;
 }
 

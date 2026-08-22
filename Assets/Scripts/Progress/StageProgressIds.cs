@@ -33,6 +33,15 @@ public static class StageProgressIds
         IonizeGas
     };
 
+    private static readonly string[] RequiredActivities =
+    {
+        MatterKitchen,
+        PipeRescue,
+        StateLab
+    };
+
+    public static IReadOnlyList<string> Activities => RequiredActivities;
+
     public static bool TryGetStageSequence(string activityId, out IReadOnlyList<string> stageIds)
     {
         switch (activityId)
