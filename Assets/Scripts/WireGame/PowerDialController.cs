@@ -203,7 +203,7 @@ public class PowerDialController : MonoBehaviour
         if (canvas == null)
             canvas = CreateRuntimeCanvas();
 
-        Vector2 dialSize = new Vector2(150f, 320f);
+        Vector2 dialSize = new Vector2(540f, 100f);
         RectTransform root = CreateRect("Power Dial", canvas.transform, dialSize, Vector2.zero);
         root.anchorMin = new Vector2(0.5f, 0.5f);
         root.anchorMax = new Vector2(0.5f, 0.5f);
@@ -215,40 +215,46 @@ public class PowerDialController : MonoBehaviour
         panel.color = new Color(0.04f, 0.055f, 0.065f, 0.86f);
         panel.raycastTarget = false;
 
-        TextMeshProUGUI title = CreateLabel("Power Label", root, new Vector2(130f, 34f), new Vector2(0f, 128f), 22f);
+        TextMeshProUGUI title = CreateLabel("Power Label", root, new Vector2(124f, 52f), new Vector2(-198f, -50f), 24f);
         title.text = "POWER";
         title.color = new Color(0.92f, 0.98f, 1f, 1f);
 
-        statusLabel = CreateLabel("Power Status", root, new Vector2(130f, 34f), new Vector2(0f, -132f), 22f);
+        statusLabel = CreateLabel("Power Status", root, new Vector2(100f, 52f), new Vector2(218f, -50f), 24f);
 
-        RectTransform sliderRoot = CreateRect("Power Slider", root, new Vector2(76f, 220f), new Vector2(0f, -2f));
+        RectTransform sliderRoot = CreateRect("Power Slider", root, new Vector2(260f, 54f), new Vector2(24f, -50f));
         powerSlider = sliderRoot.gameObject.AddComponent<Slider>();
         powerSlider.minValue = 0f;
         powerSlider.maxValue = 1f;
         powerSlider.wholeNumbers = false;
         powerSlider.value = 0f;
-        powerSlider.direction = Slider.Direction.BottomToTop;
+        powerSlider.direction = Slider.Direction.LeftToRight;
 
-        RectTransform background = CreateImage("Background", sliderRoot, new Vector2(26f, 190f), Vector2.zero, new Color(0.16f, 0.2f, 0.23f, 1f));
-        background.anchorMin = new Vector2(0.5f, 0.5f);
-        background.anchorMax = new Vector2(0.5f, 0.5f);
+        RectTransform background = CreateImage("Background", sliderRoot, new Vector2(260f, 24f), Vector2.zero, new Color(0.16f, 0.2f, 0.23f, 1f));
+        background.anchorMin = new Vector2(0f, 0.5f);
+        background.anchorMax = new Vector2(1f, 0.5f);
+        background.offsetMin = new Vector2(0f, -12f);
+        background.offsetMax = new Vector2(0f, 12f);
 
-        RectTransform fillArea = CreateRect("Fill Area", sliderRoot, new Vector2(26f, 190f), Vector2.zero);
-        fillArea.anchorMin = new Vector2(0.5f, 0.5f);
-        fillArea.anchorMax = new Vector2(0.5f, 0.5f);
+        RectTransform fillArea = CreateRect("Fill Area", sliderRoot, new Vector2(260f, 54f), Vector2.zero);
+        fillArea.anchorMin = Vector2.zero;
+        fillArea.anchorMax = Vector2.one;
+        fillArea.offsetMin = new Vector2(8f, 10f);
+        fillArea.offsetMax = new Vector2(-8f, -10f);
 
-        RectTransform fill = CreateImage("Fill", fillArea, new Vector2(26f, 190f), Vector2.zero, new Color(0.88f, 0.16f, 0.12f, 1f));
+        RectTransform fill = CreateImage("Fill", fillArea, new Vector2(0f, 0f), Vector2.zero, new Color(0.88f, 0.16f, 0.12f, 1f));
         fill.anchorMin = new Vector2(0f, 0f);
-        fill.anchorMax = new Vector2(1f, 0f);
+        fill.anchorMax = new Vector2(1f, 1f);
         fill.offsetMin = Vector2.zero;
         fill.offsetMax = Vector2.zero;
         fillImage = fill.GetComponent<Image>();
 
-        RectTransform handleArea = CreateRect("Handle Slide Area", sliderRoot, new Vector2(72f, 190f), Vector2.zero);
-        handleArea.anchorMin = new Vector2(0.5f, 0.5f);
-        handleArea.anchorMax = new Vector2(0.5f, 0.5f);
+        RectTransform handleArea = CreateRect("Handle Slide Area", sliderRoot, new Vector2(260f, 54f), Vector2.zero);
+        handleArea.anchorMin = Vector2.zero;
+        handleArea.anchorMax = Vector2.one;
+        handleArea.offsetMin = new Vector2(14f, 0f);
+        handleArea.offsetMax = new Vector2(-14f, 0f);
 
-        RectTransform handle = CreateImage("Handle", handleArea, new Vector2(58f, 22f), Vector2.zero, new Color(0.88f, 0.16f, 0.12f, 1f));
+        RectTransform handle = CreateImage("Handle", handleArea, new Vector2(36f, 58f), Vector2.zero, new Color(0.88f, 0.16f, 0.12f, 1f));
         handleImage = handle.GetComponent<Image>();
 
         powerSlider.fillRect = fill;

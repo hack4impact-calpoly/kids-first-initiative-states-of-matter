@@ -387,7 +387,7 @@ public sealed class ActivityFlowController : MonoBehaviour, IFlowSceneController
     private void OnLabWireCountChanged(int connected, int required)
     {
         UpdateObjective(connected >= required
-            ? "All wires connected. Raise the POWER control."
+            ? "All wires connected. Turn on the POWER control."
             : "Match all four wire pairs (" + connected + " / " + required + ").");
 
         if (connected >= required)
@@ -772,7 +772,7 @@ public sealed class ActivityFlowController : MonoBehaviour, IFlowSceneController
     {
         PowerDialController power = FindAnyObjectByType<PowerDialController>();
         AttentionHighlight highlight = power != null ? power.GuidanceHighlight : null;
-        ShowHighlight(highlight != null ? highlight.gameObject : null, "SLIDE UP");
+        ShowHighlight(highlight != null ? highlight.gameObject : null, "DRAG RIGHT");
     }
 
     private static void RenamePipeTestButton(GameObject startButton)
