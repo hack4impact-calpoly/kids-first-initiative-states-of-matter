@@ -45,7 +45,8 @@ the website repository.
 
 ## Current Limits
 
-- The selector still uses serialized scene names and does not query progress.
+- The selector is progress-aware through `ActivityFlowCatalog`; routing follows the first incomplete
+  stage and offers replay for completed activities. Legacy serialized scene listeners are not the flow owner.
 - Website saves are outbound-only; a saved website snapshot is not yet loaded
   back into Unity on another browser or device.
 - Pipe completion is recorded only by `FrozenFlowValidator`, the stricter of
